@@ -1,3 +1,12 @@
 GenericEntity : "{E4E4CA52CCB2D22C}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22_base.et" {
  ID "508AB2013EEE1E00"
+ components {
+  CGS_HandDesignatorComponent "{0F2847A446223698}" {
+   m_fRange 1500
+   m_iUpdateMs 100
+   m_sInputAction "CharacterFire"
+  }
+  CGS_LaserSpotComponent "{F90C876D9FADD9B2}" {
+  }
+ }
 }

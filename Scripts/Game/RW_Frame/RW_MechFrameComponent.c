@@ -58,7 +58,10 @@ class RW_MechFrameComponent : ScriptComponent
 	[Attribute("", UIWidgets.Object, "What each hardpoint accepts. Hardpoints not listed take anything.", category: "Hardpoints")]
 	protected ref array<ref RW_FrameHardpoint> m_aHardpoints;
 
-	[Attribute("0", UIWidgets.Auto, "Extra heatsinks installed (the mech bay changes this). Each one weighs and cools as the HEATSINK entry in RW_Equipment.conf says. The frame's built-in cooling is the Core heat component's Cooling Per Second.", category: "Heat")]
+	[Attribute("0", UIWidgets.Auto, "Extra heatsinks the frame starts with (the mech bay changes the count). Each one weighs and cools as the HEATSINK entry in RW_Equipment.conf says. The frame's built-in cooling is the Core heat component's Cooling Per Second.", category: "Heat")]
+	protected int m_iStartExtraHeatsinks;
+
+	// Extra heatsinks installed right now (server owned, replicated).
 	[RplProp()]
 	protected int m_iExtraHeatsinks;
 
@@ -282,6 +285,7 @@ class RW_MechFrameComponent : ScriptComponent
 	override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
+		m_iExtraHeatsinks = Math.Clamp(m_iStartExtraHeatsinks, 0, Math.Max(m_iMaxExtraHeatsinks, 0));
 		if (!Replication.IsServer() || !GetGame() || !GetGame().GetCallqueue())
 			return;
 		// Check the default loadout once everything is spawned, so frame authors see mistakes.

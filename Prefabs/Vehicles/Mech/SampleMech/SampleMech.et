@@ -175,6 +175,9 @@ Vehicle {
    m_fSprintStrafeSpeed 4
    m_fAvgHeightSpeed 2
    m_fAngularSpeed 1
+   m_GroundPoint PointInfo "{6AA7395946953F23}" {
+    Offset 0 -2.3356 0
+   }
    m_fBodyHeightPilot 2.3
    m_fBodyHeightEmpty 0.5
    m_fGroundProbeForward 2
@@ -207,6 +210,10 @@ Vehicle {
    m_fForwardBoost 7
    m_fThrusterDuration 1
   }
+  CGS_LaserSpotComponent "{3937A0D2928CBBCB}" {
+  }
+  CGS_MechDeathComponent "{24AF6AF2B07E6E5A}" {
+  }
   CGS_MechHeatComponent "{A36842B633E983F4}" {
   }
   ChimeraAIPathfindingComponent "{69DD5BAD365BB085}" {
@@ -218,7 +225,7 @@ Vehicle {
   ControllersManagerComponent "{6A8740653CE8FB22}" {
   }
   MeshObject "{6A8740653CE8FB20}" {
-   Object "{7E59FDAE17D695C6}Common/Models/Sen_Bodyv2.xob"
+   Object "{7E59FDAE17D695C6}Common/Models/Mech/Sen_Bodyv2.xob"
    Materials {
     MaterialAssignClass "{6A8C29F506D96730}" {
      SourceMaterial "Material_Sentinel_Body"
@@ -229,6 +236,26 @@ Vehicle {
      AssignedMaterial "{3BDB30D4EC6DC9A6}Common/Models/Data/Material_Sen_Hip.emat"
     }
    }
+  }
+  RW_MechFrameComponent "{9B1C4D875E39A77B}" {
+   m_sFrameName "Test Frame"
+   m_eWeightClass LIGHT
+   m_fMaxTons 35
+   m_fFrameTons 25
+   m_aHardpoints {
+    RW_FrameHardpoint "{098B692C87D025B7}" {
+     m_sHardpoint "ARM"
+     m_eType ANY
+     m_eMaxSize MEDIUM
+    }
+    RW_FrameHardpoint "{B4F9A235919C037B}" {
+     m_sHardpoint "SHOULDER"
+     m_eType SUPPORT
+     m_eMaxSize SMALL
+    }
+   }
+   m_iStartExtraHeatsinks 0
+   m_iMaxExtraHeatsinks 10
   }
   RigidBody "{6A8740653CE8FB27}" {
    Active Active
@@ -519,35 +546,11 @@ Vehicle {
   }
   NwkMovementComponent "{7C1A9E2D4F6B8301}" {
   }
-  RW_MechFrameComponent "{9B1C4D875E39A77B}" {
-   m_sFrameName "Test Frame"
-   m_eWeightClass LIGHT
-   m_fMaxTons 35
-   m_fFrameTons 25
-   m_aHardpoints {
-    RW_FrameHardpoint "{098B692C87D025B7}" {
-     m_sHardpoint "ARM"
-     m_eType ANY
-     m_eMaxSize MEDIUM
-    }
-    RW_FrameHardpoint "{B4F9A235919C037B}" {
-     m_sHardpoint "SHOULDER"
-     m_eType SUPPORT
-     m_eMaxSize SMALL
-    }
-   }
-   m_iStartExtraHeatsinks 0
-   m_iMaxExtraHeatsinks 10
-  }
-  CGS_MechDeathComponent "{24AF6AF2B07E6E5A}" {
-  }
-  CGS_LaserSpotComponent "{3937A0D2928CBBCB}" {
-  }
   RplComponent "{6A8740653CE8FB4C}" {
   }
   Hierarchy "{6A8740653CE8FB52}" {
   }
  }
- coords 100.508 7.122 164.795
+ coords 216.413 3.121 108.918
  m_eVehicleType VEHICLE
 }

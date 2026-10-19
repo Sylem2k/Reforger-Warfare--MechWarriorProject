@@ -1408,7 +1408,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		RW_SavedBuild.ParseAll(s_sBuildsData, m_aBuilds);
 		m_iBuildsSeenSeq = s_iBuildsSeq;
 
-		float w = 640;
+		float w = 760;
 		int count = m_OrderBay.GetFrameCount();
 		float listH = 0;
 		for (int f = 0; f < count; f++)
@@ -1416,9 +1416,9 @@ class RW_MechLabMenu : ChimeraMenuBase
 			RW_BayFrameEntry counted = m_OrderBay.GetFrameEntry(f);
 			listH += 76;
 			if (counted)
-				listH += 42 * RW_SavedBuild.CountFor(m_aBuilds, RW_SavedBuild.GuidOf(counted.m_sPrefab));
+				listH += 66 * RW_SavedBuild.CountFor(m_aBuilds, RW_SavedBuild.GuidOf(counted.m_sPrefab));
 		}
-		float h = 150 + listH + 90;
+		float h = 150 + listH + 100;
 		float x = sw * 0.5 - w * 0.5;
 		float y = Math.Max(sh * 0.5 - h * 0.5, EDGE);
 
@@ -1448,16 +1448,20 @@ class RW_MechLabMenu : ChimeraMenuBase
 			for (int slot = 1; slot <= slots; slot++)
 			{
 				RW_SavedBuild build = RW_SavedBuild.FindSlot(m_aBuilds, frameGuid, slot);
-				RW_LabRow saved = AddRow(ROW_ORDER, i * 100 + slot, x + 44, ry, w - 120, 36);
-				string shown = build.m_sName;
-				if (shown.Length() > 34)
-					shown = shown.Substring(0, 32) + "..";
-				saved.m_wTitle = Text(x + 58, ry + 8, w - 330, 22, 15, m_cText, "SAVED  " + shown);
-				saved.m_wRight = Text(x + w - 210, ry + 8, 130, 22, 15, m_cGood, "READY >");
-				RW_LabRow del = AddRow(ROW_DELETE, i * 100 + slot, x + w - 68, ry, 40, 36);
-				del.m_wTitle = Text(x + w - 68, ry + 7, 40, 22, 18, m_cBad, "X");
+				// Two lines (label + full name) and a separate READY button, so nothing overlaps.
+				float rowW = w - 44 - 14 - 190;
+				RW_LabRow saved = AddRow(ROW_ORDER, i * 100 + slot, x + 44, ry, rowW, 58);
+				saved.m_wSub = Text(x + 60, ry + 6, rowW - 30, 18, 13, m_cGood, "SAVED BUILD " + slot.ToString());
+				saved.m_wTitle = Text(x + 60, ry + 26, rowW - 30, 24, 17, m_cText, build.m_sName);
+
+				RW_LabRow ready = AddRow(ROW_ORDER, i * 100 + slot, x + 44 + rowW + 8, ry, 120, 58);
+				ready.m_wTitle = Text(x + 44 + rowW + 8, ry + 17, 120, 24, 17, m_cGood, "READY >");
+				ready.m_wTitle.SetFlags(WidgetFlags.CENTER);
+
+				RW_LabRow del = AddRow(ROW_DELETE, i * 100 + slot, x + 44 + rowW + 136, ry, 48, 58);
+				del.m_wTitle = Text(x + 44 + rowW + 136, ry + 16, 48, 26, 20, m_cBad, "X");
 				del.m_wTitle.SetFlags(WidgetFlags.CENTER);
-				ry += 42;
+				ry += 66;
 			}
 		}
 

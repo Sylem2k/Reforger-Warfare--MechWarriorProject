@@ -4,6 +4,9 @@ GenericEntity {
 GenericEntity : "{33B2DFDCD0EBA3DB}Prefabs/Items/Equipment/Kits/RepairKit_01/Mech Wrench.et" {
  coords 214.153 1 102.41
 }
+Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et" {
+ coords 216.413 3.121 108.918
+}
 GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
  coords 214.216 2.977 93.981
 }

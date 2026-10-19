@@ -91,15 +91,6 @@ Vehicle {
     }
    }
    m_aLoadoutPresets {
-    BFA_MechLoadoutPreset "{6DA8D4A825E06A6D}" {
-     m_sName "Empty"
-     m_aSlots {
-      BFA_MechLoadoutSlot "{021398BF99330FF8}" {
-       m_sHardpoint "ARM"
-       m_iModuleId 0
-      }
-     }
-    }
     BFA_MechLoadoutPreset "{156643D684326652}" {
      m_sName "Las Cannon"
      m_aSlots {
@@ -124,6 +115,15 @@ Vehicle {
       BFA_MechLoadoutSlot "{C91EDACF7CA4CE2E}" {
        m_sHardpoint "ARM"
        m_iModuleId 3
+      }
+     }
+    }
+    BFA_MechLoadoutPreset "{6DA8D4A825E06A6D}" {
+     m_sName "Empty"
+     m_aSlots {
+      BFA_MechLoadoutSlot "{021398BF99330FF8}" {
+       m_sHardpoint "ARM"
+       m_iModuleId 0
       }
      }
     }
@@ -415,6 +415,51 @@ Vehicle {
       Offset 0 1.0526 0
      }
      Radius 50
+    }
+   }
+   additionalActions {
+    RW_MechWrenchFitAction "{067D1F8AA805079D}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{2B1945CAE587EFD9}" {
+      Name "Fit weapon"
+     }
+     VisibilityRange 12
+     Duration 2
+     m_sHardpoint "ARM"
+    }
+    RW_MechWrenchRemoveAction "{9506312E44A6625A}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{ED63124C4B463C25}" {
+      Name "Remove weapon"
+     }
+     VisibilityRange 12
+     Duration 2
+     m_sHardpoint "ARM"
+    }
+    RW_MechWrenchHeatsinkAction "{22DDDB9DEF0A7AE0}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{36CC828CD425E3A4}" {
+      Name "Add heatsink"
+     }
+     VisibilityRange 12
+     Duration 2
+    }
+    RW_MechWrenchHeatsinkAction "{82870D81C89654E9}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{BF5CED28A9A8AA6D}" {
+      Name "Remove heatsink"
+     }
+     VisibilityRange 12
+     Duration 2
+     m_bRemove 1
     }
    }
   }

@@ -65,6 +65,12 @@ class RW_MechFrameComponent : ScriptComponent
 	[RplProp()]
 	protected int m_iExtraHeatsinks;
 
+	// Last loadout message for the crew HUD (server sets it, everyone sees it).
+	[RplProp()]
+	protected string m_sCrewMessage;
+	[RplProp()]
+	protected int m_iCrewMessageSeq;
+
 	[Attribute("20", UIWidgets.Auto, "Most extra heatsinks this frame can take.", category: "Heat")]
 	protected int m_iMaxExtraHeatsinks;
 
@@ -118,6 +124,28 @@ class RW_MechFrameComponent : ScriptComponent
 	bool SwapOnlyAtMechBay()
 	{
 		return m_bSwapOnlyAtMechBay;
+	}
+
+	string GetCrewMessage()
+	{
+		return m_sCrewMessage;
+	}
+
+	int GetCrewMessageSeq()
+	{
+		return m_iCrewMessageSeq;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Server: tell the crew something (shown on their HUD for a few seconds, and in the log).
+	void ServerCrewMessage(string message)
+	{
+		if (!Replication.IsServer())
+			return;
+		m_sCrewMessage = message;
+		m_iCrewMessageSeq++;
+		Replication.BumpMe();
+		Print(string.Format("[RW FRAME] %1: %2", m_sFrameName, message));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -342,9 +370,18 @@ modded class BFA_MechExtension
 		if (frame.SwapOnlyAtMechBay() && !RW_MechFrameComponent.s_bMechBayApplying)
 		{
 			reason = "loadouts can only be changed at a mech bay";
+			frame.ServerCrewMessage("REFUSED: " + reason);
 			return false;
 		}
-		return frame.CheckLoadout(hardpoints, targetModules, reason);
+
+		if (!frame.CheckLoadout(hardpoints, targetModules, reason))
+		{
+			frame.ServerCrewMessage("REFUSED: " + reason);
+			return false;
+		}
+
+		frame.ServerCrewMessage(string.Format("Installing... %1 / %2 tons", frame.LoadoutTons(hardpoints, targetModules), frame.GetMaxTons()));
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

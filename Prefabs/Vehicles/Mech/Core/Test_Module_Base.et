@@ -1,0 +1,12 @@
+GenericEntity {
+ ID "6A900CCDB962523C"
+ components {
+  SignalsManagerComponent "{6A900CCDB962520C}" {
+  }
+  MeshObject "{6A900CCDB9625266}" {
+   Object "{D70F0F74B7005580}Common/Models/Mech_Test.xob"
+  }
+  Hierarchy "{6A900CCDB962526B}" {
+  }
+ }
+}

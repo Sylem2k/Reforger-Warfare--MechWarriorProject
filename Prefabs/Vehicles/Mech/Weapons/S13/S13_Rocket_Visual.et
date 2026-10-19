@@ -1,0 +1,10 @@
+GenericEntity {
+ ID "F16583BA620F9AB5"
+ components {
+  MeshObject "{9DD08073A5373929}" {
+   Object "{F9E24836FE7EB615}Common/Models/s-133333.xob"
+  }
+  Hierarchy "{F7011F1877EE5854}" {
+  }
+ }
+}

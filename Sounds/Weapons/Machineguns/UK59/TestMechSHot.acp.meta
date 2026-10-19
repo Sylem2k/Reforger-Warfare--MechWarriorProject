@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{B884F2AB7058DFA9}Sounds/Mech/TestMechSHot.acp"
+ Configurations {
+  AudioProjectResourceClass PC {
+  }
+  AudioProjectResourceClass XBOX_ONE : PC {
+  }
+  AudioProjectResourceClass XBOX_SERIES : PC {
+  }
+  AudioProjectResourceClass PS4 : PC {
+  }
+  AudioProjectResourceClass PS5 : PC {
+  }
+  AudioProjectResourceClass HEADLESS : PC {
+  }
+ }
+}

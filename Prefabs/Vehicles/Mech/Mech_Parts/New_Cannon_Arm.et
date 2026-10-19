@@ -1,0 +1,24 @@
+GenericEntity {
+ ID "6A9858944855CB1D"
+ components {
+  SignalsManagerComponent "{6A9858944855CB6A}" {
+  }
+  BFA_MechPointDefenseModuleComponent "{6A9858944855CB79}" {
+   m_sModuleId "POINT_DEFENSE"
+   m_sDisplayName "Anti-Missile Point Defense"
+   m_sControlStation "COMMANDER"
+   m_iWeaponGroup 4
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_bDebug 0
+  }
+  CGS_Titan_Cannon "{6A9858979D653937}" {
+  }
+  MeshObject "{6A9858944855CB43}" {
+   Object "{A38F8E5A295D14AC}Common/Models/Mech/Mech_Cannon.xob"
+  }
+  Hierarchy "{6A9858944855CB41}" {
+  }
+ }
+ coords 79.789 4.695 64.626
+}

@@ -1,0 +1,5 @@
+MatPBRBasic {
+ BCRMap "{69A80187E9795244}Common/Models/Data/SentinelBody_BCR.edds"
+ OpacityMap "{C20847530E4D4143}Common/Models/Data/SentinelBody_roughness.edds"
+ NMOMap "{CE79A5190C1478D5}Common/Models/Data/SentinelBody_albedo.edds"
+}

@@ -1,0 +1,21 @@
+GenericEntity {
+ ID "ABB842CF8BB1C2B0"
+ components {
+  SignalsManagerComponent "{ABB842CF8BB1C2B1}" {
+  }
+  BFA_MechPointDefenseModuleComponent "{ABB842CF8BB1C2B2}" {
+   m_sModuleId "POINT_DEFENSE"
+   m_sDisplayName "Anti-Missile Point Defense"
+   m_sControlStation "COMMANDER"
+   m_iWeaponGroup 4
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_bDebug 0
+  }
+  MeshObject "{ABB842CF8BB1C2B3}" {
+   Object "{C73836E3B031C35E}Common/Models/sen_Tanna.xob"
+  }
+  Hierarchy "{ABB842CF8BB1C2B4}" {
+  }
+ }
+}

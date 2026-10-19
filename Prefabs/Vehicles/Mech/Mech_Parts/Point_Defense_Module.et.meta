@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{13EAD5AB3E4F2AA8}Prefabs/Vehicles/Mech/Mech_Parts/Point_Defense_Module.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

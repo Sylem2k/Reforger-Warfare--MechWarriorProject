@@ -1,0 +1,147 @@
+AudioClass {
+ sounds {
+  SoundClass "7177" {
+   id 7177
+   name "SOUND_MECH_STEP"
+   comment "Foot plants (stomp)"
+   version 5
+   tl 464 -32
+   ctl 0 -21
+   ins {
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "3090:65" {
+       id 3090
+       port 65
+      }
+     }
+    }
+   }
+   outState 8203
+   outStatePort 79879
+  }
+ }
+ mixers {
+  MixerClass "8203" {
+   id 8203
+   name "OutputState 8"
+   comment "Type of sound, used in player settings"
+   version 4
+   tl 697.727 -18.455
+   ctl 0 -24
+   res "{B764D803219C775E}Sounds/FinalMix.afm"
+   ins {
+    ConnectionsClass "con:79879" {
+     id 79879
+     links {
+      ConnectionClass "7177:65" {
+       id 7177
+       port 65
+      }
+     }
+    }
+   }
+   pi {
+    8192 0
+   }
+   inputs {
+    "WPN_Handling" "WPN_Shots" "WPN_Explosions" "WNP_BulletHits" "CHAR" "ENV_AMB_2D" "VEH_Animations" "Impacts" "Dialog" "ENV_Doors" "VEH_Engine" "VEH_Tires" "VON" "SFX" "SFX_Reverb_OBSOLETE" "VON_Reverb_Small" "Dialog_Reverb" "Impacts_EXT" "ENV_AMB_3D" "WPN_SonicCracks" "CHAR_Gear" "PA" "SFX_Reverb_Exterior" "ENV_AMB_3D_Reverb_Exterior" "SFX_Direct" "SFX_Reverb_Small" "SFX_Reverb_Medium" "SFX_Reverb_Large" "WPN_Shots_Player" "Dialog_Reverb_Small" "Dialog_Reverb_Medium" "Dialog_Reverb_Large" "WPN_TravelingProjectile" "Dialog_Delay_Exterior" "SFX_Reverb_InCabin" "VON_Reverb_Medium" "VON_Reverb_Large"
+   }
+  }
+ }
+ shaders {
+  ShaderClass "3090" {
+   id 3090
+   name "SOUND_SHOT"
+   version 5
+   tl 241.818 -41.818
+   ins {
+    ConnectionsClass "con:0" {
+     id 0
+     links {
+      ConnectionClass "5148:65" {
+       id 5148
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:1" {
+     id 1
+     links {
+      ConnectionClass "4115:65" {
+       id 4115
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:2" {
+     id 2
+     links {
+      ConnectionClass "6165:65" {
+       id 6165
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "2052:65" {
+       id 2052
+       port 65
+      }
+     }
+    }
+   }
+   pi {
+    7 0
+   }
+  }
+ }
+ amplitudes {
+  AmplitudeClass "4115" {
+   id 4115
+   name "Amplitude Step"
+   version 5
+   tl 250 -223
+   curve Linear
+  }
+ }
+ frequency {
+  FrequencyClass "6165" {
+   id 6165
+   name "Frequency Step"
+   version 5
+   tl 240 -144
+   enableDistanceAtt 1
+  }
+ }
+ banks_local {
+  BankLocalClass "2052" {
+   id 2052
+   name "Shot"
+   version 7
+   tl 0 -32
+   Volume -8
+   Pitch -15
+   "Pitch variance" 3
+   Samples {
+    AudioBankSampleClass Sample {
+     Filename "{D0638229067E50A3}Sounds/Weapons/Machineguns/UK59/sentinel las cannon.wav"
+    }
+   }
+  }
+ }
+ spatialities {
+  SpatialityClass "5148" {
+   id 5148
+   name "Spatiality Step"
+   version 5
+   tl 246 -297.909
+   spatialFactor 1
+  }
+ }
+ version 2
+ listenerWindowModel "{6D9E6C15CFDF9CAA}Common/Models/sen_Las_Cannon.xob"
+}

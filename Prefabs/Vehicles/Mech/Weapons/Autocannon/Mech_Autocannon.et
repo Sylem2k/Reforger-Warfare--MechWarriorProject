@@ -1,0 +1,38 @@
+GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.et" {
+ ID "7604C5821EF75C78"
+ components {
+  BFA_MechAutocannonModuleComponent "{0F7D60594254EA2D}" {
+   m_sModuleId "AUTOCANNON"
+   m_sDisplayName "Autocannon"
+   m_sControlStation "GUNNER"
+   m_iWeaponGroup 1
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{20682C3DF9670C55}" {
+    m_sMuzzleParticle "{6FE5C11AEE0A28A1}Particles/Weapon/Explosion_HEI.ptc"
+    m_sSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+    m_sImpactSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+    m_sProjectilePrefab "{D52D998FF0829639}Prefabs/Particles/RocketTrace.et"
+    m_sTrailParticle "{0F364F4CD1D72350}Particles/Weapon/Trail_PG7VL.ptc"
+    m_fProjectileSpeed 1
+    m_bDebugTracer 0
+   }
+   m_fHeatPerShot 0.5
+   m_Crosshair BFA_MechCrosshair "{6A9623AF75AD0095}" {
+   }
+   m_MuzzlePoint PointInfo "{6A9623AF4312783D}" {
+    Offset 0.0088 0.4332 0.4515
+   }
+   m_fShotsPerMinute 240
+   m_iMagazineSize 1000
+   m_fReloadTime 4
+   m_eCgsSplash MIXED
+   m_fRange 800
+   m_fSplashDamage 20
+  }
+  MeshObject "{65343E93B3B73516}" {
+   Object "{6D9E6C15CFDF9CAA}Common/Models/sen_Las_Cannon.xob"
+  }
+ }
+ coords 81.787 4.858 54.17
+}

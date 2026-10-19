@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{A1DD4AC5BD60031C}Common/Models/Data/tiles_roof_075A6208C03D9D6E.emat"
+ Configurations {
+  EMATResourceClass PC {
+  }
+  EMATResourceClass XBOX_ONE : PC {
+  }
+  EMATResourceClass XBOX_SERIES : PC {
+  }
+  EMATResourceClass PS4 : PC {
+  }
+  EMATResourceClass PS5 : PC {
+  }
+  EMATResourceClass HEADLESS : PC {
+  }
+ }
+}

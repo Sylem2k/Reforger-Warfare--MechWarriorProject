@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{F8BD36FA8416C4A6}Anims/Workspaces/Mech/IK_Titan_Arm.agr"
+ Configurations {
+  AnimGraphResourceClass PC {
+  }
+  AnimGraphResourceClass XBOX_ONE : PC {
+  }
+  AnimGraphResourceClass XBOX_SERIES : PC {
+  }
+  AnimGraphResourceClass PS4 : PC {
+  }
+  AnimGraphResourceClass PS5 : PC {
+  }
+  AnimGraphResourceClass HEADLESS : PC {
+  }
+ }
+}

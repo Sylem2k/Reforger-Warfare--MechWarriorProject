@@ -1,0 +1,70 @@
+GenericEntity {
+ ID "6A8740662FEC433E"
+ components {
+  SignalsManagerComponent "{6A8740662FEC430D}" {
+  }
+  SoundComponent "{6A8740662FEC4367}" {
+   Filenames {
+    "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+   }
+  }
+  BFA_MechLegComponent "{6A8740662FEC4368}" {
+   m_fStepHeight 1
+   m_fObstacleStepHeight 3
+   m_LastBone PointInfo "{6A8740662FEC4373}" {
+    PivotID "J3"
+   }
+  }
+  MeshObject "{6A8740662FEC4377}" {
+   Object "{D5815F90853860E4}Common/Models/New_Sen_Leg.xob"
+   RainOccluder 0
+   WetnessOccluder 0
+   ReceiveLight 0
+  }
+  RigidBody "{6A8740662FEC4375}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  SCR_DamageManagerComponent "{E6360882B134A04E}" {
+   "Additional hit zones" {
+    BFA_MechPartHitZone Leg {
+     HZDefault 1
+     MaxHealth 800
+     DamageReduction 2
+     DamageThreshold 1
+     "Melee multiplier" 0.01
+     "Kinetic multiplier" 0.1
+     "Fragmentation multiplier" 0.05
+     "Explosive multiplier" 1
+     "Incendiary multiplier" 0.5
+     m_fHullShare 0.6
+    }
+   }
+  }
+  SCR_SoundDataComponent "{6A8740662FEC4379}" {
+   m_aAudioSourceConfiguration {
+    SCR_AudioSourceConfiguration "{6A8740662FEC4342}" {
+     m_sSoundProject "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+     m_sSoundEventName "SOUND_MECH_STEP"
+    }
+   }
+  }
+  AnimationControllerComponent "{6A8740662FEC4341}" {
+   AnimGraph "{087ADD06D87386F4}Anims/Workspaces/Mech/IK_Arm.agr"
+   AnimInstance "{E51088DDC47AD41A}Anims/Workspaces/Mech/IK_Arm.asi"
+   StartNode "IK Chain to IK Target"
+   AnimUpdate EOnFrame
+  }
+  RplComponent "{6A8740662FEC4347}" {
+  }
+  Hierarchy "{6A8740662FEC434A}" {
+  }
+ }
+ coords 72.058 4.732 42.268
+}

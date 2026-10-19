@@ -1,0 +1,57 @@
+GenericEntity {
+ ID "6A8C29F2D0FE85C0"
+ components {
+  SignalsManagerComponent "{6A8C29F2D0FE85CF}" {
+  }
+  BFA_MechLasCannonModuleComponent "{E0B3EAA1FF77BABB}" {
+   m_sModuleId "LAS_CANNON"
+   m_sDisplayName "Las Cannon"
+   m_sControlStation "GUNNER"
+   m_iWeaponGroup 1
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 0
+   m_FX BFA_MechWeaponFX "{A1C9A9D2F44A1A65}" {
+    m_sMuzzleParticle "{25B1DC5E3A244EFB}Particles/Weapon/RPG_22_muzzle_front.ptc"
+    m_sSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+    m_iTracerEvery 4
+   }
+   m_fHeatPerShot 10
+   m_eDamageKind ENERGY
+   m_MuzzlePoint PointInfo "{6A9623ADCC4F7057}" {
+    Offset 0 0.8554 0.906
+   }
+   m_bAutoMuzzleFromBounds 1
+   m_vMuzzleLocalOffset 0 0 0
+   m_fMuzzleClearance 0.05
+   m_bReverseMuzzleForward 0
+   m_eCgsSplash MIXED
+   m_fRoundsPerMinute 300
+   m_fRange 1500
+   m_fDamage 75
+   m_bArmorPiercingFallback 1
+   m_fArmorPiercingMultiplier 1
+   m_fTracerSpeed 300
+   m_fTracerLength 25
+   m_fTracerThickness 0.62
+   m_bDebug 0
+  }
+  MeshObject "{6A8C29F2D0FE85D8}" {
+   Object "{6D9E6C15CFDF9CAA}Common/Models/sen_Las_Cannon.xob"
+  }
+  RigidBody "{6A8C29F2D0FE85DF}" {
+   Enabled 0
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  Hierarchy "{6A8C29F2D0FE8424}" {
+  }
+ }
+ coords 52.634 25.453 151.694
+ scale 2
+}

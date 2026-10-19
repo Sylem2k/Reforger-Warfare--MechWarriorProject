@@ -1,0 +1,75 @@
+AnimSrcGraphFile {
+ Sheets {
+  AnimSrcGraphSheet Master {
+   Nodes {
+    AnimSrcNodeIK2 "IK Chain to IK Target" {
+     EditorPos 289.053 163.789
+     NodeGroup "Mech"
+     Child "IK Target to coords"
+     Chains {
+      AnimSrcIkBinding "{6108CE71CFE77E1F}" {
+       IkTarget "IK_Target_Arm"
+       IkChain "MechArm"
+      }
+     }
+     Solver AnimSrcNodeIK2FabrikSolver "{68A086C8A98AC89C}" {
+     }
+     Version 1
+    }
+    AnimSrcNodeIK2Target "Create IK2 Target 20807" {
+     EditorPos 289.053 165.474
+     NodeGroup "Mech"
+     Child "Bind Pose 21972"
+     Chains {
+      AnimSrcIkTargetBinding "{60F9179907346919}" {
+       IkTarget "IK_Target_Arm"
+       IkChain "MechArm"
+      }
+     }
+    }
+    AnimSrcNodeProcTransform "IK Target to coords" {
+     EditorPos 289.053 164.632
+     NodeGroup "Mech"
+     Child "Create IK2 Target 20807"
+     Expression "1.0"
+     IkTargets {
+      AnimSrcNodeProcTrIkTargetItem "{60F92D9A1906830C}" {
+       Operation Translate
+       Axis X
+       Amount "TargetX"
+       Space Model
+       IkTarget "IK_Target_Arm"
+      }
+      AnimSrcNodeProcTrIkTargetItem "{60F92D9A6B81B7D0}" {
+       Operation Translate
+       Axis Y
+       Amount "TargetY"
+       Space Model
+       IkTarget "IK_Target_Arm"
+      }
+      AnimSrcNodeProcTrIkTargetItem "{60F92D9A6BF865DE}" {
+       Operation Translate
+       Axis Z
+       Amount "TargetZ"
+       Space Pivot
+       PivotBone "Scene_Root"
+       IkTarget "IK_Target_Arm"
+      }
+     }
+    }
+    AnimSrcNodeBindPose "Bind Pose 21972" {
+     EditorPos 289.053 166.316
+     NodeGroup "Mech"
+    }
+   }
+   NodeGroups {
+    AnimSrcGraphNodeGroup Mech {
+     EditorColor 0.471 0.451 0.451 255
+    }
+    AnimSrcGraphNodeGroup Spider {
+     EditorColor 0.373 0.255 0.275 255
+    }
+   }
+  }
+ }
+}

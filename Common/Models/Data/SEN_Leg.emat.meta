@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{38EE0509137F2C3E}Common/Models/Data/tripo_mat_93982547.emat"
+ Configurations {
+  EMATResourceClass PC {
+  }
+  EMATResourceClass XBOX_ONE : PC {
+  }
+  EMATResourceClass XBOX_SERIES : PC {
+  }
+  EMATResourceClass PS4 : PC {
+  }
+  EMATResourceClass PS5 : PC {
+  }
+  EMATResourceClass HEADLESS : PC {
+  }
+ }
+}

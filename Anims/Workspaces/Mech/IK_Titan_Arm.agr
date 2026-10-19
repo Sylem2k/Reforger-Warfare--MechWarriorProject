@@ -1,0 +1,35 @@
+AnimSrcGraph {
+ AnimSetTemplate "{2638477A226BE56E}Anims/Workspaces/Mech/IK_Titan_Arm.ast"
+ ControlTemplate AnimSrcGCT "{60EEB14350299C12}" {
+  Variables {
+   AnimSrcGCTVarFloat TargetX {
+    MinValue -500
+    MaxValue 500
+   }
+   AnimSrcGCTVarFloat TargetY {
+    MinValue -500
+    MaxValue 500
+   }
+   AnimSrcGCTVarFloat TargetZ {
+    MinValue -500
+    MaxValue 500
+   }
+  }
+  IkChains {
+   AnimSrcGCTIkChain MechArm {
+    Joints {
+     "J1"
+     "J2"
+     "J3"
+    }
+    MiddleJoint "J2"
+   }
+  }
+ }
+ Debug AnimSrcGD "{60EEB14350298F0F}" {
+ }
+ GraphFilesResourceNames {
+  "{D1936683CEBC9D40}Anims/Workspaces/Mech/IK_Titan_Arm.agf"
+ }
+ DefaultRunNode "IK Chain to IK Target"
+}

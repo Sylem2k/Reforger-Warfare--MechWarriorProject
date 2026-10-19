@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{FBBAE3E7AEEC0D3B}Common/Models/Titan/Data/Tiran_Right_Arm_Updated.emat"
+ Configurations {
+  EMATResourceClass PC {
+  }
+  EMATResourceClass XBOX_ONE : PC {
+  }
+  EMATResourceClass XBOX_SERIES : PC {
+  }
+  EMATResourceClass PS4 : PC {
+  }
+  EMATResourceClass PS5 : PC {
+  }
+  EMATResourceClass HEADLESS : PC {
+  }
+ }
+}

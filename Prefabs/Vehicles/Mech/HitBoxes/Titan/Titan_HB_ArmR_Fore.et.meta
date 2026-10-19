@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{659E91AC0E6AA5E9}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_ArmR_Fore.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

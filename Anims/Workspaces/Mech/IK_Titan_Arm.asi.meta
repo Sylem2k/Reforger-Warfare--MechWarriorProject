@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{A9F566D32EEE75E4}Anims/Workspaces/Mech/IK_Titan_Arm.asi"
+ Configurations {
+  AnimSetInstanceResourceClass PC {
+  }
+  AnimSetInstanceResourceClass XBOX_ONE : PC {
+  }
+  AnimSetInstanceResourceClass XBOX_SERIES : PC {
+  }
+  AnimSetInstanceResourceClass PS4 : PC {
+  }
+  AnimSetInstanceResourceClass PS5 : PC {
+  }
+  AnimSetInstanceResourceClass HEADLESS : PC {
+  }
+ }
+}

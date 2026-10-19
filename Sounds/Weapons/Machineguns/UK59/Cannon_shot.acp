@@ -1,0 +1,256 @@
+AudioClass {
+ sounds {
+  SoundClass "7177" {
+   id 7177
+   name "SOUND_SHOT"
+   comment "Titan cannon shot 1"
+   version 5
+   tl 462.727 -27.273
+   ctl 0 -21
+   ins {
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "3090:65" {
+       id 3090
+       port 65
+      }
+     }
+    }
+   }
+   outState 8203
+   outStatePort 79879
+  }
+  SoundClass "7178" {
+   id 7178
+   name "SOUND_SHOT_2"
+   comment "Titan cannon shot 2"
+   version 5
+   tl 462.727 172.727
+   ctl 0 -21
+   ins {
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "3091:65" {
+       id 3091
+       port 65
+      }
+     }
+    }
+   }
+   outState 8203
+   outStatePort 79880
+  }
+ }
+ mixers {
+  MixerClass "8203" {
+   id 8203
+   name "OutputState 8"
+   comment "Type of sound, used in player settings"
+   version 4
+   tl 697.727 -18.455
+   ctl 0 -24
+   res "{B764D803219C775E}Sounds/FinalMix.afm"
+   ins {
+    ConnectionsClass "con:79879" {
+     id 79879
+     links {
+      ConnectionClass "7177:65" {
+       id 7177
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:79880" {
+     id 79880
+     links {
+      ConnectionClass "7178:65" {
+       id 7178
+       port 65
+      }
+     }
+    }
+   }
+   pi {
+    8192 0
+   }
+   inputs {
+    "WPN_Handling" "WPN_Shots" "WPN_Explosions" "WNP_BulletHits" "CHAR" "ENV_AMB_2D" "VEH_Animations" "Impacts" "Dialog" "ENV_Doors" "VEH_Engine" "VEH_Tires" "VON" "SFX" "SFX_Reverb_OBSOLETE" "VON_Reverb_Small" "Dialog_Reverb" "Impacts_EXT" "ENV_AMB_3D" "WPN_SonicCracks" "CHAR_Gear" "PA" "SFX_Reverb_Exterior" "ENV_AMB_3D_Reverb_Exterior" "SFX_Direct" "SFX_Reverb_Small" "SFX_Reverb_Medium" "SFX_Reverb_Large" "WPN_Shots_Player" "Dialog_Reverb_Small" "Dialog_Reverb_Medium" "Dialog_Reverb_Large" "WPN_TravelingProjectile" "Dialog_Delay_Exterior" "SFX_Reverb_InCabin" "VON_Reverb_Medium" "VON_Reverb_Large"
+   }
+  }
+ }
+ shaders {
+  ShaderClass "3090" {
+   id 3090
+   name "Shader Shot"
+   version 5
+   tl 241.818 -41.818
+   ins {
+    ConnectionsClass "con:0" {
+     id 0
+     links {
+      ConnectionClass "5148:65" {
+       id 5148
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:1" {
+     id 1
+     links {
+      ConnectionClass "4115:65" {
+       id 4115
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:2" {
+     id 2
+     links {
+      ConnectionClass "6165:65" {
+       id 6165
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "2052:65" {
+       id 2052
+       port 65
+      }
+     }
+    }
+   }
+   pi {
+    7 0
+   }
+  }
+  ShaderClass "3091" {
+   id 3091
+   name "Shader Shot 2"
+   version 5
+   tl 241.818 158.182
+   ins {
+    ConnectionsClass "con:0" {
+     id 0
+     links {
+      ConnectionClass "5149:65" {
+       id 5149
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:1" {
+     id 1
+     links {
+      ConnectionClass "4116:65" {
+       id 4116
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:2" {
+     id 2
+     links {
+      ConnectionClass "6166:65" {
+       id 6166
+       port 65
+      }
+     }
+    }
+    ConnectionsClass "con:64" {
+     id 64
+     links {
+      ConnectionClass "2053:65" {
+       id 2053
+       port 65
+      }
+     }
+    }
+   }
+   pi {
+    7 0
+   }
+  }
+ }
+ amplitudes {
+  AmplitudeClass "4115" {
+   id 4115
+   name "Amplitude Shot"
+   version 5
+   tl 250 -223
+   curve Linear
+  }
+  AmplitudeClass "4116" {
+   id 4116
+   name "Amplitude Shot 2"
+   version 5
+   tl 250 377
+   curve Linear
+  }
+ }
+ frequency {
+  FrequencyClass "6165" {
+   id 6165
+   name "Frequency Shot"
+   version 5
+   tl 242.727 -136.364
+   enableDistanceAtt 1
+  }
+  FrequencyClass "6166" {
+   id 6166
+   name "Frequency Shot 2"
+   version 5
+   tl 242.727 263.636
+   enableDistanceAtt 1
+  }
+ }
+ banks_local {
+  BankLocalClass "2052" {
+   id 2052
+   name "Shot"
+   version 7
+   tl 0 -32
+   Volume -6
+   "Pitch variance" 3
+   Samples {
+    AudioBankSampleClass Sample {
+     Filename "{96B784F365194749}Sounds/Weapons/Machineguns/UK59/cannon 1.wav"
+    }
+   }
+  }
+  BankLocalClass "2053" {
+   id 2053
+   name "Shot 2"
+   version 7
+   tl 0 168
+   Volume -6
+   "Pitch variance" 3
+   Samples {
+    AudioBankSampleClass Sample {
+     Filename "{0FA93D6A78FE76D9}Sounds/Weapons/Machineguns/UK59/cannon 2.wav"
+    }
+   }
+  }
+ }
+ spatialities {
+  SpatialityClass "5148" {
+   id 5148
+   name "Spatiality Shot"
+   version 5
+   tl 246 -297.909
+   spatialFactor 1
+  }
+  SpatialityClass "5149" {
+   id 5149
+   name "Spatiality Shot 2"
+   version 5
+   tl 246 302.091
+   spatialFactor 1
+  }
+ }
+ version 2
+}

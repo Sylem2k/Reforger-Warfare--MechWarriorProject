@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{42CC142E3170D158}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_WeakSpot.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

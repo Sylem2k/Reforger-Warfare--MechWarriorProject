@@ -1,0 +1,31 @@
+GenericEntity {
+ ID "135A96704D6C922E"
+ components {
+  SCR_DamageManagerComponent "{338F43BCD00ABBAA}" {
+   "Additional hit zones" {
+    CGS_HitBoxZone HitBox {
+     HZDefault 1
+     MaxHealth 1000000
+     DamageReduction 0
+     DamageThreshold 0
+     m_fMultiplier 1
+     m_sLabel "BODY PELVIS"
+     m_bLogHits 0
+    }
+   }
+  }
+  RigidBody "{697D02241DACDCD9}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry Box {
+     LayerPreset "VehicleFireView"
+     Extents 38.4 40 46.8
+    }
+   }
+  }
+  RplComponent "{BCD1D8E2A91B9C03}" {
+  }
+  Hierarchy "{5D19455DD0A56B4A}" {
+  }
+ }
+}

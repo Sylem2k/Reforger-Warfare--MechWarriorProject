@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{5CAFED0B6731BA91}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_Body_Pelvis.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

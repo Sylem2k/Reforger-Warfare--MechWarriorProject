@@ -1,0 +1,13 @@
+AnimSetTemplateSource {
+ Groups {
+  AnimSetTemplateSource_AnimationGroup "{64D0990B11BBDD2D}" {
+   Name "default"
+   Animations {
+    "pose"
+   }
+   Columns {
+    "Default"
+   }
+  }
+ }
+}

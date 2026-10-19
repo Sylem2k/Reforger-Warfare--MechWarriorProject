@@ -1,0 +1,5 @@
+MatPBRBasic {
+ BCRMap "{97135AEB3F1506B9}Common/Models/Mech/Data/initialShadingGroup_Base_color.edds"
+ OpacityMap "{5B4FA6691D144EC8}Common/Models/Mech/Data/initialShadingGroup_Roughness.edds"
+ NMOMap "{35985FF07FA48F2E}Common/Models/Mech/Data/initialShadingGroup_Mixed_AO.edds"
+}

@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+ Configurations {
+  AudioProjectResourceClass PC {
+  }
+  AudioProjectResourceClass XBOX_ONE : PC {
+  }
+  AudioProjectResourceClass XBOX_SERIES : PC {
+  }
+  AudioProjectResourceClass PS4 : PC {
+  }
+  AudioProjectResourceClass PS5 : PC {
+  }
+  AudioProjectResourceClass HEADLESS : PC {
+  }
+ }
+}

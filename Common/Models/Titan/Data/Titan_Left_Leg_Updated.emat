@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{64CC073FE4C5EDD4}Common/Models/Titan/Data/ChaosTitanLeftLeg_BCR.edds"
+ NMOMap "{A79D951910E99648}Common/Models/Titan/Data/ChaosTitanLeftLeg_albedo.edds"
+}

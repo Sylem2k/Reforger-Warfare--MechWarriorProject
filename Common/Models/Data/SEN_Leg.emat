@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{10C70175F2695DA6}Common/Models/Data/Sentinel_Right_Leg_001_BCR.edds"
+ NMOMap "{88CF0D27B1C3FC36}Common/Models/Data/Sentinel_Right_Leg_001_albedo.edds"
+}

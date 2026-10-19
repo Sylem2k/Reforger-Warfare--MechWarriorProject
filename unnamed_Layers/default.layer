@@ -1,0 +1,13 @@
+Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et" {
+ coords 186.215 1 118.047
+}
+Vehicle Red_Titan_Mech_Base1 : "{971EA16EEA9DBA2A}Prefabs/Vehicles/Mech/Titan/Red_Titan_Mech_Base.et" {
+ coords 169.378 1 83.419
+ angles 0 0 0
+}
+Vehicle SampleMech2 : "{D2B4F8A1C7E93456}Prefabs/Vehicles/Mech/SampleMech/SampleMech2.et" {
+ coords 154.747 1 120.068
+}
+Vehicle SampleMech3 : "{E8BB8884F5622576}Prefabs/Vehicles/Mech/SampleMech/SampleMech3.et" {
+ coords 214.47 1 99.637
+}

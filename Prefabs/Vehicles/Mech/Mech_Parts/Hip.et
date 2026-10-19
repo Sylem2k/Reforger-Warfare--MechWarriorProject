@@ -1,0 +1,26 @@
+GenericEntity {
+ ID "6A886370B2D85FC6"
+ components {
+  SignalsManagerComponent "{6A886370B2D85FD2}" {
+  }
+  MeshObject "{6A886370B2D85EA6}" {
+   Object "{97CC49B353515226}Common/Models/sen_hip.xob"
+  }
+  RigidBody "{6A886370B2D85EA4}" {
+   Enabled 0
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  RplComponent "{6A886370B2D85EB7}" {
+  }
+  Hierarchy "{6A886370B2D85EB8}" {
+  }
+ }
+ coords 115.746 1.111 109.293
+}

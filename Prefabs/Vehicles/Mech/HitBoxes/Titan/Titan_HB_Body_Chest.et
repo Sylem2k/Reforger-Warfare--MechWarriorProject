@@ -1,0 +1,31 @@
+GenericEntity {
+ ID "BBD472BF02C07518"
+ components {
+  SCR_DamageManagerComponent "{5401BDD11891BDA1}" {
+   "Additional hit zones" {
+    CGS_HitBoxZone HitBox {
+     HZDefault 1
+     MaxHealth 1000000
+     DamageReduction 0
+     DamageThreshold 0
+     m_fMultiplier 1
+     m_sLabel "BODY CHEST"
+     m_bLogHits 0
+    }
+   }
+  }
+  RigidBody "{35BABA83EF9028A1}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry Box {
+     LayerPreset "VehicleFireView"
+     Extents 101.2 20 103.4
+    }
+   }
+  }
+  RplComponent "{9E1CF0CA22736F4E}" {
+  }
+  Hierarchy "{B281B497C5FABEDE}" {
+  }
+ }
+}

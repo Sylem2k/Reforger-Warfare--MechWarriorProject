@@ -1,0 +1,31 @@
+GenericEntity {
+ ID "18F44568FE5E9501"
+ components {
+  SCR_DamageManagerComponent "{6C92A468175673BB}" {
+   "Additional hit zones" {
+    CGS_HitBoxZone HitBox {
+     HZDefault 1
+     MaxHealth 1000000
+     DamageReduction 0
+     DamageThreshold 0
+     m_fMultiplier 1
+     m_sLabel "ARML UPPER"
+     m_bLogHits 0
+    }
+   }
+  }
+  RigidBody "{B0362F0A7904260D}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry Box {
+     LayerPreset "VehicleFireView"
+     Extents 32.32 17.9 27.48
+    }
+   }
+  }
+  RplComponent "{3093025114F743BB}" {
+  }
+  Hierarchy "{B6BD4F24C77614D3}" {
+  }
+ }
+}

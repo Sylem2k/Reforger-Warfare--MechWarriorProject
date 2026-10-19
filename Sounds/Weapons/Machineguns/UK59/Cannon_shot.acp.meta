@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{D7FD0CE25E74A7A8}Sounds/Weapons/Machineguns/UK59/Cannon_shot.acp"
+ Configurations {
+  AudioProjectResourceClass PC {
+  }
+  AudioProjectResourceClass XBOX_ONE : PC {
+  }
+  AudioProjectResourceClass XBOX_SERIES : PC {
+  }
+  AudioProjectResourceClass PS4 : PC {
+  }
+  AudioProjectResourceClass PS5 : PC {
+  }
+  AudioProjectResourceClass HEADLESS : PC {
+  }
+ }
+}

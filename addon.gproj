@@ -1,0 +1,8 @@
+GameProject {
+ ID "ReforgerWarfareMWProject"
+ GUID "6AA6E156BC274F13"
+ TITLE "Reforger_Warfare_MW_Project"
+ Dependencies {
+  "58D0FB3206B6F859"
+ }
+}

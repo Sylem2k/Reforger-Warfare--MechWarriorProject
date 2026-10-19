@@ -125,7 +125,7 @@ class RW_MechWrench
 		if (!hardpoints)
 			return false;
 
-		RW_MechFrameComponent.s_bMechBayApplying = true;
+		RW_MechFrameComponent.s_bMechBayApplying = RW_MechBayComponent.IsAtBay(mech);
 		bool ok = hardpoints.ServerRequestModule(hardpoints.m_sSwapStation, hardpointIndex, moduleId);
 		RW_MechFrameComponent.s_bMechBayApplying = false;
 		return ok;

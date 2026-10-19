@@ -39,8 +39,8 @@ class RW_FrameHardpoint
 //------------------------------------------------------------------------------------------------
 class RW_MechFrameComponent : ScriptComponent
 {
-	//! Set by the mech bay while it applies a loadout (swaps are otherwise refused when Swap Only
-	//! At Mech Bay is on).
+	//! True while a loadout is applied to a mech parked in a Mech Bay (frames with Swap Only At
+	//! Mech Bay refuse every other swap).
 	static bool s_bMechBayApplying;
 
 	[Attribute("Unnamed Frame", UIWidgets.EditBox, "Frame name shown to players. Use your own names.", category: "Frame")]
@@ -193,7 +193,7 @@ class RW_MechFrameComponent : ScriptComponent
 		int oldHeatsinks = m_iExtraHeatsinks;
 		m_iExtraHeatsinks = heatsinks;
 
-		s_bMechBayApplying = true;
+		s_bMechBayApplying = RW_MechBayComponent.IsAtBay(GetOwner());
 		bool ok = hardpoints.ServerRequestLoadout(hardpoints.m_sSwapStation, modules);
 		s_bMechBayApplying = false;
 

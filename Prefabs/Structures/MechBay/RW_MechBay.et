@@ -1,0 +1,36 @@
+GenericEntity {
+ ID "900172D9312C9C7D"
+ components {
+  MeshObject "{FB79674657F6AFF6}" {
+   Object "{102855E4AA84B807}Common/Models/Mech_Bay/Mech Bay.xob"
+  }
+  RplComponent "{CD2EED750F10A415}" {
+  }
+  ActionsManagerComponent "{F337AFC7C60E18AE}" {
+   ActionContexts {
+    UserActionContext "{797332C738417C81}" {
+     ContextName "default"
+     Position PointInfo "{F4109CFF22AB3F09}" {
+      Offset 0 1.2 0
+     }
+     Radius 3
+    }
+   }
+   additionalActions {
+    RW_MechBayOpenAction "{39F3B3DF5A1A0A4B}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{D819DE34AA5DB914}" {
+      Name "Open Mech Bay"
+     }
+     VisibilityRange 6
+    }
+   }
+  }
+  RW_MechBayComponent "{8643B81E650A437F}" {
+   m_sBayName "Mech Bay"
+   m_fRadius 15
+  }
+ }
+}

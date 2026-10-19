@@ -63,14 +63,17 @@ modded class SCR_PlayerController
 		if (!frame)
 			return;
 
-		// The player must stand at the mech with the tool.
+		// Parked in a Mech Bay: the bay does the work (no tool needed, the player can stand at the
+		// bay). Anywhere else: the player must stand at the mech with the Mech Wrench.
 		IEntity user = GetControlledEntity();
-		if (!user || vector.Distance(user.GetOrigin(), mech.GetOrigin()) > RW_MAX_DISTANCE)
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		bool bayWorks = bay && bay.NoToolNeeded() && bay.CanOperate(user, mech);
+		if (!user || (!bayWorks && vector.Distance(user.GetOrigin(), mech.GetOrigin()) > RW_MAX_DISTANCE))
 		{
 			frame.ServerCrewMessage("REFUSED: too far from the mech");
 			return;
 		}
-		if (!RW_MechWrench.HasTool(user, RW_MechWrench.DEFAULT_TOOL))
+		if (!bayWorks && !RW_MechWrench.HasTool(user, RW_MechWrench.DEFAULT_TOOL))
 		{
 			frame.ServerCrewMessage("REFUSED: you need the Mech Wrench");
 			return;

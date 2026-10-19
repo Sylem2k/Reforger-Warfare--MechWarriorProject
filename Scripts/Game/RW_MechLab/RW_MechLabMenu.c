@@ -329,7 +329,9 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// Walked away: close.
 		IEntity player = SCR_PlayerController.GetLocalControlledEntity();
-		if (player && vector.Distance(player.GetOrigin(), m_pMech.GetOrigin()) > MAX_DISTANCE)
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(m_pMech);
+		bool atBay = bay && bay.CanOperate(player, m_pMech);
+		if (player && !atBay && vector.Distance(player.GetOrigin(), m_pMech.GetOrigin()) > MAX_DISTANCE)
 		{
 			Close();
 			return;
@@ -721,7 +723,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 		float lx = EDGE;
 		Rect(lx, top, panelW, bottom - top, m_cPanel, 0);
 		Rect(lx, top, panelW, 3, m_cAccent, 1);
-		Text(lx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, "MECH LAB");
+		string header = "MECH LAB  |  FIELD REFIT";
+		RW_MechBayComponent bayHere = RW_MechBayComponent.FindBayFor(m_pMech);
+		if (bayHere)
+			header = "MECH LAB  |  " + bayHere.GetBayName();
+		Text(lx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, header);
 		m_wFrameName = Text(lx + 18, top + 32, panelW - 36, 34, 28, m_cText);
 		m_wFrameClass = Text(lx + 18, top + 66, panelW - 36, 20, 14, m_cDim);
 

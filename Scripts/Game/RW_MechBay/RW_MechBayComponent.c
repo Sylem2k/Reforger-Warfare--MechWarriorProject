@@ -23,11 +23,6 @@ class RW_MechBayComponent : ScriptComponent
 
 	protected static ref array<RW_MechBayComponent> s_aBays;
 
-	// Sphere query results (FindParkedMech).
-	protected IEntity m_pQueryBest;
-	protected float m_fQueryBestDist;
-	protected vector m_vQuerySpot;
-
 	//------------------------------------------------------------------------------------------------
 	override void OnPostInit(IEntity owner)
 	{
@@ -108,34 +103,28 @@ class RW_MechBayComponent : ScriptComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! The mech parked closest to the parking spot, or null.
+	//! The mech parked closest to the parking spot, or null. Walks the frame list (a handful of
+	//! mechs) - no area scan, so it is cheap enough for the action prompt.
 	IEntity FindParkedMech()
 	{
-		BaseWorld world = GetOwner().GetWorld();
-		if (!world)
-			return null;
-		m_pQueryBest = null;
-		m_fQueryBestDist = m_fRadius + 1;
-		m_vQuerySpot = GetParkingSpot();
-		world.QueryEntitiesBySphere(m_vQuerySpot, m_fRadius, QueryMech, null, EQueryEntitiesFlags.DYNAMIC);
-		return m_pQueryBest;
-	}
-
-	//------------------------------------------------------------------------------------------------
-	protected bool QueryMech(IEntity entity)
-	{
-		IEntity root = entity.GetRootParent();
-		if (!root)
-			root = entity;
-		if (!RW_MechFrameComponent.Find(root) || BFA_MechExtension.IsMechDestroyed(root))
-			return true;
-		float dist = vector.Distance(root.GetOrigin(), m_vQuerySpot);
-		if (dist < m_fQueryBestDist)
+		IEntity best;
+		float bestDist = m_fRadius;
+		vector spot = GetParkingSpot();
+		foreach (RW_MechFrameComponent frame : RW_MechFrameComponent.GetAll())
 		{
-			m_fQueryBestDist = dist;
-			m_pQueryBest = root;
+			if (!frame)
+				continue;
+			IEntity mech = frame.GetOwner();
+			if (!mech || BFA_MechExtension.IsMechDestroyed(mech))
+				continue;
+			float dist = vector.Distance(mech.GetOrigin(), spot);
+			if (dist <= bestDist)
+			{
+				bestDist = dist;
+				best = mech;
+			}
 		}
-		return true;
+		return best;
 	}
 }
 

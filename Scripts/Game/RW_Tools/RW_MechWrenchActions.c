@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------------------------
-//! REFORGER WARFARE - MECH WRENCH (stand-in for the mech bay). A player carrying the Mech Wrench
-//! walks up to a frame and uses the actions on it:
+//! REFORGER WARFARE - MECH WRENCH (field refits). A player carrying the Mech Wrench walks up to a
+//! frame and uses the actions on it. A mech parked in a Mech Bay shows the same actions to
+//! everyone, no wrench needed (area check: the mech is within the bay's radius):
 //!   - Fit next weapon (hardpoint) : installs the next weapon that fits the frame's rules
 //!   - Remove weapon (hardpoint)   : leaves the hardpoint empty
 //!   - Add / Remove heatsink
@@ -33,6 +34,27 @@ class RW_MechWrench
 		if (!data)
 			return false;
 		return GuidOf(data.GetPrefabName()) == toolGuid;
+	}
+
+	// Cache for HasToolCached (the action prompt asks every frame; the inventory scan is slow).
+	protected static IEntity s_pCachedUser;
+	protected static bool s_bCachedHasTool;
+	protected static float s_fCachedUntil;
+
+	//------------------------------------------------------------------------------------------------
+	//! HasTool, re-checked at most twice a second. For action prompts only (the server's real
+	//! check uses HasTool).
+	static bool HasToolCached(IEntity user, ResourceName tool)
+	{
+		float now = 0;
+		if (GetGame() && GetGame().GetWorld())
+			now = GetGame().GetWorld().GetWorldTime() * 0.001;
+		if (user == s_pCachedUser && now < s_fCachedUntil)
+			return s_bCachedHasTool;
+		s_pCachedUser = user;
+		s_fCachedUntil = now + 0.5;
+		s_bCachedHasTool = HasTool(user, tool);
+		return s_bCachedHasTool;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -185,7 +207,12 @@ class RW_MechWrenchActionBase : ScriptedUserAction
 	//------------------------------------------------------------------------------------------------
 	override bool CanBeShownScript(IEntity user)
 	{
-		return GetFrame() != null && RW_MechWrench.HasTool(user, m_sTool);
+		if (!GetFrame())
+			return false;
+		// Parked in a Mech Bay: the bay's crew does the work, no wrench needed.
+		if (RW_MechBayComponent.IsAtBay(GetOwner().GetRootParent()))
+			return true;
+		return RW_MechWrench.HasToolCached(user, m_sTool);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -220,13 +247,26 @@ class RW_MechWrenchFitAction : RW_MechWrenchActionBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	protected string m_sCachedName;
+	protected float m_fNameUntil;
+
 	override bool GetActionNameScript(out string outName)
 	{
+		// Working out the next fitting weapon checks the whole loadout: do it twice a second.
+		float now = GetGame().GetWorld().GetWorldTime() * 0.001;
+		if (now < m_fNameUntil && !m_sCachedName.IsEmpty())
+		{
+			outName = m_sCachedName;
+			return true;
+		}
+		m_fNameUntil = now + 0.5;
+
 		int next = RW_MechWrench.FindNextFitting(GetFrame(), GetHardpoints(), GetHardpointIndex());
 		if (next == 0)
 			outName = string.Format("%1: nothing else fits", m_sHardpoint);
 		else
 			outName = string.Format("Fit %1 on %2", ModuleName(next), m_sHardpoint);
+		m_sCachedName = outName;
 		return true;
 	}
 

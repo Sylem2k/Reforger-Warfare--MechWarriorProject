@@ -43,6 +43,9 @@ class RW_MechFrameComponent : ScriptComponent
 	//! Mech Bay refuse every other swap).
 	static bool s_bMechBayApplying;
 
+	//! Every frame in the world (bays look through this list instead of scanning an area).
+	protected static ref array<RW_MechFrameComponent> s_aAllFrames;
+
 	[Attribute("Unnamed Frame", UIWidgets.EditBox, "Frame name shown to players. Use your own names.", category: "Frame")]
 	protected string m_sFrameName;
 
@@ -82,6 +85,14 @@ class RW_MechFrameComponent : ScriptComponent
 
 	[Attribute("0.6", UIWidgets.Slider, "Share of the carry capacity used before the frame starts slowing down.", "0 1 0.05", category: "Movement")]
 	protected float m_fSlowdownStart;
+
+	//------------------------------------------------------------------------------------------------
+	static array<RW_MechFrameComponent> GetAll()
+	{
+		if (!s_aAllFrames)
+			s_aAllFrames = {};
+		return s_aAllFrames;
+	}
 
 	//------------------------------------------------------------------------------------------------
 	static RW_MechFrameComponent Find(IEntity mech)
@@ -412,6 +423,7 @@ class RW_MechFrameComponent : ScriptComponent
 	override void OnPostInit(IEntity owner)
 	{
 		super.OnPostInit(owner);
+		GetAll().Insert(this);
 		m_iExtraHeatsinks = Math.Clamp(m_iStartExtraHeatsinks, 0, Math.Max(m_iMaxExtraHeatsinks, 0));
 		if (!Replication.IsServer() || !GetGame() || !GetGame().GetCallqueue())
 			return;
@@ -444,6 +456,8 @@ class RW_MechFrameComponent : ScriptComponent
 	{
 		if (GetGame() && GetGame().GetCallqueue())
 			GetGame().GetCallqueue().Remove(CheckDefaultLoadout);
+		if (s_aAllFrames)
+			s_aAllFrames.RemoveItem(this);
 		super.OnDelete(owner);
 	}
 }

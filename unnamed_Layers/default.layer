@@ -9,3 +9,6 @@ Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/Sample
  }
  coords 214.378 3.191 98.477
 }
+GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
+ coords 214.216 2.977 93.981
+}

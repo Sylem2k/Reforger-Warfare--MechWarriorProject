@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{9B26F6D6DB5836BB}Prefabs/Vehicles/Mech/Mech_Parts/Laser_Missile_Arm.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

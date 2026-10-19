@@ -1,0 +1,60 @@
+GenericEntity {
+ ID "FBBA339ED88B3CCC"
+ components {
+  SignalsManagerComponent "{A8E9B5AFFC443935}" {
+  }
+  CGS_Titan_Missile "{2F4368D62B6D589B}" {
+   m_sModuleId "LASER_MISSILE"
+   m_sDisplayName "Laser Missiles"
+   m_sControlStation "GUNNER"
+   m_iWeaponGroup 2
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{49E600DABB7EBEB9}" {
+    m_sMuzzleParticle "{6827C9C356E224D7}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Front.ptc"
+    m_sBackblastParticle "{CD49B367ABBC3629}Particles/Blasts/Blast_tiny_solid.ptc"
+    m_BackblastPoint PointInfo "{78DE1D6F9AE50A61}" {
+     Offset 0 0 -0.2696
+    }
+    m_sSoundProject "{95AA0243F9DEAB1C}Sounds/Weapons/Launchers/RPG7/Weapons_Launchers_RPG7_Shot.acp"
+    m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
+    m_sTrailParticle "{0B4A2E9ADB3FC664}Particles/Weapon/RPG_75_muzzle_front.ptc"
+    m_fLinger 1
+    m_fImpactPrefabLifetime 2
+    m_bImpactOnMiss 0
+   }
+   m_fHeatPerShot 4
+   m_eDamageKind EXPLOSIVE
+   m_Crosshair BFA_MechCrosshair "{95413CCFB83E96E6}" {
+    m_fSize 80
+    m_Color 1 0.55 0.15 0.9
+   }
+   m_MuzzlePoint PointInfo "{D898155089C261FB}" {
+    Offset 0 0 0.3819
+   }
+   m_fMuzzleClearance 0.25
+   m_iMagazineSize 4
+   m_fReloadTime 12
+   m_fRange 1500
+   m_iSalvoIntervalMs 350
+   m_iRefireMs 2500
+   m_fDirectHitDamage 250
+   m_fSplashDamage 75
+   m_fTrailLength 20
+   m_fTrailThickness 0.5
+   m_bDebug 0
+   m_bHoming 1
+   m_bLockTargets 1
+   m_eGuidance BOTH
+   m_fLaserConeDeg 120
+   m_fTurnRate 60
+   m_fArmingDistance 20
+   m_fLoftAngle 35
+  }
+  MeshObject "{78A056B7AE7579CF}" {
+   Object "{E1891CB05A1314A7}Assets/Weapons/Launchers/RPG75/RPG75_body.xob"
+  }
+  Hierarchy "{17E01BE6255E9D2C}" {
+  }
+ }
+}

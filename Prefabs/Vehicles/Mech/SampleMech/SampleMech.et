@@ -60,6 +60,16 @@ Vehicle {
      m_sControlStation "DRIVER"
      m_iWeaponGroup 1
     }
+    BFA_MechHardpointDefinition "{FF29E400B3D6170A}" {
+     m_sName "SHOULDER"
+     m_iClass 2
+     m_iDefaultModuleId 0
+     m_Point PointInfo "{C2CABB9E690C8B58}" {
+      Offset 0.6 0.9 0
+     }
+     m_sControlStation "DRIVER"
+     m_iWeaponGroup 2
+    }
    }
    m_aModules {
     BFA_MechModuleDefinition "{A10E6E18F05FA5F9}" {
@@ -88,6 +98,24 @@ Vehicle {
      m_sPrefab "{CB5C94C5AA239DE3}Prefabs/Vehicles/Mech/Mech_Parts/Rocket_Launcher_Arm.et"
      m_fWeightTons 0
      m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{C91B163C84BE8FDB}" {
+     m_iId 4
+     m_sLabel "Laser Missiles"
+     m_iClass 1
+     m_sWeaponModuleId "LASER_MISSILE"
+     m_sPrefab "{9B26F6D6DB5836BB}Prefabs/Vehicles/Mech/Mech_Parts/Laser_Missile_Arm.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{F2889F4A15BE587B}" {
+     m_iId 5
+     m_sLabel "Target Designator"
+     m_iClass 2
+     m_sWeaponModuleId "TARGET_DESIGNATOR"
+     m_sPrefab "{30C768727C5E0C67}Prefabs/Vehicles/Mech/Mech_Parts/Target_Designator.et"
+     m_fWeightTons 0
+     m_fSwapTime 2
     }
    }
    m_aLoadoutPresets {
@@ -502,11 +530,18 @@ Vehicle {
      m_eType ANY
      m_eMaxSize MEDIUM
     }
+    RW_FrameHardpoint "{B4F9A235919C037B}" {
+     m_sHardpoint "SHOULDER"
+     m_eType SUPPORT
+     m_eMaxSize SMALL
+    }
    }
    m_iStartExtraHeatsinks 0
    m_iMaxExtraHeatsinks 10
   }
   CGS_MechDeathComponent "{24AF6AF2B07E6E5A}" {
+  }
+  CGS_LaserSpotComponent "{3937A0D2928CBBCB}" {
   }
   RplComponent "{6A8740653CE8FB4C}" {
   }

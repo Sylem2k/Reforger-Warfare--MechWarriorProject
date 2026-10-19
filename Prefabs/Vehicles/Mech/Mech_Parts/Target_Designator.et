@@ -1,0 +1,29 @@
+GenericEntity {
+ ID "C62F5DE7ACE97E73"
+ components {
+  SignalsManagerComponent "{46B2AD4BE2AFFA69}" {
+  }
+  CGS_TargetDesignator "{BD824EE64AE6C0C4}" {
+   m_sModuleId "TARGET_DESIGNATOR"
+   m_sDisplayName "Target Designator"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 2
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 0
+   m_fHeatPerShot 0
+   m_MuzzlePoint PointInfo "{D064BC02D00D57EA}" {
+    Offset 0 0 0.3
+   }
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 100
+   m_fDesignatorRange 1500
+   m_fHeatPerSecond 2
+   m_bToggle 1
+  }
+  MeshObject "{EEEA7860B126A622}" {
+   Object "{C73836E3B031C35E}Common/Models/sen_Tanna.xob"
+  }
+  Hierarchy "{B920CB401D21598E}" {
+  }
+ }
+}

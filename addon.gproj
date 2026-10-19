@@ -3,6 +3,20 @@ GameProject {
  GUID "6AA6E156BC274F13"
  TITLE "Reforger_Warfare_MW_Project"
  Dependencies {
-  "58D0FB3206B6F859"
+  "58D0FB3206B6F859" "6A8C4B3A46C28E1B"
+ }
+ Configurations {
+  GameProjectConfig PC {
+  }
+  GameProjectConfig XBOX_ONE {
+  }
+  GameProjectConfig XBOX_SERIES {
+  }
+  GameProjectConfig PS4 {
+  }
+  GameProjectConfig PS5 {
+  }
+  GameProjectConfig HEADLESS {
+  }
  }
 }

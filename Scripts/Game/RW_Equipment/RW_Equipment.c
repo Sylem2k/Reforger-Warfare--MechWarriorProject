@@ -43,6 +43,12 @@ class RW_EquipmentEntry
 
 	[Attribute("0", UIWidgets.Auto, "Heat removed per second (heatsinks).")]
 	float m_fCooling;
+
+	[Attribute("0", UIWidgets.Auto, "Mech Lab: damage per shot to show. 0 = read it from the weapon prefab (rockets keep theirs on the rocket, so type it here).")]
+	float m_fDamage;
+
+	[Attribute("0", UIWidgets.Auto, "Mech Lab: range in metres to show. 0 = read it from the weapon prefab.")]
+	float m_fRange;
 }
 
 //------------------------------------------------------------------------------------------------

@@ -11,7 +11,10 @@
 //!   - Click a hardpoint to select it, click a part to put it there.
 //!   - Or drag a part onto a hardpoint.
 //!   - Right-click a hardpoint to empty it.
+//!   - Markers on the mech show where each hardpoint is; click one to select it, drop parts on it.
+//!   - VIEW < > turns the showroom camera around the mech.
 //! Built in code on a blank layout (UI/RW/RW_MechLab.layout); restyle the colours below.
+//! Everything is laid out on a 1080p-high design screen and scaled by UI_SCALE.
 
 modded enum ChimeraMenuPreset
 {
@@ -32,9 +35,13 @@ class RW_LabRow
 	TextWidget m_wTitle;
 	TextWidget m_wSub;
 	TextWidget m_wRight;
+	TextWidget m_wStats;
+	bool m_bHidden;
 
 	bool Contains(float x, float y)
 	{
+		if (m_bHidden)
+			return false;
 		return x >= m_fX && x <= m_fX + m_fW && y >= m_fY && y <= m_fY + m_fH;
 	}
 }
@@ -60,6 +67,97 @@ class RW_MechLabInput : ScriptedWidgetEventHandler
 }
 
 //------------------------------------------------------------------------------------------------
+//! Showroom camera: looks at the mech from the front, VIEW < > turns it around the mech.
+//! If the camera can't be made, the lab still works with the normal player view.
+class RW_MechLabCamera
+{
+	protected CameraBase m_Cam;
+	protected CameraBase m_Prev;
+	protected IEntity m_pMech;
+	protected float m_fYaw;          // degrees around the mech, 0 = in front
+	protected float m_fTargetYaw;
+	protected vector m_vCentre;      // mech local
+	protected float m_fDist;
+	protected float m_fHeight;
+
+	//------------------------------------------------------------------------------------------------
+	bool Start(IEntity mech)
+	{
+		CameraManager cameras = GetGame().GetCameraManager();
+		if (!mech || !cameras)
+			return false;
+
+		m_pMech = mech;
+		vector mins, maxs;
+		mech.GetBounds(mins, maxs);
+		vector size = maxs - mins;
+		m_fHeight = Math.Max(size[1], 2);
+		float wide = Math.Max(size[0], size[2]);
+		m_vCentre = (mins + maxs) * 0.5;
+		m_fDist = Math.Max(m_fHeight, wide) * 1.35 + 2;
+
+		vector mat[4];
+		Pose(mat);
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		params.Transform[0] = mat[0];
+		params.Transform[1] = mat[1];
+		params.Transform[2] = mat[2];
+		params.Transform[3] = mat[3];
+
+		m_Cam = CameraBase.Cast(GetGame().SpawnEntity(CameraBase, mech.GetWorld(), params));
+		if (!m_Cam)
+			return false;
+
+		m_Prev = cameras.CurrentCamera();
+		cameras.SetCamera(m_Cam);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Turn(float degrees)
+	{
+		m_fTargetYaw = m_fTargetYaw + degrees;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Update(float timeSlice)
+	{
+		if (!m_Cam || !m_pMech)
+			return;
+		float blend = Math.Clamp(timeSlice * 6, 0, 1);
+		m_fYaw = m_fYaw + (m_fTargetYaw - m_fYaw) * blend;
+		vector mat[4];
+		Pose(mat);
+		m_Cam.SetWorldTransform(mat);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void Pose(out vector mat[4])
+	{
+		float rad = m_fYaw * Math.DEG2RAD;
+		vector local = m_vCentre + Vector(Math.Sin(rad) * m_fDist, m_fHeight * 0.15, Math.Cos(rad) * m_fDist);
+		vector pos = m_pMech.CoordToParent(local);
+		vector target = m_pMech.CoordToParent(m_vCentre);
+		vector dir = (target - pos).Normalized();
+		Math3D.DirectionAndUpMatrix(dir, vector.Up, mat);
+		mat[3] = pos;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	void Stop()
+	{
+		CameraManager cameras = GetGame().GetCameraManager();
+		if (cameras && m_Cam && m_Prev && cameras.CurrentCamera() == m_Cam)
+			cameras.SetCamera(m_Prev);
+		if (m_Cam)
+			SCR_EntityHelper.DeleteEntityAndChildren(m_Cam);
+		m_Cam = null;
+		m_Prev = null;
+	}
+}
+
+//------------------------------------------------------------------------------------------------
 class RW_MechLabMenu : ChimeraMenuBase
 {
 	static const int ROW_PART = 0;
@@ -67,15 +165,20 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_BUTTON = 2;
 	static const int ROW_HS_MINUS = 3;
 	static const int ROW_HS_PLUS = 4;
+	static const int ROW_MARKER = 5;
 
 	static const int BTN_RESET = 0;
 	static const int BTN_APPLY = 1;
 	static const int BTN_CLOSE = 2;
+	static const int BTN_VIEW_LEFT = 3;
+	static const int BTN_VIEW_RIGHT = 4;
 
-	static const float PANEL_W = 430;
-	static const float EDGE = 36;
-	static const float ROW_H = 46;
+	static const float UI_SCALE = 1.3;      // bigger = everything bigger
+	static const float PANEL_W = 410;
+	static const float EDGE = 30;
+	static const float ROW_H = 66;
 	static const float MAX_DISTANCE = 25;
+	static const bool SHOWROOM_CAMERA = true;
 
 	// Colours (restyle here).
 	protected ref Color m_cPanel = new Color(0.03, 0.04, 0.05, 0.86);
@@ -96,9 +199,16 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected CGS_MechHeatComponent m_Heat;
 
 	protected Widget m_wCanvas;
+	protected float m_fS = 1;               // design units -> screen units
+	protected float m_fLeftEdge;            // inner edges of the side panels (design units)
+	protected float m_fRightEdge;
+	protected float m_fBottomEdge;
+	protected float m_fBarW;
+	protected ref RW_MechLabCamera m_Camera;
 	protected ref RW_MechLabInput m_Input;
 	protected ref array<ref RW_LabRow> m_aRows = {};
 	protected bool m_bBuilt;
+	protected int m_iBuildTries;
 
 	// Planned build.
 	protected ref array<int> m_aPending = {};
@@ -121,6 +231,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected TextWidget m_wTonsText;
 	protected TextWidget m_wCooling;
 	protected TextWidget m_wSpeed;
+	protected TextWidget m_wFireHeat;
 	protected TextWidget m_wHsText;
 	protected TextWidget m_wStatus;
 	protected TextWidget m_wDragGhost;
@@ -170,6 +281,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (s_pNextMech)
 			SetMech(s_pNextMech);
 
+		if (SHOWROOM_CAMERA && m_pMech)
+		{
+			m_Camera = new RW_MechLabCamera();
+			if (!m_Camera.Start(m_pMech))
+				m_Camera = null;
+		}
+
 		InputManager input = GetGame().GetInputManager();
 		if (input)
 			input.AddActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
@@ -181,6 +299,9 @@ class RW_MechLabMenu : ChimeraMenuBase
 		InputManager input = GetGame().GetInputManager();
 		if (input)
 			input.RemoveActionListener("MenuBack", EActionTrigger.DOWN, OnBack);
+		if (m_Camera)
+			m_Camera.Stop();
+		m_Camera = null;
 		if (m_wCanvas)
 			m_wCanvas.RemoveFromHierarchy();
 		m_wCanvas = null;
@@ -214,14 +335,17 @@ class RW_MechLabMenu : ChimeraMenuBase
 			return;
 		}
 
-		if (!m_bBuilt)
-			Build();
+		if (!m_bBuilt && !Build())
+			return;
 
 		WorkspaceWidget ws = GetGame().GetWorkspace();
 		int mx, my;
 		WidgetManager.GetMousePos(mx, my);
-		m_fMouseX = ws.DPIUnscale(mx);
-		m_fMouseY = ws.DPIUnscale(my);
+		m_fMouseX = ws.DPIUnscale(mx) / m_fS;
+		m_fMouseY = ws.DPIUnscale(my) / m_fS;
+
+		if (m_Camera)
+			m_Camera.Update(tDelta);
 
 		if (m_iPressRow >= 0 && !m_bDragging && m_aRows[m_iPressRow].m_iKind == ROW_PART)
 		{
@@ -389,7 +513,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		// Right-click a hardpoint: empty it.
 		if (button == 1)
 		{
-			if (r.m_iKind == ROW_HARDPOINT)
+			if (r.m_iKind == ROW_HARDPOINT || r.m_iKind == ROW_MARKER)
 				Assign(r.m_iValue, 0);
 			return;
 		}
@@ -421,7 +545,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		// Dropped a part on a hardpoint.
 		if (wasDrag)
 		{
-			if (overIndex >= 0 && m_aRows[overIndex].m_iKind == ROW_HARDPOINT)
+			if (overIndex >= 0 && (m_aRows[overIndex].m_iKind == ROW_HARDPOINT || m_aRows[overIndex].m_iKind == ROW_MARKER))
 				Assign(m_aRows[overIndex].m_iValue, pressed.m_iValue);
 			return;
 		}
@@ -433,7 +557,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		{
 			Assign(m_iSelectedHp, pressed.m_iValue);
 		}
-		else if (pressed.m_iKind == ROW_HARDPOINT)
+		else if (pressed.m_iKind == ROW_HARDPOINT || pressed.m_iKind == ROW_MARKER)
 		{
 			m_iSelectedHp = pressed.m_iValue;
 		}
@@ -455,6 +579,16 @@ class RW_MechLabMenu : ChimeraMenuBase
 			else if (pressed.m_iValue == BTN_APPLY)
 			{
 				Apply();
+			}
+			else if (pressed.m_iValue == BTN_VIEW_LEFT)
+			{
+				if (m_Camera)
+					m_Camera.Turn(-45);
+			}
+			else if (pressed.m_iValue == BTN_VIEW_RIGHT)
+			{
+				if (m_Camera)
+					m_Camera.Turn(45);
 			}
 			else
 			{
@@ -478,8 +612,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 		FrameSlot.SetAnchorMin(img, 0, 0);
 		FrameSlot.SetAnchorMax(img, 0, 0);
 		FrameSlot.SetAlignment(img, 0, 0);
-		FrameSlot.SetPos(img, x, y);
-		FrameSlot.SetSize(img, w, h);
+		FrameSlot.SetPos(img, x * m_fS, y * m_fS);
+		FrameSlot.SetSize(img, w * m_fS, h * m_fS);
 		return img;
 	}
 
@@ -491,14 +625,26 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (!txt)
 			return null;
 		txt.SetColor(color);
-		txt.SetExactFontSize(size);
+		txt.SetExactFontSize(Math.Round(size * m_fS));
 		FrameSlot.SetAnchorMin(txt, 0, 0);
 		FrameSlot.SetAnchorMax(txt, 0, 0);
 		FrameSlot.SetAlignment(txt, 0, 0);
-		FrameSlot.SetPos(txt, x, y);
-		FrameSlot.SetSize(txt, w, h);
+		FrameSlot.SetPos(txt, x * m_fS, y * m_fS);
+		FrameSlot.SetSize(txt, w * m_fS, h * m_fS);
 		txt.SetText(text);
 		return txt;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Move / resize a widget in design units.
+	protected void PlaceS(Widget w, float x, float y)
+	{
+		FrameSlot.SetPos(w, x * m_fS, y * m_fS);
+	}
+
+	protected void SizeS(Widget w, float width, float height)
+	{
+		FrameSlot.SetSize(w, width * m_fS, height * m_fS);
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -526,44 +672,71 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void Build()
+	//! Builds the screen once the canvas knows its real size (the frame after it is made).
+	//! The canvas size is used instead of the workspace size, because in a Workbench window the
+	//! workspace can be wider than the game view (that pushed the right panel off screen).
+	protected bool Build()
 	{
-		m_bBuilt = true;
 		WorkspaceWidget ws = GetGame().GetWorkspace();
 		Widget root = GetRootWidget();
 
-		// Full-screen canvas that takes the mouse; everything else ignores the cursor.
-		m_wCanvas = ws.CreateWidget(WidgetType.FrameWidgetTypeID, WidgetFlags.VISIBLE, new Color(1, 1, 1, 1), 50, root);
-		FrameSlot.SetAnchorMin(m_wCanvas, 0, 0);
-		FrameSlot.SetAnchorMax(m_wCanvas, 1, 1);
-		FrameSlot.SetOffsets(m_wCanvas, 0, 0, 0, 0);
-		m_Input = new RW_MechLabInput();
-		m_Input.m_Menu = this;
-		m_wCanvas.AddHandler(m_Input);
+		if (!m_wCanvas)
+		{
+			// Full-screen canvas that takes the mouse; everything else ignores the cursor.
+			m_wCanvas = ws.CreateWidget(WidgetType.FrameWidgetTypeID, WidgetFlags.VISIBLE, new Color(1, 1, 1, 1), 50, root);
+			FrameSlot.SetAnchorMin(m_wCanvas, 0, 0);
+			FrameSlot.SetAnchorMax(m_wCanvas, 1, 1);
+			FrameSlot.SetOffsets(m_wCanvas, 0, 0, 0, 0);
+			m_Input = new RW_MechLabInput();
+			m_Input.m_Menu = this;
+			m_wCanvas.AddHandler(m_Input);
+			return false;
+		}
 
-		float sw = ws.DPIUnscale(ws.GetWidth());
-		float sh = ws.DPIUnscale(ws.GetHeight());
+		float canvasW, canvasH;
+		m_wCanvas.GetScreenSize(canvasW, canvasH);
+		m_iBuildTries++;
+		if ((canvasW < 50 || canvasH < 50) && m_iBuildTries < 10)
+			return false;
+		if (canvasW < 50 || canvasH < 50)
+		{
+			canvasW = ws.GetWidth();
+			canvasH = ws.GetHeight();
+		}
+		m_bBuilt = true;
+
+		// Design screen: 1080 / UI_SCALE units high, scaled up to the real screen.
+		float realW = ws.DPIUnscale(canvasW);
+		float realH = ws.DPIUnscale(canvasH);
+		m_fS = Math.Clamp(realH / 1080 * UI_SCALE, 0.75, 3);
+		float sw = realW / m_fS;
+		float sh = realH / m_fS;
+
+		// Narrow screens: shrink the panels so the mech stays visible in the middle.
+		float panelW = Math.Min(PANEL_W, (sw - EDGE * 2) * 0.32);
 		float top = EDGE;
 		float bottom = sh - EDGE - 70;
 
 		// ---------------- Left panel: frame + parts ----------------
 		float lx = EDGE;
-		Rect(lx, top, PANEL_W, bottom - top, m_cPanel, 0);
-		Rect(lx, top, PANEL_W, 3, m_cAccent, 1);
-		Text(lx + 20, top + 14, PANEL_W - 40, 20, 13, m_cAccent, "MECH LAB");
-		m_wFrameName = Text(lx + 20, top + 34, PANEL_W - 40, 34, 28, m_cText);
-		m_wFrameClass = Text(lx + 20, top + 70, PANEL_W - 40, 20, 14, m_cDim);
+		Rect(lx, top, panelW, bottom - top, m_cPanel, 0);
+		Rect(lx, top, panelW, 3, m_cAccent, 1);
+		Text(lx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, "MECH LAB");
+		m_wFrameName = Text(lx + 18, top + 32, panelW - 36, 34, 28, m_cText);
+		m_wFrameClass = Text(lx + 18, top + 66, panelW - 36, 20, 14, m_cDim);
 
-		float sy = top + 104;
-		Text(lx + 20, sy, 200, 18, 13, m_cDim, "TONNAGE");
-		m_wTonsText = Text(lx + 220, sy, PANEL_W - 240, 18, 14, m_cText);
-		m_wTonsBg = Rect(lx + 20, sy + 24, PANEL_W - 40, 12, new Color(1, 1, 1, 0.1), 1);
-		m_wTonsFill = Rect(lx + 20, sy + 24, PANEL_W - 40, 12, m_cGood, 2);
-		m_wCooling = Text(lx + 20, sy + 48, PANEL_W - 40, 18, 14, m_cText);
-		m_wSpeed = Text(lx + 20, sy + 70, PANEL_W - 40, 18, 14, m_cText);
+		float sy = top + 96;
+		Text(lx + 18, sy, 140, 18, 14, m_cDim, "TONNAGE");
+		m_wTonsText = Text(lx + 160, sy, panelW - 178, 18, 15, m_cText);
+		m_wTonsBg = Rect(lx + 18, sy + 24, panelW - 36, 12, new Color(1, 1, 1, 0.1), 1);
+		m_wTonsFill = Rect(lx + 18, sy + 24, panelW - 36, 12, m_cGood, 2);
+		m_fBarW = panelW - 36;
+		m_wCooling = Text(lx + 18, sy + 46, panelW - 36, 18, 14, m_cText);
+		m_wFireHeat = Text(lx + 18, sy + 66, panelW - 36, 18, 14, m_cText);
+		m_wSpeed = Text(lx + 18, sy + 86, panelW - 36, 18, 14, m_cText);
 
-		float py = sy + 108;
-		Text(lx + 20, py, 300, 18, 13, m_cAccent, "PARTS  (click = put on selected · drag onto a hardpoint)");
+		float py = sy + 118;
+		Text(lx + 18, py, panelW - 36, 18, 14, m_cAccent, "PARTS   click = fit | drag onto a hardpoint");
 		py += 26;
 
 		array<int> parts = {0};
@@ -574,57 +747,191 @@ class RW_MechLabMenu : ChimeraMenuBase
 		}
 		foreach (int partId : parts)
 		{
-			if (py + ROW_H > bottom - 10)
+			float rowH = ROW_H;
+			if (partId == 0)
+				rowH = 46;
+			if (py + rowH > bottom - 10)
 				break;
-			RW_LabRow part = AddRow(ROW_PART, partId, lx + 14, py, PANEL_W - 28, ROW_H - 6);
-			part.m_wTitle = Text(lx + 28, py + 4, 260, 22, 17, m_cText);
-			part.m_wSub = Text(lx + 28, py + 24, 300, 16, 12, m_cDim);
-			part.m_wRight = Text(lx + PANEL_W - 128, py + 10, 100, 20, 16, m_cText);
-			py += ROW_H;
+			RW_LabRow part = AddRow(ROW_PART, partId, lx + 12, py, panelW - 24, rowH - 6);
+			part.m_wTitle = Text(lx + 26, py + 4, panelW - 130, 22, 18, m_cText);
+			part.m_wSub = Text(lx + 26, py + 23, panelW - 50, 20, 13, m_cDim);
+			if (partId != 0)
+				part.m_wStats = Text(lx + 26, py + 40, panelW - 50, 20, 13, new Color(0.6, 0.85, 1, 1));
+			part.m_wRight = Text(lx + panelW - 100, py + 6, 80, 20, 17, m_cText);
+			py += rowH;
 		}
 
 		// ---------------- Right panel: hardpoints + heatsinks ----------------
-		float rx = sw - EDGE - PANEL_W;
-		Rect(rx, top, PANEL_W, bottom - top, m_cPanel, 0);
-		Rect(rx, top, PANEL_W, 3, m_cAccent, 1);
-		Text(rx + 20, top + 14, PANEL_W - 40, 20, 13, m_cAccent, "HARDPOINTS  (click = select · right-click = empty)");
+		float rx = sw - EDGE - panelW;
+		Rect(rx, top, panelW, bottom - top, m_cPanel, 0);
+		Rect(rx, top, panelW, 3, m_cAccent, 1);
+		Text(rx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, "HARDPOINTS   click = select | right-click = empty");
 
-		float hy = top + 44;
+		float hy = top + 42;
 		for (int hp = 0; hp < m_Hardpoints.GetHardpointCount(); hp++)
 		{
 			if (hy + 64 > bottom - 140)
 				break;
-			RW_LabRow slot = AddRow(ROW_HARDPOINT, hp, rx + 14, hy, PANEL_W - 28, 58);
-			slot.m_wTitle = Text(rx + 28, hy + 6, 260, 20, 15, m_cAccent);
-			slot.m_wSub = Text(rx + 28, hy + 30, 380, 22, 18, m_cText);
-			slot.m_wRight = Text(rx + PANEL_W - 168, hy + 8, 140, 18, 12, m_cDim);
+			RW_LabRow slot = AddRow(ROW_HARDPOINT, hp, rx + 12, hy, panelW - 24, 58);
+			slot.m_wTitle = Text(rx + 26, hy + 6, 200, 20, 16, m_cAccent);
+			slot.m_wSub = Text(rx + 26, hy + 30, panelW - 50, 22, 18, m_cText);
+			slot.m_wRight = Text(rx + panelW - 190, hy + 8, 166, 18, 13, m_cDim);
 			hy += 64;
 		}
 
 		// Heatsinks.
 		float hsY = bottom - 120;
-		Text(rx + 20, hsY, PANEL_W - 40, 18, 13, m_cAccent, "HEATSINKS");
-		m_wHsText = Text(rx + 20, hsY + 26, PANEL_W - 150, 44, 16, m_cText);
-		RW_LabRow minus = AddRow(ROW_HS_MINUS, 0, rx + PANEL_W - 124, hsY + 22, 48, 44);
-		minus.m_wTitle = Text(rx + PANEL_W - 124, hsY + 30, 48, 28, 24, m_cText, "-");
+		Text(rx + 18, hsY, panelW - 36, 18, 14, m_cAccent, "HEATSINKS");
+		m_wHsText = Text(rx + 18, hsY + 26, panelW - 150, 44, 16, m_cText);
+		RW_LabRow minus = AddRow(ROW_HS_MINUS, 0, rx + panelW - 120, hsY + 22, 48, 44);
+		minus.m_wTitle = Text(rx + panelW - 120, hsY + 28, 48, 30, 26, m_cText, "-");
 		minus.m_wTitle.SetFlags(WidgetFlags.CENTER);
-		RW_LabRow plus = AddRow(ROW_HS_PLUS, 0, rx + PANEL_W - 68, hsY + 22, 48, 44);
-		plus.m_wTitle = Text(rx + PANEL_W - 68, hsY + 30, 48, 28, 24, m_cText, "+");
+		RW_LabRow plus = AddRow(ROW_HS_PLUS, 0, rx + panelW - 64, hsY + 22, 48, 44);
+		plus.m_wTitle = Text(rx + panelW - 64, hsY + 28, 48, 30, 26, m_cText, "+");
 		plus.m_wTitle.SetFlags(WidgetFlags.CENTER);
 
 		// ---------------- Bottom bar ----------------
 		float by = sh - EDGE - 56;
-		float bw = 180;
-		float bx = sw * 0.5 - (bw * 3 + 24) * 0.5;
+		float bw = 150;
+		float vw = 60;
+		float groupW = vw * 2 + bw * 3 + 12 * 4;
+		float bx = sw * 0.5 - groupW * 0.5;
 		Rect(lx, by - 8, sw - EDGE * 2, 64, m_cPanel, 0);
-		AddButton(BTN_RESET, "RESET", bx, by, bw);
-		AddButton(BTN_APPLY, "APPLY", bx + bw + 12, by, bw);
-		AddButton(BTN_CLOSE, "CLOSE", bx + (bw + 12) * 2, by, bw);
-		m_wStatus = Text(lx + 20, by + 14, bx - lx - 40, 24, 16, m_cText);
-		m_wSwapping = Text(bx + (bw + 12) * 3 + 20, by + 14, 400, 24, 16, m_cAccent);
+		AddButton(BTN_VIEW_LEFT, "<", bx, by, vw);
+		AddButton(BTN_RESET, "RESET", bx + vw + 12, by, bw);
+		AddButton(BTN_APPLY, "APPLY", bx + vw + bw + 24, by, bw);
+		AddButton(BTN_CLOSE, "CLOSE", bx + vw + bw * 2 + 36, by, bw);
+		AddButton(BTN_VIEW_RIGHT, ">", bx + vw + bw * 3 + 48, by, vw);
+		m_wStatus = Text(lx + 18, by + 14, bx - lx - 36, 24, 16, m_cText);
+		m_wSwapping = Text(bx + groupW + 20, by + 14, sw - EDGE - bx - groupW - 30, 24, 16, m_cAccent);
+
+		// ---------------- Markers on the mech (one per hardpoint) ----------------
+		m_fLeftEdge = lx + panelW + 10;
+		m_fRightEdge = rx - 10;
+		m_fBottomEdge = by - 16;
+		for (int m = 0; m < m_Hardpoints.GetHardpointCount(); m++)
+		{
+			RW_LabRow marker = new RW_LabRow();
+			marker.m_iKind = ROW_MARKER;
+			marker.m_iValue = m;
+			marker.m_fW = 30;
+			marker.m_fH = 30;
+			marker.m_bHidden = true;
+			marker.m_wBg = Rect(0, 0, 22, 22, m_cAccent, 8);
+			marker.m_wAccent = Rect(0, 0, 10, 10, new Color(0, 0, 0, 0.8), 9);
+			marker.m_wTitle = Text(0, 0, 320, 22, 16, m_cText, "", 9);
+			marker.m_wSub = Text(0, 0, 320, 20, 14, m_cDim, "", 9);
+			m_aRows.Insert(marker);
+		}
 
 		m_wDragGhost = Text(0, 0, 300, 26, 18, m_cAccent, "", 20);
 		m_wDragGhost.SetVisible(false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Where a hardpoint is on the mech, in the world. False if it can't be found.
+	protected bool HardpointWorldPos(int hp, out vector pos)
+	{
+		IEntity module = m_Hardpoints.GetModuleEntityAt(hp);
+		if (module)
+		{
+			pos = module.GetOrigin();
+			return true;
+		}
+
+		if (!m_Hardpoints.m_aHardpoints || hp < 0 || hp >= m_Hardpoints.m_aHardpoints.Count())
+			return false;
+		BFA_MechHardpointDefinition def = m_Hardpoints.m_aHardpoints[hp];
+		if (!def)
+			return false;
+
+		if (def.m_Point)
+		{
+			vector mat[4];
+			def.m_Point.Init(m_pMech);
+			def.m_Point.GetModelTransform(mat);
+			pos = m_pMech.CoordToParent(mat[3]);
+			return true;
+		}
+
+		if (!def.m_sAimMountId.IsEmpty())
+		{
+			BFA_MechWeaponMountComponent mounts = BFA_MechWeaponMountComponent.Cast(m_pMech.FindComponent(BFA_MechWeaponMountComponent));
+			if (mounts)
+			{
+				IEntity mount = mounts.GetMountEntity(def.m_sAimMountId);
+				if (mount)
+				{
+					pos = mount.GetOrigin();
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshMarker(RW_LabRow row, bool hovered, vector camPos, vector camForward)
+	{
+		int hp = row.m_iValue;
+		vector world;
+		bool show = HardpointWorldPos(hp, world) && vector.Dot(world - camPos, camForward) > 0.5;
+
+		float x, y;
+		if (show)
+		{
+			vector screen = GetGame().GetWorkspace().ProjWorldToScreen(world, GetGame().GetWorld());
+			x = screen[0] / m_fS;
+			y = screen[1] / m_fS;
+			// Hidden behind a panel: don't steal clicks from it.
+			show = x > m_fLeftEdge && x < m_fRightEdge && y > EDGE && y < m_fBottomEdge;
+		}
+
+		row.m_bHidden = !show;
+		row.m_wBg.SetVisible(show);
+		row.m_wAccent.SetVisible(show);
+		row.m_wTitle.SetVisible(show);
+		row.m_wSub.SetVisible(show);
+		if (!show)
+			return;
+
+		bool selected = hp == m_iSelectedHp;
+		bool dropTarget = m_bDragging && hovered;
+		float size = 16;
+		if (selected || dropTarget)
+			size = 24;
+		if (hovered)
+			size = size + 4;
+
+		// Selected one pulses.
+		if (selected)
+			size = size + Math.Sin(Now() * 6) * 3;
+
+		row.m_fX = x - 15;
+		row.m_fY = y - 15;
+		PlaceS(row.m_wBg, x - size * 0.5, y - size * 0.5);
+		SizeS(row.m_wBg, size, size);
+		PlaceS(row.m_wAccent, x - 4, y - 4);
+		SizeS(row.m_wAccent, 8, 8);
+
+		if (selected || dropTarget)
+			row.m_wBg.SetColor(m_cAccent);
+		else
+			row.m_wBg.SetColor(new Color(1, 1, 1, 0.75));
+
+		int planned = m_aPending[hp];
+		PlaceS(row.m_wTitle, x + 20, y - 20);
+		PlaceS(row.m_wSub, x + 20, y + 1);
+		row.m_wTitle.SetText(m_Hardpoints.GetHardpointName(hp));
+		if (selected)
+			row.m_wTitle.SetColor(m_cAccent);
+		else
+			row.m_wTitle.SetColor(m_cText);
+		row.m_wSub.SetText(PartName(planned));
+		if (planned != m_Hardpoints.GetModuleAt(hp))
+			row.m_wSub.SetColor(new Color(1, 0.8, 0.3, 1));
+		else
+			row.m_wSub.SetColor(m_cDim);
 	}
 
 	//==================================================================================================
@@ -641,10 +948,10 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// Frame + stats.
 		m_wFrameName.SetText(m_Frame.GetFrameName());
-		m_wFrameClass.SetText(typename.EnumToString(RW_EWeightClass, m_Frame.GetWeightClass()) + " FRAME  ·  empty " + Tons(m_Frame.GetFrameTons()));
+		m_wFrameClass.SetText(typename.EnumToString(RW_EWeightClass, m_Frame.GetWeightClass()) + " FRAME  |  empty " + Tons(m_Frame.GetFrameTons()));
 		m_wTonsText.SetText(Tons(tons) + " / " + Tons(maxTons));
 		float used = Math.Clamp(tons / Math.Max(maxTons, 1), 0, 1);
-		FrameSlot.SetSize(m_wTonsFill, Math.Max((PANEL_W - 40) * used, 1), 12);
+		SizeS(m_wTonsFill, Math.Max(m_fBarW * used, 1), 12);
 		if (over)
 			m_wTonsFill.SetColor(m_cBad);
 		else if (used > 0.9)
@@ -660,14 +967,49 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (sink)
 			sinkCooling = sink.m_fCooling * m_iPendingHS;
 		m_wCooling.SetText(string.Format("COOLING   %1 heat/s   (frame %2 + heatsinks %3)", Math.Round((baseCooling + sinkCooling) * 10) / 10, baseCooling, Math.Round(sinkCooling * 10) / 10));
+		// Heat if every fitted weapon fires non-stop, against cooling.
+		float fireHeat = 0;
+		bool heatKnown = true;
+		foreach (int plannedId : m_aPending)
+		{
+			if (plannedId <= 0)
+				continue;
+			float perSecond = RW_LabStats.For(m_Hardpoints, plannedId).HeatPerSecond();
+			if (perSecond < 0)
+				heatKnown = false;
+			else
+				fireHeat = fireHeat + perSecond;
+		}
+		float totalCooling = baseCooling + sinkCooling;
+		string fireLine = "FIRING HEAT   " + (Math.Round(fireHeat * 10) / 10).ToString() + " heat/s";
+		if (!heatKnown)
+			fireLine = fireLine + " +?";
+		if (fireHeat > totalCooling + 0.01)
+		{
+			fireLine = fireLine + "   RUNS HOT";
+			m_wFireHeat.SetColor(new Color(1, 0.65, 0.3, 1));
+		}
+		else
+		{
+			fireLine = fireLine + "   cooling keeps up";
+			m_wFireHeat.SetColor(m_cGood);
+		}
+		m_wFireHeat.SetText(fireLine);
+
 		m_wSpeed.SetText("TOP SPEED   " + Math.Round(m_Frame.SpeedScaleForTons(tons) * 100).ToString() + "%");
 
-		// Parts and hardpoints.
+		// Camera for the markers.
+		vector cam[4];
+		GetGame().GetWorld().GetCurrentCamera(cam);
+
+		// Parts, hardpoints, markers.
 		for (int r = 0; r < m_aRows.Count(); r++)
 		{
 			RW_LabRow row = m_aRows[r];
 			bool hovered = r == hover;
-			if (row.m_iKind == ROW_PART)
+			if (row.m_iKind == ROW_MARKER)
+				RefreshMarker(row, hovered, cam[3], cam[2]);
+			else if (row.m_iKind == ROW_PART)
 				RefreshPart(row, hovered);
 			else if (row.m_iKind == ROW_HARDPOINT)
 				RefreshHardpoint(row, hovered);
@@ -678,7 +1020,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		// Heatsinks.
 		string sinkLine = string.Format("%1 extra  (max %2)", m_iPendingHS, m_Frame.GetMaxExtraHeatsinks());
 		if (sink)
-			sinkLine = sinkLine + string.Format("\n+%1 heat/s · %2", Math.Round(sinkCooling * 10) / 10, Tons(sink.m_fTons * m_iPendingHS));
+			sinkLine = sinkLine + string.Format("\n+%1 heat/s | %2", Math.Round(sinkCooling * 10) / 10, Tons(sink.m_fTons * m_iPendingHS));
 		m_wHsText.SetText(sinkLine);
 
 		// Drag ghost.
@@ -686,7 +1028,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		m_wDragGhost.SetVisible(dragging);
 		if (dragging)
 		{
-			FrameSlot.SetPos(m_wDragGhost, m_fMouseX + 16, m_fMouseY + 8);
+			PlaceS(m_wDragGhost, m_fMouseX + 16, m_fMouseY + 8);
 			m_wDragGhost.SetText(PartName(m_aRows[m_iPressRow].m_iValue));
 		}
 
@@ -713,11 +1055,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 		{
 			sub = "";
 			if (item)
-				sub = typename.EnumToString(RW_EHardpointType, item.m_eType) + " · " + typename.EnumToString(RW_ESize, item.m_eSize);
+				sub = typename.EnumToString(RW_EHardpointType, item.m_eType) + " | " + typename.EnumToString(RW_ESize, item.m_eSize);
 			if (!fits)
-				sub = sub + "  —  " + reason;
+				sub = sub + "  -  " + reason;
 		}
 		row.m_wSub.SetText(sub);
+		if (row.m_wStats)
+			row.m_wStats.SetText(RW_LabStats.For(m_Hardpoints, id).Line());
 		if (id == 0)
 			row.m_wRight.SetText("");
 		else
@@ -728,6 +1072,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 			title = m_cDim;
 		row.m_wTitle.SetColor(title);
 		row.m_wRight.SetColor(title);
+		if (row.m_wStats)
+		{
+			if (fits)
+				row.m_wStats.SetColor(new Color(0.6, 0.85, 1, 1));
+			else
+				row.m_wStats.SetColor(m_cDim);
+		}
 		if (!fits)
 			row.m_wSub.SetColor(m_cBad);
 		else
@@ -750,9 +1101,9 @@ class RW_MechLabMenu : ChimeraMenuBase
 		string accepts = "takes anything";
 		if (rules)
 		{
-			accepts = typename.EnumToString(RW_EHardpointType, rules.m_eType) + " · up to " + typename.EnumToString(RW_ESize, rules.m_eMaxSize);
+			accepts = typename.EnumToString(RW_EHardpointType, rules.m_eType) + " | up to " + typename.EnumToString(RW_ESize, rules.m_eMaxSize);
 			if (rules.m_eType == RW_EHardpointType.ANY)
-				accepts = "ANY · up to " + typename.EnumToString(RW_ESize, rules.m_eMaxSize);
+				accepts = "ANY | up to " + typename.EnumToString(RW_ESize, rules.m_eMaxSize);
 		}
 
 		int planned = m_aPending[hp];

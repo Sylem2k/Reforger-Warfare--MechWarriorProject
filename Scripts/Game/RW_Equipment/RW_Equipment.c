@@ -40,6 +40,9 @@ class RW_EquipmentEntry
 
 	[Attribute("1", UIWidgets.Auto, "Weight in tons.")]
 	float m_fTons;
+
+	[Attribute("0", UIWidgets.Auto, "Heat removed per second (heatsinks).")]
+	float m_fCooling;
 }
 
 //------------------------------------------------------------------------------------------------
@@ -73,6 +76,13 @@ class RW_EquipmentCatalog
 			s_Instance = new RW_EquipmentCatalog();
 		}
 		return s_Instance;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The heatsink entry (id HEATSINK): its weight and cooling are used for every extra heatsink.
+	RW_EquipmentEntry GetHeatsink()
+	{
+		return Find("HEATSINK");
 	}
 
 	//------------------------------------------------------------------------------------------------

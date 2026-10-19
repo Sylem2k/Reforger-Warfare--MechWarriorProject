@@ -39,6 +39,10 @@ class RW_FrameHardpoint
 //------------------------------------------------------------------------------------------------
 class RW_MechFrameComponent : ScriptComponent
 {
+	//! Set by the mech bay while it applies a loadout (swaps are otherwise refused when Swap Only
+	//! At Mech Bay is on).
+	static bool s_bMechBayApplying;
+
 	[Attribute("Unnamed Frame", UIWidgets.EditBox, "Frame name shown to players. Use your own names.", category: "Frame")]
 	protected string m_sFrameName;
 
@@ -53,6 +57,16 @@ class RW_MechFrameComponent : ScriptComponent
 
 	[Attribute("", UIWidgets.Object, "What each hardpoint accepts. Hardpoints not listed take anything.", category: "Hardpoints")]
 	protected ref array<ref RW_FrameHardpoint> m_aHardpoints;
+
+	[Attribute("0", UIWidgets.Auto, "Extra heatsinks installed (the mech bay changes this). Each one weighs and cools as the HEATSINK entry in RW_Equipment.conf says. The frame's built-in cooling is the Core heat component's Cooling Per Second.", category: "Heat")]
+	[RplProp()]
+	protected int m_iExtraHeatsinks;
+
+	[Attribute("20", UIWidgets.Auto, "Most extra heatsinks this frame can take.", category: "Heat")]
+	protected int m_iMaxExtraHeatsinks;
+
+	[Attribute("false", UIWidgets.CheckBox, "Loadouts can only be changed at a mech bay. Leave off until the mech bay exists (field swaps with R are allowed while off).", category: "Rules")]
+	protected bool m_bSwapOnlyAtMechBay;
 
 	[Attribute("0.15", UIWidgets.Slider, "Speed lost when fully loaded (0.15 = 15% slower at max tons).", "0 0.5 0.01", category: "Movement")]
 	protected float m_fLoadSlowdown;
@@ -88,6 +102,63 @@ class RW_MechFrameComponent : ScriptComponent
 		return m_fFrameTons;
 	}
 
+	int GetExtraHeatsinks()
+	{
+		return m_iExtraHeatsinks;
+	}
+
+	int GetMaxExtraHeatsinks()
+	{
+		return m_iMaxExtraHeatsinks;
+	}
+
+	bool SwapOnlyAtMechBay()
+	{
+		return m_bSwapOnlyAtMechBay;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Weight of the extra heatsinks.
+	float HeatsinkTons(int count)
+	{
+		RW_EquipmentEntry sink = RW_EquipmentCatalog.Get().GetHeatsink();
+		if (!sink)
+			return 0;
+		return Math.Max(count, 0) * Math.Max(sink.m_fTons, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Extra heat removed per second by the extra heatsinks.
+	float ExtraCooling()
+	{
+		RW_EquipmentEntry sink = RW_EquipmentCatalog.Get().GetHeatsink();
+		if (!sink)
+			return 0;
+		return Math.Max(m_iExtraHeatsinks, 0) * Math.Max(sink.m_fCooling, 0);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Server (mech bay): set the extra heatsink count. Refused if it breaks the tonnage.
+	bool ServerSetExtraHeatsinks(int count, out string reason)
+	{
+		reason = string.Empty;
+		if (!Replication.IsServer())
+			return false;
+
+		count = Math.Clamp(count, 0, Math.Max(m_iMaxExtraHeatsinks, 0));
+		int old = m_iExtraHeatsinks;
+		m_iExtraHeatsinks = count;
+		float tons = CurrentTons();
+		if (tons > m_fMaxTons + 0.001)
+		{
+			m_iExtraHeatsinks = old;
+			reason = string.Format("too heavy: %1 of %2 tons", tons, m_fMaxTons);
+			return false;
+		}
+		Replication.BumpMe();
+		return true;
+	}
+
 	//------------------------------------------------------------------------------------------------
 	//! Rules for one hardpoint (null = takes anything).
 	RW_FrameHardpoint FindHardpoint(string name)
@@ -118,7 +189,7 @@ class RW_MechFrameComponent : ScriptComponent
 	//! Total weight of a loadout (frame + every module), for the HUD and the mech bay.
 	float LoadoutTons(BFA_MechHardpointComponent hardpoints, array<int> modules)
 	{
-		float total = m_fFrameTons;
+		float total = m_fFrameTons + HeatsinkTons(m_iExtraHeatsinks);
 		if (!hardpoints || !modules)
 			return total;
 		foreach (int id : modules)
@@ -234,7 +305,7 @@ class RW_MechFrameComponent : ScriptComponent
 		if (!CheckLoadout(hardpoints, modules, reason))
 			Print(string.Format("[RW FRAME] %1: the default loadout breaks the frame rules: %2", m_sFrameName, reason), LogLevel.WARNING);
 		else
-			Print(string.Format("[RW FRAME] %1 (%2): %3 / %4 tons", m_sFrameName, typename.EnumToString(RW_EWeightClass, m_eWeightClass), LoadoutTons(hardpoints, modules), m_fMaxTons));
+			Print(string.Format("[RW FRAME] %1 (%2): %3 / %4 tons, %5 extra heatsinks (+%6 cooling/s)", m_sFrameName, typename.EnumToString(RW_EWeightClass, m_eWeightClass), LoadoutTons(hardpoints, modules), m_fMaxTons, m_iExtraHeatsinks, ExtraCooling()));
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -262,7 +333,25 @@ modded class BFA_MechExtension
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
 		if (!frame)
 			return true;
+
+		// The mech bay sets this while it applies a loadout.
+		if (frame.SwapOnlyAtMechBay() && !RW_MechFrameComponent.s_bMechBayApplying)
+		{
+			reason = "loadouts can only be changed at a mech bay";
+			return false;
+		}
 		return frame.CheckLoadout(hardpoints, targetModules, reason);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Extra heatsinks cool the mech (Core heat asks every tick).
+	override float GetExtraCooling(IEntity mech)
+	{
+		float cooling = super.GetExtraCooling(mech);
+		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
+		if (frame)
+			cooling += frame.ExtraCooling();
+		return cooling;
 	}
 
 	//------------------------------------------------------------------------------------------------

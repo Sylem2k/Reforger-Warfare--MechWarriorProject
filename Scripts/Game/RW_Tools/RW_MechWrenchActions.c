@@ -128,6 +128,9 @@ class RW_MechWrench
 			int id = candidates[index];
 			if (id == current)
 				continue;
+			// Core class check too (a SHOULDER-only part never goes on the ARM).
+			if (!hardpoints.CanModuleFit(hardpointIndex, id))
+				continue;
 
 			loadout[hardpointIndex] = id;
 			string reason;

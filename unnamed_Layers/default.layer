@@ -1,17 +1,9 @@
+GenericEntity {
+ coords 218.107 1 105.049
+}
 GenericEntity : "{33B2DFDCD0EBA3DB}Prefabs/Items/Equipment/Kits/RepairKit_01/Mech Wrench.et" {
  coords 214.153 1 102.41
 }
-Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et" {
- components {
-  MeshObject "{6A8740653CE8FB20}" {
-   Object "{6D5E1AAEACE9D600}Common/Models/Mech/Mech_Body.xob"
-  }
- }
- coords 214.378 3.191 98.477
-}
 GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
  coords 214.216 2.977 93.981
-}
-GenericEntity : "{A11B4582860DB579}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22_With Lazer.et" {
- coords 218.107 1 105.049
 }

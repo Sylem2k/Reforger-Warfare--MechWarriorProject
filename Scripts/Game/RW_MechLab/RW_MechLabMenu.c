@@ -1449,8 +1449,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 			{
 				RW_SavedBuild build = RW_SavedBuild.FindSlot(m_aBuilds, frameGuid, slot);
 				RW_LabRow saved = AddRow(ROW_ORDER, i * 100 + slot, x + 44, ry, w - 120, 36);
-				saved.m_wTitle = Text(x + 58, ry + 8, w - 300, 22, 16, m_cText, "SAVED  " + build.m_sName);
-				saved.m_wRight = Text(x + w - 240, ry + 8, 150, 22, 16, m_cGood, "BUILD READY >");
+				string shown = build.m_sName;
+				if (shown.Length() > 34)
+					shown = shown.Substring(0, 32) + "..";
+				saved.m_wTitle = Text(x + 58, ry + 8, w - 330, 22, 15, m_cText, "SAVED  " + shown);
+				saved.m_wRight = Text(x + w - 210, ry + 8, 130, 22, 15, m_cGood, "READY >");
 				RW_LabRow del = AddRow(ROW_DELETE, i * 100 + slot, x + w - 68, ry, 40, 36);
 				del.m_wTitle = Text(x + w - 68, ry + 7, 40, 22, 18, m_cBad, "X");
 				del.m_wTitle.SetFlags(WidgetFlags.CENTER);

@@ -52,7 +52,7 @@ Vehicle {
      m_iClass 1
      m_sAimMountId "SENTINEL_LAS"
      m_bBindExistingAimMount 1
-     m_iDefaultModuleId 1
+     m_iDefaultModuleId 0
      m_Point PointInfo "{223B333945A1D4B2}" {
       Offset -0.6285 0.3993 0
      }
@@ -67,8 +67,9 @@ Vehicle {
      m_sLabel "Las Cannon"
      m_iClass 1
      m_sWeaponModuleId "LAS_CANNON"
+     m_sPrefab "{7B0F048CEF6B4439}Prefabs/Vehicles/Mech/Mech_Parts/Las_Cannon_Arm.et"
      m_fWeightTons 0
-     m_fSwapTime 0
+     m_fSwapTime 3
     }
     BFA_MechModuleDefinition "{2881A1D6C59C92E1}" {
      m_iId 2
@@ -90,6 +91,15 @@ Vehicle {
     }
    }
    m_aLoadoutPresets {
+    BFA_MechLoadoutPreset "{6DA8D4A825E06A6D}" {
+     m_sName "Empty"
+     m_aSlots {
+      BFA_MechLoadoutSlot "{021398BF99330FF8}" {
+       m_sHardpoint "ARM"
+       m_iModuleId 0
+      }
+     }
+    }
     BFA_MechLoadoutPreset "{156643D684326652}" {
      m_sName "Las Cannon"
      m_aSlots {
@@ -426,6 +436,21 @@ Vehicle {
    DeactivationDelay 2
   }
   NwkMovementComponent "{7C1A9E2D4F6B8301}" {
+  }
+  RW_MechFrameComponent "{9B1C4D875E39A77B}" {
+   m_sFrameName "Test Frame"
+   m_eWeightClass LIGHT
+   m_fMaxTons 35
+   m_fFrameTons 25
+   m_aHardpoints {
+    RW_FrameHardpoint "{098B692C87D025B7}" {
+     m_sHardpoint "ARM"
+     m_eType ANY
+     m_eMaxSize MEDIUM
+    }
+   }
+   m_iStartExtraHeatsinks 0
+   m_iMaxExtraHeatsinks 10
   }
   CGS_MechDeathComponent "{24AF6AF2B07E6E5A}" {
   }

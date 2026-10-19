@@ -2,7 +2,23 @@
 //! REFORGER WARFARE - MECH BAY. Put this on a bay prefab. A mech parked within the radius can be
 //! refitted with the Mech Lab from the bay's "Open Mech Bay" action, without the Mech Wrench.
 //! Frames with "Swap Only At Mech Bay" can ONLY be refitted while parked in a bay.
+//! ORDER FRAME: with the pad empty, "Open Mech Bay" shows the bay's frame list; pick one and the
+//! bay builds the bare frame on the parking spot, then the Mech Lab opens on it.
 //! Later: repair, rearm, cool-down and supply cost go here.
+
+//------------------------------------------------------------------------------------------------
+//! One frame the bay can build.
+[BaseContainerProps(), SCR_BaseContainerCustomTitleField("m_sName")]
+class RW_BayFrameEntry
+{
+	[Attribute("", UIWidgets.EditBox, "Name in the order list. Empty = the frame's own name.")]
+	string m_sName;
+
+	[Attribute("", UIWidgets.ResourceNamePicker, "Mech prefab to build (spawns with its default, usually empty, loadout).", "et")]
+	ResourceName m_sPrefab;
+}
+
+//------------------------------------------------------------------------------------------------
 class RW_MechBayComponentClass : ScriptComponentClass
 {
 }
@@ -20,6 +36,23 @@ class RW_MechBayComponent : ScriptComponent
 
 	[Attribute("true", UIWidgets.CheckBox, "Refits here need no Mech Wrench.", category: "Mech Bay")]
 	protected bool m_bNoToolNeeded;
+
+	[Attribute("", UIWidgets.Object, "Frames this bay can build (Order Frame).", category: "Frames")]
+	protected ref array<ref RW_BayFrameEntry> m_aFrames;
+
+	[Attribute("20", UIWidgets.Auto, "Seconds between two builds at this bay.", category: "Frames")]
+	protected float m_fBuildCooldown;
+
+	[Attribute("0.5", UIWidgets.Auto, "The new mech appears this many metres above the ground at the parking spot.", category: "Frames")]
+	protected float m_fSpawnHeight;
+
+	// Last bay message (built / refused and why), shown in the order screen.
+	[RplProp()]
+	protected string m_sBayMessage;
+	[RplProp()]
+	protected int m_iBayMessageSeq;
+
+	protected float m_fNextBuildTime;   // server
 
 	protected static ref array<RW_MechBayComponent> s_aBays;
 
@@ -103,6 +136,108 @@ class RW_MechBayComponent : ScriptComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	int GetFrameCount()
+	{
+		if (!m_aFrames)
+			return 0;
+		return m_aFrames.Count();
+	}
+
+	RW_BayFrameEntry GetFrameEntry(int index)
+	{
+		if (!m_aFrames || index < 0 || index >= m_aFrames.Count())
+			return null;
+		return m_aFrames[index];
+	}
+
+	string GetBayMessage()
+	{
+		return m_sBayMessage;
+	}
+
+	int GetBayMessageSeq()
+	{
+		return m_iBayMessageSeq;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ServerBayMessage(string message)
+	{
+		m_sBayMessage = message;
+		m_iBayMessageSeq++;
+		Replication.BumpMe();
+		Print("[RW MECH BAY] " + m_sBayName + ": " + message);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Server: build frame 'index' on the pad for this player.
+	bool ServerOrderFrame(int index, IEntity user)
+	{
+		if (!Replication.IsServer())
+			return false;
+
+		RW_BayFrameEntry entry = GetFrameEntry(index);
+		if (!entry || entry.m_sPrefab.IsEmpty())
+		{
+			ServerBayMessage("REFUSED: no such frame");
+			return false;
+		}
+		if (!user || vector.Distance(user.GetOrigin(), GetOwner().GetOrigin()) > m_fRadius + 10)
+		{
+			ServerBayMessage("REFUSED: too far from the bay");
+			return false;
+		}
+		if (FindParkedMech())
+		{
+			ServerBayMessage("REFUSED: pad occupied - move the mech off the pad first");
+			return false;
+		}
+		float now = GetGame().GetWorld().GetWorldTime() * 0.001;
+		if (now < m_fNextBuildTime)
+		{
+			ServerBayMessage(string.Format("REFUSED: crew busy, ready in %1 s", Math.Ceil(m_fNextBuildTime - now)));
+			return false;
+		}
+
+		Resource resource = Resource.Load(entry.m_sPrefab);
+		if (!resource || !resource.IsValid())
+		{
+			ServerBayMessage("REFUSED: frame prefab missing");
+			return false;
+		}
+
+		// On the ground at the parking spot, facing the way the bay faces.
+		BaseWorld world = GetOwner().GetWorld();
+		vector spot = GetParkingSpot();
+		spot[1] = world.GetSurfaceY(spot[0], spot[2]) + m_fSpawnHeight;
+		vector angles = GetOwner().GetYawPitchRoll();
+		vector mat[4];
+		Math3D.AnglesToMatrix(Vector(angles[0], 0, 0), mat);
+
+		EntitySpawnParams params = new EntitySpawnParams();
+		params.TransformMode = ETransformMode.WORLD;
+		params.Transform[0] = mat[0];
+		params.Transform[1] = mat[1];
+		params.Transform[2] = mat[2];
+		params.Transform[3] = spot;
+
+		IEntity mech = GetGame().SpawnEntityPrefab(resource, world, params);
+		if (!mech)
+		{
+			ServerBayMessage("REFUSED: could not build the frame");
+			return false;
+		}
+
+		m_fNextBuildTime = now + Math.Max(m_fBuildCooldown, 0);
+		string name = entry.m_sName;
+		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
+		if (name.IsEmpty() && frame)
+			name = frame.GetFrameName();
+		ServerBayMessage(name + " built - fit it out");
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! The mech parked closest to the parking spot, or null. Walks the frame list (a handful of
 	//! mechs) - no area scan, so it is cheap enough for the action prompt.
 	IEntity FindParkedMech()
@@ -165,7 +300,7 @@ class RW_MechBayOpenAction : ScriptedUserAction
 	//------------------------------------------------------------------------------------------------
 	override bool CanBePerformedScript(IEntity user)
 	{
-		if (!ParkedMech())
+		if (!ParkedMech() && m_Bay.GetFrameCount() == 0)
 		{
 			SetCannotPerformReason("No mech parked in the bay");
 			return false;
@@ -180,6 +315,8 @@ class RW_MechBayOpenAction : ScriptedUserAction
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
 		if (frame)
 			outName = "Open Mech Bay (" + frame.GetFrameName() + ")";
+		else if (m_Bay && m_Bay.GetFrameCount() > 0)
+			outName = "Mech Bay: Order Frame";
 		else
 			outName = "Open Mech Bay";
 		return true;
@@ -200,5 +337,7 @@ class RW_MechBayOpenAction : ScriptedUserAction
 		IEntity mech = ParkedMech();
 		if (mech)
 			RW_MechLabMenu.OpenFor(mech);
+		else if (m_Bay.GetFrameCount() > 0)
+			RW_MechLabMenu.OpenOrder(m_Bay);
 	}
 }

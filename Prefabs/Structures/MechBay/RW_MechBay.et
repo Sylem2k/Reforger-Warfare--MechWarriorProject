@@ -31,6 +31,14 @@ GenericEntity {
   RW_MechBayComponent "{8643B81E650A437F}" {
    m_sBayName "Mech Bay"
    m_fRadius 15
+   m_vParkingOffset 0 0 12
+   m_aFrames {
+    RW_BayFrameEntry "{6D351B2848CDE0A6}" {
+     m_sName "Test Frame (Light)"
+     m_sPrefab "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et"
+    }
+   }
+   m_fBuildCooldown 20
   }
  }
 }

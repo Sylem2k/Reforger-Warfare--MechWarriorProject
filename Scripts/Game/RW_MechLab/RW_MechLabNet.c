@@ -97,4 +97,39 @@ modded class SCR_PlayerController
 		else
 			frame.ServerCrewMessage("REFUSED: " + reason);
 	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Client: ask a Mech Bay to build frame 'index' on its pad.
+	void RW_RequestOrderFrame(IEntity bayEntity, int index)
+	{
+		if (!bayEntity)
+			return;
+		RplComponent rpl = RplComponent.Cast(bayEntity.FindComponent(RplComponent));
+		if (!rpl)
+			return;
+		if (Replication.IsServer())
+		{
+			RW_ServerOrderFrame(rpl.Id(), index);
+			return;
+		}
+		Rpc(RW_RpcAsk_OrderFrame, rpl.Id(), index);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RW_RpcAsk_OrderFrame(RplId bayId, int index)
+	{
+		RW_ServerOrderFrame(bayId, index);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RW_ServerOrderFrame(RplId bayId, int index)
+	{
+		RplComponent rpl = RplComponent.Cast(Replication.FindItem(bayId));
+		if (!rpl || !rpl.GetEntity())
+			return;
+		RW_MechBayComponent bay = RW_MechBayComponent.Cast(rpl.GetEntity().FindComponent(RW_MechBayComponent));
+		if (bay)
+			bay.ServerOrderFrame(index, GetControlledEntity());
+	}
 }

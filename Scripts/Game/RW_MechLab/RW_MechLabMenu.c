@@ -166,6 +166,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_HS_MINUS = 3;
 	static const int ROW_HS_PLUS = 4;
 	static const int ROW_MARKER = 5;
+	static const int ROW_ORDER = 6;
 
 	static const int BTN_RESET = 0;
 	static const int BTN_APPLY = 1;
@@ -192,6 +193,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected ref Color m_cBad = new Color(1, 0.35, 0.3, 1);
 
 	protected static IEntity s_pNextMech;
+	protected static RW_MechBayComponent s_pNextBay;
+
+	// Order Frame mode (bay with an empty pad): pick a frame, the bay builds it, the lab opens.
+	protected RW_MechBayComponent m_OrderBay;
+	protected float m_fNextPadLook;
+	protected int m_iOrderSeenSeq = -1;
+	protected float m_fOrderMsgUntil;
 
 	protected IEntity m_pMech;
 	protected RW_MechFrameComponent m_Frame;
@@ -259,6 +267,22 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Open the bay's Order Frame screen (local player).
+	static void OpenOrder(RW_MechBayComponent bay)
+	{
+		if (!bay || !GetGame() || !GetGame().GetMenuManager())
+			return;
+		s_pNextMech = null;
+		s_pNextBay = bay;
+		MenuBase menu = GetGame().GetMenuManager().OpenMenu(ChimeraMenuPreset.RW_MechLab);
+		RW_MechLabMenu lab = RW_MechLabMenu.Cast(menu);
+		if (lab)
+			lab.m_OrderBay = bay;
+		else
+			Print("[RW MECH LAB] could not open the menu - is RW_MechLab in Configs/System/chimeraMenus.conf?", LogLevel.WARNING);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	void SetMech(IEntity mech)
 	{
 		if (m_pMech == mech && m_bBuilt)
@@ -280,6 +304,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 		super.OnMenuOpen();
 		if (s_pNextMech)
 			SetMech(s_pNextMech);
+		else if (s_pNextBay)
+			m_OrderBay = s_pNextBay;
 
 		if (SHOWROOM_CAMERA && m_pMech)
 		{
@@ -307,6 +333,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		m_wCanvas = null;
 		m_aRows.Clear();
 		s_pNextMech = null;
+		s_pNextBay = null;
 		super.OnMenuClose();
 	}
 
@@ -320,6 +347,12 @@ class RW_MechLabMenu : ChimeraMenuBase
 	override void OnMenuUpdate(float tDelta)
 	{
 		super.OnMenuUpdate(tDelta);
+
+		if (!m_pMech && m_OrderBay)
+		{
+			OrderUpdate();
+			return;
+		}
 
 		if (!m_pMech || !m_Frame || !m_Hardpoints || BFA_MechExtension.IsMechDestroyed(m_pMech))
 		{
@@ -555,7 +588,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (overIndex < 0 || m_aRows[overIndex] != pressed)
 			return;
 
-		if (pressed.m_iKind == ROW_PART)
+		if (pressed.m_iKind == ROW_ORDER)
+		{
+			OrderFrame(pressed.m_iValue);
+		}
+		else if (pressed.m_iKind == ROW_PART)
 		{
 			Assign(m_iSelectedHp, pressed.m_iValue);
 		}
@@ -677,7 +714,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	//! Builds the screen once the canvas knows its real size (the frame after it is made).
 	//! The canvas size is used instead of the workspace size, because in a Workbench window the
 	//! workspace can be wider than the game view (that pushed the right panel off screen).
-	protected bool Build()
+	protected bool PrepareCanvas(out float sw, out float sh)
 	{
 		WorkspaceWidget ws = GetGame().GetWorkspace();
 		Widget root = GetRootWidget();
@@ -705,14 +742,23 @@ class RW_MechLabMenu : ChimeraMenuBase
 			canvasW = ws.GetWidth();
 			canvasH = ws.GetHeight();
 		}
-		m_bBuilt = true;
 
 		// Design screen: 1080 / UI_SCALE units high, scaled up to the real screen.
 		float realW = ws.DPIUnscale(canvasW);
 		float realH = ws.DPIUnscale(canvasH);
 		m_fS = Math.Clamp(realH / 1080 * UI_SCALE, 0.75, 3);
-		float sw = realW / m_fS;
-		float sh = realH / m_fS;
+		sw = realW / m_fS;
+		sh = realH / m_fS;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool Build()
+	{
+		float sw, sh;
+		if (!PrepareCanvas(sw, sh))
+			return false;
+		m_bBuilt = true;
 
 		// Narrow screens: shrink the panels so the mech stays visible in the middle.
 		float panelW = Math.Min(PANEL_W, (sw - EDGE * 2) * 0.32);
@@ -1218,5 +1264,195 @@ class RW_MechLabMenu : ChimeraMenuBase
 		}
 		m_wStatus.SetText(text);
 		m_wStatus.SetColor(color);
+	}
+
+	//==================================================================================================
+	// ORDER FRAME (bay with an empty pad)
+	//==================================================================================================
+
+	//------------------------------------------------------------------------------------------------
+	protected void OrderUpdate()
+	{
+		IEntity bayEntity = m_OrderBay.GetOwner();
+		IEntity player = SCR_PlayerController.GetLocalControlledEntity();
+		if (!bayEntity || (player && vector.Distance(player.GetOrigin(), bayEntity.GetOrigin()) > m_OrderBay.GetRadius() + 12))
+		{
+			Close();
+			return;
+		}
+
+		// The frame is on the pad: switch to the Mech Lab for it.
+		float now = Now();
+		if (now >= m_fNextPadLook)
+		{
+			m_fNextPadLook = now + 0.5;
+			IEntity mech = m_OrderBay.FindParkedMech();
+			if (mech && RW_MechFrameComponent.Find(mech))
+			{
+				SwitchToLab(mech);
+				return;
+			}
+		}
+
+		if (!m_bBuilt && !BuildOrder())
+			return;
+
+		WorkspaceWidget ws = GetGame().GetWorkspace();
+		int mx, my;
+		WidgetManager.GetMousePos(mx, my);
+		m_fMouseX = ws.DPIUnscale(mx) / m_fS;
+		m_fMouseY = ws.DPIUnscale(my) / m_fS;
+
+		RefreshOrder();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void SwitchToLab(IEntity mech)
+	{
+		if (m_wCanvas)
+			m_wCanvas.RemoveFromHierarchy();
+		m_wCanvas = null;
+		m_aRows.Clear();
+		m_bBuilt = false;
+		m_iBuildTries = 0;
+		m_iPressRow = -1;
+		m_pMech = null;
+		SetMech(mech);
+		if (SHOWROOM_CAMERA && !m_Camera)
+		{
+			m_Camera = new RW_MechLabCamera();
+			if (!m_Camera.Start(mech))
+				m_Camera = null;
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Frame facts read from the prefab (name, class, tons) for the order list.
+	protected string FrameLine(RW_BayFrameEntry entry, out string title)
+	{
+		title = entry.m_sName;
+		string line = "";
+		Resource resource = Resource.Load(entry.m_sPrefab);
+		if (!resource || !resource.IsValid())
+			return "prefab missing";
+
+		IEntitySource source = resource.GetResource().ToEntitySource();
+		if (!source)
+			return "";
+		for (int c = 0; c < source.GetComponentCount(); c++)
+		{
+			IEntityComponentSource component = source.GetComponent(c);
+			if (!component || component.GetClassName() != "RW_MechFrameComponent")
+				continue;
+			string frameName;
+			int weightClass;
+			float maxTons, frameTons;
+			component.Get("m_sFrameName", frameName);
+			component.Get("m_eWeightClass", weightClass);
+			component.Get("m_fMaxTons", maxTons);
+			component.Get("m_fFrameTons", frameTons);
+			if (title.IsEmpty())
+				title = frameName;
+			line = typename.EnumToString(RW_EWeightClass, weightClass) + "  |  max " + maxTons.ToString() + " t  |  bare frame " + frameTons.ToString() + " t";
+			break;
+		}
+		if (title.IsEmpty())
+			title = "Frame";
+		return line;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected bool BuildOrder()
+	{
+		float sw, sh;
+		if (!PrepareCanvas(sw, sh))
+			return false;
+		m_bBuilt = true;
+
+		float w = 620;
+		int count = m_OrderBay.GetFrameCount();
+		float h = 150 + count * 76 + 90;
+		float x = sw * 0.5 - w * 0.5;
+		float y = Math.Max(sh * 0.5 - h * 0.5, EDGE);
+
+		Rect(x, y, w, h, m_cPanel, 0);
+		Rect(x, y, w, 3, m_cAccent, 1);
+		Text(x + 20, y + 14, w - 40, 20, 14, m_cAccent, "MECH BAY  |  " + m_OrderBay.GetBayName());
+		Text(x + 20, y + 36, w - 40, 34, 28, m_cText, "ORDER FRAME");
+		Text(x + 20, y + 74, w - 40, 40, 14, m_cDim, "Pick a frame. The bay builds it bare on the pad,\nthen the Mech Lab opens so you can fit it out.");
+
+		float ry = y + 126;
+		for (int i = 0; i < count; i++)
+		{
+			RW_BayFrameEntry entry = m_OrderBay.GetFrameEntry(i);
+			if (!entry)
+				continue;
+			string title;
+			string line = FrameLine(entry, title);
+			RW_LabRow row = AddRow(ROW_ORDER, i, x + 14, ry, w - 28, 68);
+			row.m_wTitle = Text(x + 30, ry + 8, w - 200, 26, 22, m_cText, title);
+			row.m_wSub = Text(x + 30, ry + 38, w - 60, 20, 15, m_cDim, line);
+			row.m_wRight = Text(x + w - 150, ry + 22, 120, 24, 18, m_cAccent, "BUILD >");
+			ry += 76;
+		}
+
+		float by = y + h - 70;
+		m_wStatus = Text(x + 20, by + 14, w - 240, 44, 16, m_cText);
+		AddButton(BTN_CLOSE, "CLOSE", x + w - 170, by, 150);
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void RefreshOrder()
+	{
+		int hover = RowAt(m_fMouseX, m_fMouseY);
+		for (int r = 0; r < m_aRows.Count(); r++)
+		{
+			RW_LabRow row = m_aRows[r];
+			row.m_wAccent.SetVisible(r == hover && row.m_iKind == ROW_ORDER);
+			if (r == hover)
+				row.m_wBg.SetColor(m_cRowHover);
+			else
+				row.m_wBg.SetColor(m_cRow);
+		}
+
+		// Bay answer (built / refused) for 6 seconds, else local message, else the hint.
+		float now = Now();
+		int seq = m_OrderBay.GetBayMessageSeq();
+		if (m_iOrderSeenSeq < 0)
+			m_iOrderSeenSeq = seq;
+		if (seq != m_iOrderSeenSeq)
+		{
+			m_iOrderSeenSeq = seq;
+			m_fOrderMsgUntil = now + 6;
+			m_fLocalUntil = 0;
+		}
+
+		string text = "Pick a frame to build";
+		Color color = m_cDim;
+		if (now < m_fOrderMsgUntil)
+		{
+			text = m_OrderBay.GetBayMessage();
+			color = m_cGood;
+			if (text.StartsWith("REFUSED"))
+				color = m_cBad;
+		}
+		else if (now < m_fLocalUntil)
+		{
+			text = m_sLocalMessage;
+			color = m_cText;
+		}
+		m_wStatus.SetText(text);
+		m_wStatus.SetColor(color);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void OrderFrame(int index)
+	{
+		SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!pc)
+			return;
+		pc.RW_RequestOrderFrame(m_OrderBay.GetOwner(), index);
+		Say("Order sent to the bay crew...", false);
 	}
 }

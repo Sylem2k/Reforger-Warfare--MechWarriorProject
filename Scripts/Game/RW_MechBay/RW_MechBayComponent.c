@@ -53,6 +53,9 @@ class RW_MechBayComponent : ScriptComponent
 	protected int m_iBayMessageSeq;
 
 	protected float m_fNextBuildTime;   // server
+	protected IEntity m_pPendingMech;   // server: saved build waiting to be fitted
+	protected ref RW_SavedBuild m_pPendingBuild;
+	protected int m_iPendingTries;
 
 	protected static ref array<RW_MechBayComponent> s_aBays;
 
@@ -68,6 +71,8 @@ class RW_MechBayComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	override void OnDelete(IEntity owner)
 	{
+		if (GetGame() && GetGame().GetCallqueue())
+			GetGame().GetCallqueue().Remove(ApplyPendingBuild);
 		if (s_aBays)
 			s_aBays.RemoveItem(this);
 		super.OnDelete(owner);
@@ -171,7 +176,7 @@ class RW_MechBayComponent : ScriptComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Server: build frame 'index' on the pad for this player.
-	bool ServerOrderFrame(int index, IEntity user)
+	bool ServerOrderFrame(int index, IEntity user, RW_SavedBuild build = null)
 	{
 		if (!Replication.IsServer())
 			return false;
@@ -233,8 +238,61 @@ class RW_MechBayComponent : ScriptComponent
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
 		if (name.IsEmpty() && frame)
 			name = frame.GetFrameName();
-		ServerBayMessage(name + " built - fit it out");
+		if (!build)
+		{
+			ServerBayMessage(name + " built - fit it out");
+			return true;
+		}
+
+		// Saved build: fit it once the new mech has settled.
+		ServerBayMessage(name + " built - fitting \"" + build.m_sName + "\"...");
+		m_pPendingMech = mech;
+		m_pPendingBuild = build;
+		m_iPendingTries = 0;
+		GetGame().GetCallqueue().Remove(ApplyPendingBuild);
+		GetGame().GetCallqueue().CallLater(ApplyPendingBuild, 1500, false);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ApplyPendingBuild()
+	{
+		if (!m_pPendingMech || !m_pPendingBuild)
+			return;
+		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(m_pPendingMech);
+		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(m_pPendingMech.FindComponent(BFA_MechHardpointComponent));
+		if (!frame || !hardpoints)
+			return;
+
+		// One entry per hardpoint (older saves may be shorter).
+		array<int> modules = {};
+		for (int i = 0; i < hardpoints.GetHardpointCount(); i++)
+		{
+			int id = 0;
+			if (i < m_pPendingBuild.m_aModules.Count())
+				id = m_pPendingBuild.m_aModules[i];
+			modules.Insert(id);
+		}
+
+		string reason;
+		if (frame.ServerApplyBuild(modules, m_pPendingBuild.m_iHeatsinks, reason))
+		{
+			ServerBayMessage("\"" + m_pPendingBuild.m_sName + "\" fitted - crew at work");
+			m_pPendingMech = null;
+			m_pPendingBuild = null;
+			return;
+		}
+
+		// Still settling / busy: try again a few times. Rules broken: tell the player.
+		m_iPendingTries++;
+		if (m_iPendingTries < 6 && (reason.Contains("still") || reason.Contains("already")))
+		{
+			GetGame().GetCallqueue().CallLater(ApplyPendingBuild, 1000, false);
+			return;
+		}
+		ServerBayMessage("REFUSED: saved build doesn't fit any more - " + reason + " (fix it in the Mech Lab)");
+		m_pPendingMech = null;
+		m_pPendingBuild = null;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -166,13 +166,15 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_HS_MINUS = 3;
 	static const int ROW_HS_PLUS = 4;
 	static const int ROW_MARKER = 5;
-	static const int ROW_ORDER = 6;
+	static const int ROW_ORDER = 6;     // value = frame index * 100 + saved slot (0 = bare)
+	static const int ROW_DELETE = 7;    // value = frame index * 100 + saved slot
 
 	static const int BTN_RESET = 0;
 	static const int BTN_APPLY = 1;
 	static const int BTN_CLOSE = 2;
 	static const int BTN_VIEW_LEFT = 3;
 	static const int BTN_VIEW_RIGHT = 4;
+	static const int BTN_SAVE = 5;
 
 	static const float UI_SCALE = 1.3;      // bigger = everything bigger
 	static const float PANEL_W = 410;
@@ -200,6 +202,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected float m_fNextPadLook;
 	protected int m_iOrderSeenSeq = -1;
 	protected float m_fOrderMsgUntil;
+
+	// Saved builds (this player's, from the server).
+	protected static string s_sBuildsData;
+	protected static int s_iBuildsSeq;
+	protected int m_iBuildsSeenSeq = -1;
+	protected bool m_bBuildsRequested;
+	protected ref array<ref RW_SavedBuild> m_aBuilds = {};
 
 	protected IEntity m_pMech;
 	protected RW_MechFrameComponent m_Frame;
@@ -264,6 +273,14 @@ class RW_MechLabMenu : ChimeraMenuBase
 			lab.SetMech(mech);
 		else
 			Print("[RW MECH LAB] could not open the menu - is RW_MechLab in Configs/System/chimeraMenus.conf?", LogLevel.WARNING);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! The server sent this player's saved builds.
+	static void ReceiveBuilds(string data)
+	{
+		s_sBuildsData = data;
+		s_iBuildsSeq++;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -590,7 +607,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		if (pressed.m_iKind == ROW_ORDER)
 		{
-			OrderFrame(pressed.m_iValue);
+			OrderFrame(pressed.m_iValue / 100, pressed.m_iValue % 100);
+		}
+		else if (pressed.m_iKind == ROW_DELETE)
+		{
+			DeleteBuild(pressed.m_iValue / 100, pressed.m_iValue % 100);
 		}
 		else if (pressed.m_iKind == ROW_PART)
 		{
@@ -623,6 +644,10 @@ class RW_MechLabMenu : ChimeraMenuBase
 			{
 				if (m_Camera)
 					m_Camera.Turn(-45);
+			}
+			else if (pressed.m_iValue == BTN_SAVE)
+			{
+				SaveBuild();
 			}
 			else if (pressed.m_iValue == BTN_VIEW_RIGHT)
 			{
@@ -846,14 +871,15 @@ class RW_MechLabMenu : ChimeraMenuBase
 		float by = sh - EDGE - 56;
 		float bw = 150;
 		float vw = 60;
-		float groupW = vw * 2 + bw * 3 + 12 * 4;
+		float groupW = vw * 2 + bw * 4 + 12 * 5;
 		float bx = sw * 0.5 - groupW * 0.5;
 		Rect(lx, by - 8, sw - EDGE * 2, 64, m_cPanel, 0);
 		AddButton(BTN_VIEW_LEFT, "<", bx, by, vw);
 		AddButton(BTN_RESET, "RESET", bx + vw + 12, by, bw);
 		AddButton(BTN_APPLY, "APPLY", bx + vw + bw + 24, by, bw);
-		AddButton(BTN_CLOSE, "CLOSE", bx + vw + bw * 2 + 36, by, bw);
-		AddButton(BTN_VIEW_RIGHT, ">", bx + vw + bw * 3 + 48, by, vw);
+		AddButton(BTN_SAVE, "SAVE", bx + vw + bw * 2 + 36, by, bw);
+		AddButton(BTN_CLOSE, "CLOSE", bx + vw + bw * 3 + 48, by, bw);
+		AddButton(BTN_VIEW_RIGHT, ">", bx + vw + bw * 4 + 60, by, vw);
 		m_wStatus = Text(lx + 18, by + 14, bx - lx - 36, 24, 16, m_cText);
 		m_wSwapping = Text(bx + groupW + 20, by + 14, sw - EDGE - bx - groupW - 30, 24, 16, m_cAccent);
 
@@ -1294,6 +1320,16 @@ class RW_MechLabMenu : ChimeraMenuBase
 			}
 		}
 
+		if (!m_bBuildsRequested)
+		{
+			m_bBuildsRequested = true;
+			SCR_PlayerController requester = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+			if (requester)
+				requester.RW_RequestBuilds();
+		}
+		if (m_bBuilt && m_iBuildsSeenSeq != s_iBuildsSeq)
+			RebuildOrder();
+
 		if (!m_bBuilt && !BuildOrder())
 			return;
 
@@ -1369,9 +1405,20 @@ class RW_MechLabMenu : ChimeraMenuBase
 			return false;
 		m_bBuilt = true;
 
-		float w = 620;
+		RW_SavedBuild.ParseAll(s_sBuildsData, m_aBuilds);
+		m_iBuildsSeenSeq = s_iBuildsSeq;
+
+		float w = 640;
 		int count = m_OrderBay.GetFrameCount();
-		float h = 150 + count * 76 + 90;
+		float listH = 0;
+		for (int f = 0; f < count; f++)
+		{
+			RW_BayFrameEntry counted = m_OrderBay.GetFrameEntry(f);
+			listH += 76;
+			if (counted)
+				listH += 42 * RW_SavedBuild.CountFor(m_aBuilds, RW_SavedBuild.GuidOf(counted.m_sPrefab));
+		}
+		float h = 150 + listH + 90;
 		float x = sw * 0.5 - w * 0.5;
 		float y = Math.Max(sh * 0.5 - h * 0.5, EDGE);
 
@@ -1379,7 +1426,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		Rect(x, y, w, 3, m_cAccent, 1);
 		Text(x + 20, y + 14, w - 40, 20, 14, m_cAccent, "MECH BAY  |  " + m_OrderBay.GetBayName());
 		Text(x + 20, y + 36, w - 40, 34, 28, m_cText, "ORDER FRAME");
-		Text(x + 20, y + 74, w - 40, 40, 14, m_cDim, "Pick a frame. The bay builds it bare on the pad,\nthen the Mech Lab opens so you can fit it out.");
+		Text(x + 20, y + 74, w - 40, 40, 14, m_cDim, "BUILD = bare frame, then fit it in the Mech Lab.\nYour saved builds come ready-made (save them with SAVE in the Mech Lab).");
 
 		float ry = y + 126;
 		for (int i = 0; i < count; i++)
@@ -1389,17 +1436,45 @@ class RW_MechLabMenu : ChimeraMenuBase
 				continue;
 			string title;
 			string line = FrameLine(entry, title);
-			RW_LabRow row = AddRow(ROW_ORDER, i, x + 14, ry, w - 28, 68);
+			RW_LabRow row = AddRow(ROW_ORDER, i * 100, x + 14, ry, w - 28, 68);
 			row.m_wTitle = Text(x + 30, ry + 8, w - 200, 26, 22, m_cText, title);
 			row.m_wSub = Text(x + 30, ry + 38, w - 60, 20, 15, m_cDim, line);
 			row.m_wRight = Text(x + w - 150, ry + 22, 120, 24, 18, m_cAccent, "BUILD >");
 			ry += 76;
+
+			// This player's saved builds for the frame.
+			string frameGuid = RW_SavedBuild.GuidOf(entry.m_sPrefab);
+			int slots = RW_SavedBuild.CountFor(m_aBuilds, frameGuid);
+			for (int slot = 1; slot <= slots; slot++)
+			{
+				RW_SavedBuild build = RW_SavedBuild.FindSlot(m_aBuilds, frameGuid, slot);
+				RW_LabRow saved = AddRow(ROW_ORDER, i * 100 + slot, x + 44, ry, w - 120, 36);
+				saved.m_wTitle = Text(x + 58, ry + 8, w - 300, 22, 16, m_cText, "SAVED  " + build.m_sName);
+				saved.m_wRight = Text(x + w - 240, ry + 8, 150, 22, 16, m_cGood, "BUILD READY >");
+				RW_LabRow del = AddRow(ROW_DELETE, i * 100 + slot, x + w - 68, ry, 40, 36);
+				del.m_wTitle = Text(x + w - 68, ry + 7, 40, 22, 18, m_cBad, "X");
+				del.m_wTitle.SetFlags(WidgetFlags.CENTER);
+				ry += 42;
+			}
 		}
 
 		float by = y + h - 70;
 		m_wStatus = Text(x + 20, by + 14, w - 240, 44, 16, m_cText);
 		AddButton(BTN_CLOSE, "CLOSE", x + w - 170, by, 150);
 		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! New list from the server: build the screen again.
+	protected void RebuildOrder()
+	{
+		if (m_wCanvas)
+			m_wCanvas.RemoveFromHierarchy();
+		m_wCanvas = null;
+		m_aRows.Clear();
+		m_bBuilt = false;
+		m_iBuildTries = 0;
+		m_iPressRow = -1;
 	}
 
 	//------------------------------------------------------------------------------------------------
@@ -1447,12 +1522,39 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void OrderFrame(int index)
+	protected void OrderFrame(int index, int savedSlot)
 	{
 		SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerController());
 		if (!pc)
 			return;
-		pc.RW_RequestOrderFrame(m_OrderBay.GetOwner(), index);
+		pc.RW_RequestOrderFrame(m_OrderBay.GetOwner(), index, savedSlot);
 		Say("Order sent to the bay crew...", false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void DeleteBuild(int index, int slot)
+	{
+		RW_BayFrameEntry entry = m_OrderBay.GetFrameEntry(index);
+		SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!entry || !pc || slot <= 0)
+			return;
+		pc.RW_RequestDeleteBuild(RW_SavedBuild.GuidOf(entry.m_sPrefab), slot);
+		Say("Saved build deleted", false);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Lab: save the planned build (weapons + heatsinks) for this frame.
+	protected void SaveBuild()
+	{
+		string reason;
+		if (!m_Frame.CheckBuild(m_Hardpoints, m_aPending, m_iPendingHS, reason))
+		{
+			Say("Can't save: " + reason, true);
+			return;
+		}
+		SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (pc)
+			pc.RW_RequestSaveBuild(m_pMech, m_aPending, m_iPendingHS);
+		Say("Saving build...", false);
 	}
 }

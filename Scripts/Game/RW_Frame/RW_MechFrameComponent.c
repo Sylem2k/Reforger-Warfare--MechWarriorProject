@@ -169,6 +169,46 @@ class RW_MechFrameComponent : ScriptComponent
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Server (Mech Lab / mech bay): apply a whole build at once - weapons per hardpoint and the
+	//! extra heatsink count. Checked against the frame rules; the weapons swap with the normal timer.
+	bool ServerApplyBuild(notnull array<int> modules, int heatsinks, out string reason)
+	{
+		reason = string.Empty;
+		if (!Replication.IsServer())
+			return false;
+		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(GetOwner().FindComponent(BFA_MechHardpointComponent));
+		if (!hardpoints)
+		{
+			reason = "this mech has no hardpoints";
+			return false;
+		}
+		if (hardpoints.IsSwapInProgress())
+		{
+			reason = "already working on it";
+			return false;
+		}
+		if (!CheckBuild(hardpoints, modules, heatsinks, reason))
+			return false;
+
+		int oldHeatsinks = m_iExtraHeatsinks;
+		m_iExtraHeatsinks = heatsinks;
+
+		s_bMechBayApplying = true;
+		bool ok = hardpoints.ServerRequestLoadout(hardpoints.m_sSwapStation, modules);
+		s_bMechBayApplying = false;
+
+		if (!ok)
+		{
+			m_iExtraHeatsinks = oldHeatsinks;
+			if (reason.IsEmpty())
+				reason = "the mech must stand still";
+			return false;
+		}
+		Replication.BumpMe();
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! Server (mech bay): set the extra heatsink count. Refused if it breaks the tonnage.
 	bool ServerSetExtraHeatsinks(int count, out string reason)
 	{
@@ -220,7 +260,14 @@ class RW_MechFrameComponent : ScriptComponent
 	//! Total weight of a loadout (frame + every module), for the HUD and the mech bay.
 	float LoadoutTons(BFA_MechHardpointComponent hardpoints, array<int> modules)
 	{
-		float total = m_fFrameTons + HeatsinkTons(m_iExtraHeatsinks);
+		return BuildTons(hardpoints, modules, m_iExtraHeatsinks);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Weight of a planned build: frame + modules + extra heatsinks (the Mech Lab uses this).
+	float BuildTons(BFA_MechHardpointComponent hardpoints, array<int> modules, int heatsinks)
+	{
+		float total = m_fFrameTons + HeatsinkTons(heatsinks);
 		if (!hardpoints || !modules)
 			return total;
 		foreach (int id : modules)
@@ -246,9 +293,55 @@ class RW_MechFrameComponent : ScriptComponent
 	//! Is this loadout allowed? reason says why not (shown in the log / to the player).
 	bool CheckLoadout(BFA_MechHardpointComponent hardpoints, notnull array<int> modules, out string reason)
 	{
+		return CheckBuild(hardpoints, modules, m_iExtraHeatsinks, reason);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Can this module go on this hardpoint at all (class, type, size)? Tonnage not included.
+	bool CheckItem(BFA_MechHardpointComponent hardpoints, int hardpointIndex, int moduleId, out string reason)
+	{
+		reason = string.Empty;
+		if (!hardpoints || moduleId == 0)
+			return true;
+		if (!hardpoints.CanModuleFit(hardpointIndex, moduleId))
+		{
+			reason = "wrong hardpoint class";
+			return false;
+		}
+
+		BFA_MechModuleDefinition module = hardpoints.GetModuleDefinition(moduleId);
+		RW_FrameHardpoint rules = FindHardpoint(hardpoints.GetHardpointName(hardpointIndex));
+		RW_EquipmentEntry item;
+		if (module)
+			item = RW_EquipmentCatalog.Get().Find(module.m_sWeaponModuleId);
+		if (!rules || !item)
+			return true;
+
+		if (rules.m_eType != RW_EHardpointType.ANY && item.m_eType != RW_EHardpointType.ANY && item.m_eType != rules.m_eType)
+		{
+			reason = string.Format("needs %1, hardpoint is %2", typename.EnumToString(RW_EHardpointType, item.m_eType), typename.EnumToString(RW_EHardpointType, rules.m_eType));
+			return false;
+		}
+		if (item.m_eSize > rules.m_eMaxSize)
+		{
+			reason = "too big for this hardpoint";
+			return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Is this planned build allowed (items + tonnage with this many extra heatsinks)?
+	bool CheckBuild(BFA_MechHardpointComponent hardpoints, notnull array<int> modules, int heatsinks, out string reason)
+	{
 		reason = string.Empty;
 		if (!hardpoints)
 			return true;
+		if (heatsinks < 0 || heatsinks > m_iMaxExtraHeatsinks)
+		{
+			reason = string.Format("heatsinks must be 0 - %1", m_iMaxExtraHeatsinks);
+			return false;
+		}
 
 		RW_EquipmentCatalog catalog = RW_EquipmentCatalog.Get();
 		for (int i = 0; i < modules.Count(); i++)
@@ -275,7 +368,7 @@ class RW_MechFrameComponent : ScriptComponent
 			}
 		}
 
-		float tons = LoadoutTons(hardpoints, modules);
+		float tons = BuildTons(hardpoints, modules, heatsinks);
 		if (tons > m_fMaxTons + 0.001)
 		{
 			reason = string.Format("too heavy: %1 of %2 tons", tons, m_fMaxTons);
@@ -297,11 +390,17 @@ class RW_MechFrameComponent : ScriptComponent
 	//! down to 1 - Load Slowdown at Max Tons.
 	float LoadSpeedScale()
 	{
+		return SpeedScaleForTons(CurrentTons());
+	}
+
+	//------------------------------------------------------------------------------------------------
+	float SpeedScaleForTons(float tons)
+	{
 		float capacity = m_fMaxTons - m_fFrameTons;
 		if (capacity <= 0 || m_fLoadSlowdown <= 0)
 			return 1;
 
-		float used = Math.Clamp((CurrentTons() - m_fFrameTons) / capacity, 0, 1);
+		float used = Math.Clamp((tons - m_fFrameTons) / capacity, 0, 1);
 		float start = Math.Clamp(m_fSlowdownStart, 0, 0.99);
 		if (used <= start)
 			return 1;

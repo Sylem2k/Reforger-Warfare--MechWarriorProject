@@ -418,6 +418,15 @@ Vehicle {
     }
    }
    additionalActions {
+    RW_MechLabOpenAction "{0103C357C716B4AF}" {
+     ParentContextList {
+      "default"
+     }
+     UIInfo UIInfo "{0D66F9FD73523381}" {
+      Name "Open Mech Lab"
+     }
+     VisibilityRange 12
+    }
     RW_MechWrenchFitAction "{067D1F8AA805079D}" {
      ParentContextList {
       "default"

@@ -354,3 +354,35 @@ class RW_MechWrenchHeatsinkAction : RW_MechWrenchActionBase
 			frame.ServerCrewMessage("REFUSED: " + reason);
 	}
 }
+
+//------------------------------------------------------------------------------------------------
+//! Open the Mech Lab build screen (runs only on the player's own machine).
+class RW_MechLabOpenAction : RW_MechWrenchActionBase
+{
+	//------------------------------------------------------------------------------------------------
+	override bool GetActionNameScript(out string outName)
+	{
+		outName = "Open Mech Lab";
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool CanBePerformedScript(IEntity user)
+	{
+		return true; // the lab itself says when the mech must stand still
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override bool HasLocalEffectOnlyScript()
+	{
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
+	{
+		if (pUserEntity != SCR_PlayerController.GetLocalControlledEntity())
+			return;
+		RW_MechLabMenu.OpenFor(pOwnerEntity.GetRootParent());
+	}
+}

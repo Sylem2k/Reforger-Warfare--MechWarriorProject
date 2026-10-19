@@ -826,6 +826,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		m_wDragGhost = Text(0, 0, 300, 26, 18, m_cAccent, "", 20);
 		m_wDragGhost.SetVisible(false);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

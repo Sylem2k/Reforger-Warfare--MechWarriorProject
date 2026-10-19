@@ -1,4 +1,0 @@
-MatPBRBasic {
- BCRMap "{CF6FE9ABB40C0CB3}Common/Models/Titan/Data/ChaosTitanBody_BCR.edds"
- NMOMap "{DD388305E41F1333}Common/Models/Titan/Data/ChaosTitanBody_albedo.edds"
-}

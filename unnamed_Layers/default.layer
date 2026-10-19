@@ -12,3 +12,6 @@ Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/Sample
 GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
  coords 214.216 2.977 93.981
 }
+GenericEntity : "{A11B4582860DB579}Prefabs/Items/Equipment/Binoculars/Binoculars_M22/Binoculars_M22_With Lazer.et" {
+ coords 218.107 1 105.049
+}

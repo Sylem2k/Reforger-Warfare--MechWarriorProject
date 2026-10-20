@@ -90,7 +90,7 @@ class RW_MechWrench
 		outIds.Clear();
 		if (!hardpoints || hardpointIndex < 0)
 			return;
-		for (int id = 1; id <= 31; id++)
+		for (int id = 1; id <= 1023; id++)
 		{
 			if (hardpoints.GetModuleDefinition(id))
 				outIds.Insert(id);

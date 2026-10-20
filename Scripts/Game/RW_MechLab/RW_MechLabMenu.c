@@ -175,6 +175,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_MARKER = 5;
 	static const int ROW_ORDER = 6;     // value = frame index * 100 + saved slot (0 = bare)
 	static const int ROW_DELETE = 7;
+	static const int ROW_FILTER = 9;    // filter parts by family
 	static const int ROW_SCROLL = 8;    // value -1 = up, 1 = down (parts list)    // value = frame index * 100 + saved slot
 
 	static const int BTN_RESET = 0;
@@ -234,6 +235,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected ref array<ref RW_LabRow> m_aRows = {};
 	protected bool m_bBuilt;
 	protected int m_iBuildTries;
+	protected int m_iPartFilter;        // 0 All, 1 Energy, 2 Ballistic, 3 Missile, 4 Support/Melee
 	protected int m_iPartScroll;        // first part shown (after Empty)
 	protected int m_iPartCount;         // parts besides Empty
 	protected int m_iPartsShown;
@@ -616,7 +618,13 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (overIndex < 0 || m_aRows[overIndex] != pressed)
 			return;
 
-		if (pressed.m_iKind == ROW_SCROLL)
+		if (pressed.m_iKind == ROW_FILTER)
+		{
+			m_iPartFilter = pressed.m_iValue;
+			m_iPartScroll = 0;
+			ScrollParts(0, true);
+		}
+		else if (pressed.m_iKind == ROW_SCROLL)
 		{
 			ScrollParts(pressed.m_iValue);
 		}
@@ -831,11 +839,40 @@ class RW_MechLabMenu : ChimeraMenuBase
 		TextWidget partsHeader = Text(lx + 18, py, panelW - 160, 18, 14, m_cAccent, "PARTS");
 		py += 26;
 
-		// Empty first (always), then a scrolling window of the parts (wheel or the arrows).
+		// Each family has its own page; no need to scroll through every weapon.
+		array<string> tabs = {"ALL", "ENERGY", "BALLISTIC", "MISSILE", "OTHER"};
+		float tabW = (panelW - 24) / tabs.Count();
+		for (int filter = 0; filter < tabs.Count(); filter++)
+		{
+			float tx = lx + 12 + filter * tabW;
+			RW_LabRow tab = AddRow(ROW_FILTER, filter, tx, py, tabW - 2, 28);
+			Color tabColor = m_cDim;
+			if (filter == m_iPartFilter)
+				tabColor = m_cAccent;
+			tab.m_wTitle = Text(tx + 2, py + 4, tabW - 4, 20, 12, tabColor, tabs[filter]);
+			tab.m_wTitle.SetFlags(WidgetFlags.CENTER);
+		}
+		py += 34;
+
+		// Empty remains available under every filter.
 		array<int> parts = {0};
 		for (int id = 1; id <= 31; id++)
 		{
-			if (m_Hardpoints.GetModuleDefinition(id))
+			BFA_MechModuleDefinition definition = m_Hardpoints.GetModuleDefinition(id);
+			if (!definition)
+				continue;
+			RW_EquipmentEntry equipment = RW_EquipmentCatalog.Get().Find(definition.m_sWeaponModuleId);
+			int family = 4;
+			if (equipment)
+			{
+				if (equipment.m_eType == RW_EHardpointType.ENERGY)
+					family = 1;
+				else if (equipment.m_eType == RW_EHardpointType.BALLISTIC)
+					family = 2;
+				else if (equipment.m_eType == RW_EHardpointType.MISSILE)
+					family = 3;
+			}
+			if (m_iPartFilter == 0 || m_iPartFilter == family)
 				parts.Insert(id);
 		}
 		m_iPartCount = parts.Count() - 1;
@@ -1398,11 +1435,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void ScrollParts(int step)
+	protected void ScrollParts(int step, bool force = false)
 	{
 		int maxScroll = Math.Max(m_iPartCount - m_iPartsShown, 0);
 		int next = Math.Clamp(m_iPartScroll + step, 0, maxScroll);
-		if (next == m_iPartScroll)
+		if (next == m_iPartScroll && !force)
 			return;
 		m_iPartScroll = next;
 		// Build the screen again with the new window (the plan is kept).

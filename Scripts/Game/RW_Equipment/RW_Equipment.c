@@ -85,6 +85,48 @@ class RW_EquipmentCatalog
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Global weapon IDs are stable string IDs (e.g. MEDIUM_LASER). Unlike Core's
+	//! per-frame numeric IDs, this catalog is not restricted to 31 entries.
+	//! A frame must still explicitly register a weapon in its Core module list
+	//! before it can be installed. Do not renumber existing Core module IDs.
+	int GetRegisteredWeaponCount()
+	{
+		if (!m_aEquipment)
+			return 0;
+		return m_aEquipment.Count();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Resolve a global weapon ID to an installed frame's local Core module ID.
+	//! Returns -1 if this frame doesn't offer that weapon.
+	int ResolveLocalModuleId(BFA_MechHardpointComponent hardpoints, string globalWeaponId)
+	{
+		if (!hardpoints || globalWeaponId.IsEmpty())
+			return -1;
+		// Core currently packs module IDs into five bits.
+		for (int localId = 1; localId <= 31; localId++)
+		{
+			BFA_MechModuleDefinition definition = hardpoints.GetModuleDefinition(localId);
+			if (definition && definition.m_sWeaponModuleId == globalWeaponId)
+				return localId;
+		}
+		return -1;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Resolve an installed local ID back to the persistent global weapon ID.
+	//! An empty slot is represented by an empty string.
+	string ResolveGlobalWeaponId(BFA_MechHardpointComponent hardpoints, int localId)
+	{
+		if (!hardpoints || localId <= 0 || localId > 31)
+			return string.Empty;
+		BFA_MechModuleDefinition definition = hardpoints.GetModuleDefinition(localId);
+		if (!definition)
+			return string.Empty;
+		return definition.m_sWeaponModuleId;
+	}
+
+	//------------------------------------------------------------------------------------------------
 	//! The heatsink entry (id HEATSINK): its weight and cooling are used for every extra heatsink.
 	RW_EquipmentEntry GetHeatsink()
 	{

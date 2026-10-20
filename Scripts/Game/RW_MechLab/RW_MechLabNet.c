@@ -153,8 +153,15 @@ modded class SCR_PlayerController
 		// Saved build: look it up in this player's builds for that frame.
 		RW_SavedBuild build;
 		RW_BayFrameEntry entry = bay.GetFrameEntry(index);
-		if (savedSlot > 0 && entry)
+		if (savedSlot > 0)
+		{
+			if (!entry)
+				return;
 			build = RW_SavedBuild.FindSlot(RW_BuildStore.Get(RW_BuildStore.KeyFor(GetPlayerId())), RW_SavedBuild.GuidOf(entry.m_sPrefab), savedSlot);
+			// Never silently order an empty frame when a saved slot was requested.
+			if (!build)
+				return;
+		}
 		bay.ServerOrderFrame(index, GetControlledEntity(), build);
 	}
 

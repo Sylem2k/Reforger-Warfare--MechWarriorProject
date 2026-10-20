@@ -155,6 +155,78 @@ Vehicle {
       }
      }
     }
+    BFA_MechModuleDefinition "{E1000000E2000000}" {
+     m_iId 6
+     m_sLabel "Small Laser"
+     m_iClass 1
+     m_sWeaponModuleId "SMALL_LASER"
+     m_sPrefab "{BFAA0504A7710742}Prefabs/Vehicles/Mech/Weapons/MW4/SMALL_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000001E2000001}" {
+     m_iId 7
+     m_sLabel "Medium Laser"
+     m_iClass 1
+     m_sWeaponModuleId "MEDIUM_LASER"
+     m_sPrefab "{BFAA0569A7710879}Prefabs/Vehicles/Mech/Weapons/MW4/MEDIUM_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000002E2000002}" {
+     m_iId 8
+     m_sLabel "Large Laser"
+     m_iClass 1
+     m_sWeaponModuleId "LARGE_LASER"
+     m_sPrefab "{BFAA05CEA77109B0}Prefabs/Vehicles/Mech/Weapons/MW4/LARGE_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000003E2000003}" {
+     m_iId 9
+     m_sLabel "ER Medium Laser"
+     m_iClass 1
+     m_sWeaponModuleId "ER_MEDIUM_LASER"
+     m_sPrefab "{BFAA0633A7710AE7}Prefabs/Vehicles/Mech/Weapons/MW4/ER_MEDIUM_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000004E2000004}" {
+     m_iId 10
+     m_sLabel "ER Large Laser"
+     m_iClass 1
+     m_sWeaponModuleId "ER_LARGE_LASER"
+     m_sPrefab "{BFAA0698A7710C1E}Prefabs/Vehicles/Mech/Weapons/MW4/ER_LARGE_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000005E2000005}" {
+     m_iId 11
+     m_sLabel "Small Pulse Laser"
+     m_iClass 1
+     m_sWeaponModuleId "SMALL_PULSE_LASER"
+     m_sPrefab "{BFAA06FDA7710D55}Prefabs/Vehicles/Mech/Weapons/MW4/SMALL_PULSE_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000006E2000006}" {
+     m_iId 12
+     m_sLabel "Medium Pulse Laser"
+     m_iClass 1
+     m_sWeaponModuleId "MEDIUM_PULSE_LASER"
+     m_sPrefab "{BFAA0762A7710E8C}Prefabs/Vehicles/Mech/Weapons/MW4/MEDIUM_PULSE_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{E1000007E2000007}" {
+     m_iId 13
+     m_sLabel "Large Pulse Laser"
+     m_iClass 1
+     m_sWeaponModuleId "LARGE_PULSE_LASER"
+     m_sPrefab "{BFAA07C7A7710FC3}Prefabs/Vehicles/Mech/Weapons/MW4/LARGE_PULSE_LASER.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
    }
    m_sSwapStation "DRIVER"
    m_bSwapRequiresStationary 1

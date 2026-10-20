@@ -3,7 +3,7 @@ GenericEntity {
  components {
   SignalsManagerComponent "{6A8C29F2D0FE85CF}" {
   }
-  BFA_MechLasCannonModuleComponent "{E0B3EAA1FF77BABB}" {
+  RW_LaserWeapon "{E0B3EAA1FF77BABB}" {
    m_sModuleId "ER_LARGE_LASER"
    m_sDisplayName "ER Large Laser"
    m_sControlStation "GUNNER"
@@ -25,12 +25,10 @@ GenericEntity {
    m_fMuzzleClearance 0.05
    m_bReverseMuzzleForward 0
    m_eCgsSplash MIXED
-   m_fRoundsPerMinute 140
+   m_fShotsPerMinute 140
    m_fRange 1550
    m_fDamage 55
-   m_bArmorPiercingFallback 1
-   m_fArmorPiercingMultiplier 1
-   m_fTracerSpeed 300
+   m_fBeamSpeed 300
    m_fTracerLength 25
    m_fTracerThickness 0.62
    m_bDebug 0

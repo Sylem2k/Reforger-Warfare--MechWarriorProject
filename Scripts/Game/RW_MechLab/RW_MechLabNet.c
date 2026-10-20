@@ -204,6 +204,21 @@ modded class SCR_PlayerController
 		if (!frame || !hardpoints)
 			return;
 
+		// Saving a build must obey the same proximity / tool rules as applying one.
+		IEntity user = GetControlledEntity();
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		bool bayWorks = bay && bay.NoToolNeeded() && bay.CanOperate(user, mech);
+		if (!user || (!bayWorks && (vector.Distance(user.GetOrigin(), mech.GetOrigin()) > RW_MAX_DISTANCE || !RW_MechWrench.HasTool(user, RW_MechWrench.DEFAULT_TOOL))))
+		{
+			frame.ServerCrewMessage("REFUSED: Mech Bay or nearby Mech Wrench required to save");
+			return;
+		}
+		if (packed.Length() > 128)
+		{
+			frame.ServerCrewMessage("REFUSED: saved build data too long");
+			return;
+		}
+
 		RW_SavedBuild build = RW_SavedBuild.FromLine("x|x|" + heatsinks.ToString() + "|" + packed);
 		if (!build)
 			return;

@@ -25,7 +25,8 @@ class RW_LaserWeapon : BFA_MechWeaponModuleComponent
 		IEntity hitEntity;
 		vector end = TraceShot(start, direction, m_fRange, hitEntity);
 		if (hitEntity)
-			DealDamage(hitEntity, m_fDamage, EDamageType.ENERGY, end, direction, instigator);
+			// Mech Core's damage routing currently uses kinetic hit-zone damage for lasers.
+			DealDamage(hitEntity, m_fDamage, EDamageType.KINETIC, end, direction, instigator);
 		BroadcastShot(start, end, hitEntity != null, m_fBeamSpeed);
 	}
 

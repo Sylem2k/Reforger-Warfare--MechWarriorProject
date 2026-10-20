@@ -153,8 +153,15 @@ modded class SCR_PlayerController
 		// Saved build: look it up in this player's builds for that frame.
 		RW_SavedBuild build;
 		RW_BayFrameEntry entry = bay.GetFrameEntry(index);
-		if (savedSlot > 0 && entry)
+		if (savedSlot > 0)
+		{
+			if (!entry)
+				return;
 			build = RW_SavedBuild.FindSlot(RW_BuildStore.Get(RW_BuildStore.KeyFor(GetPlayerId())), RW_SavedBuild.GuidOf(entry.m_sPrefab), savedSlot);
+			// Never silently order an empty frame when a saved slot was requested.
+			if (!build)
+				return;
+		}
 		bay.ServerOrderFrame(index, GetControlledEntity(), build);
 	}
 
@@ -203,6 +210,21 @@ modded class SCR_PlayerController
 		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent));
 		if (!frame || !hardpoints)
 			return;
+
+		// Saving a build must obey the same proximity / tool rules as applying one.
+		IEntity user = GetControlledEntity();
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		bool bayWorks = bay && bay.NoToolNeeded() && bay.CanOperate(user, mech);
+		if (!user || (!bayWorks && (vector.Distance(user.GetOrigin(), mech.GetOrigin()) > RW_MAX_DISTANCE || !RW_MechWrench.HasTool(user, RW_MechWrench.DEFAULT_TOOL))))
+		{
+			frame.ServerCrewMessage("REFUSED: Mech Bay or nearby Mech Wrench required to save");
+			return;
+		}
+		if (packed.Length() > 128)
+		{
+			frame.ServerCrewMessage("REFUSED: saved build data too long");
+			return;
+		}
 
 		RW_SavedBuild build = RW_SavedBuild.FromLine("x|x|" + heatsinks.ToString() + "|" + packed);
 		if (!build)

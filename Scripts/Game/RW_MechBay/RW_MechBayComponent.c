@@ -192,6 +192,11 @@ class RW_MechBayComponent : ScriptComponent
 			ServerBayMessage("REFUSED: too far from the bay");
 			return false;
 		}
+		if (m_pPendingMech)
+		{
+			ServerBayMessage("REFUSED: bay is still fitting the previous order");
+			return false;
+		}
 		if (FindParkedMech())
 		{
 			ServerBayMessage("REFUSED: pad occupied - move the mech off the pad first");
@@ -214,7 +219,9 @@ class RW_MechBayComponent : ScriptComponent
 		// On the ground at the parking spot, facing the way the bay faces.
 		BaseWorld world = GetOwner().GetWorld();
 		vector spot = GetParkingSpot();
-		spot[1] = world.GetSurfaceY(spot[0], spot[2]) + m_fSpawnHeight;
+		// Preserve the authored pad elevation for raised or indoor mech bays.
+		// Ground-level bays use the terrain surface when the offset is lower.
+		spot[1] = Math.Max(spot[1], world.GetSurfaceY(spot[0], spot[2])) + m_fSpawnHeight;
 		vector angles = GetOwner().GetYawPitchRoll();
 		vector mat[4];
 		Math3D.AnglesToMatrix(Vector(angles[0], 0, 0), mat);
@@ -257,12 +264,30 @@ class RW_MechBayComponent : ScriptComponent
 	//------------------------------------------------------------------------------------------------
 	protected void ApplyPendingBuild()
 	{
-		if (!m_pPendingMech || !m_pPendingBuild)
+		if (!m_pPendingBuild)
 			return;
+		if (!m_pPendingMech)
+		{
+			ServerBayMessage("REFUSED: mech was removed before its saved build could be fitted");
+			m_pPendingBuild = null;
+			return;
+		}
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(m_pPendingMech);
 		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(m_pPendingMech.FindComponent(BFA_MechHardpointComponent));
 		if (!frame || !hardpoints)
+		{
+			ServerBayMessage("REFUSED: spawned frame is missing mech components");
+			m_pPendingMech = null;
+			m_pPendingBuild = null;
 			return;
+		}
+		if (m_pPendingBuild.m_aModules.Count() != hardpoints.GetHardpointCount())
+		{
+			ServerBayMessage("REFUSED: saved build hardpoint count does not match this frame");
+			m_pPendingMech = null;
+			m_pPendingBuild = null;
+			return;
+		}
 
 		// One entry per hardpoint (older saves may be shorter).
 		array<int> modules = {};

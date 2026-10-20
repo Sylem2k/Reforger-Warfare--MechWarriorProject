@@ -1,13 +1,4 @@
-GenericEntity {
- coords 84.993 5.346 76.895
-}
 GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
- coords 75.967 6.657 56.241
- angles 0 15.431 0
-}
-GenericEntity : "{9BB5275571625070}Prefabs/Vehicles/Mech/Mech_Parts/Hip2.et" {
- coords 85.949 4.48 62.273
-}
-GenericEntity : "{CBBAB4D632239450}Prefabs/Vehicles/Mech/Weapons/Autocannon/Mech_Autocannon.et" {
- coords 47.384 9.705 37.23
+ coords 193.886 3.137 96.674
+ angles 0 0 0
 }

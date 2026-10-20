@@ -4,8 +4,9 @@
 //! has the tool) and the frame rules, then applies it with the normal swap timer.
 modded class SCR_PlayerController
 {
-	protected static const int RW_BITS = 5;
-	protected static const int RW_PER_WORD = 6;
+	protected static const int RW_BITS = 10;
+	protected static const int RW_ID_MASK = 1023;
+	protected static const int RW_PER_WORD = 3;
 	protected static const float RW_MAX_DISTANCE = 25;
 
 	//------------------------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ modded class SCR_PlayerController
 			return;
 		// The current wire format carries at most 18 module IDs.
 		// Never send a partial build while reporting its original count.
-		if (modules.Count() < 1 || modules.Count() > RW_PER_WORD * 3)
+		if (modules.Count() < 1 || modules.Count() > RW_PER_WORD * 6)
 		{
 			Print("[RW MECH LAB] Build refused: unsupported hardpoint count", LogLevel.WARNING);
 			return;
@@ -28,36 +29,45 @@ modded class SCR_PlayerController
 		int w0 = 0;
 		int w1 = 0;
 		int w2 = 0;
-		for (int i = 0; i < modules.Count() && i < RW_PER_WORD * 3; i++)
+		int w3 = 0;
+		int w4 = 0;
+		int w5 = 0;
+		for (int i = 0; i < modules.Count() && i < RW_PER_WORD * 6; i++)
 		{
-			int id = Math.Clamp(modules[i], 0, 31);
+			int id = Math.Clamp(modules[i], 0, RW_ID_MASK);
 			int shift = Math.Mod(i, RW_PER_WORD) * RW_BITS;
 			int word = i / RW_PER_WORD;
 			if (word == 0)
 				w0 = w0 | (id << shift);
 			else if (word == 1)
 				w1 = w1 | (id << shift);
-			else
+			else if (word == 2)
 				w2 = w2 | (id << shift);
+			else if (word == 3)
+				w3 = w3 | (id << shift);
+			else if (word == 4)
+				w4 = w4 | (id << shift);
+			else
+				w5 = w5 | (id << shift);
 		}
 
 		if (Replication.IsServer())
 		{
-			RW_ServerBuild(rpl.Id(), w0, w1, w2, modules.Count(), heatsinks);
+			RW_ServerBuild(rpl.Id(), w0, w1, w2, w3, w4, w5, modules.Count(), heatsinks);
 			return;
 		}
-		Rpc(RW_RpcAsk_Build, rpl.Id(), w0, w1, w2, modules.Count(), heatsinks);
+		Rpc(RW_RpcAsk_Build, rpl.Id(), w0, w1, w2, w3, w4, w5, modules.Count(), heatsinks);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RW_RpcAsk_Build(RplId mechId, int w0, int w1, int w2, int count, int heatsinks)
+	protected void RW_RpcAsk_Build(RplId mechId, int w0, int w1, int w2, int w3, int w4, int w5, int count, int heatsinks)
 	{
-		RW_ServerBuild(mechId, w0, w1, w2, count, heatsinks);
+		RW_ServerBuild(mechId, w0, w1, w2, w3, w4, w5, count, heatsinks);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void RW_ServerBuild(RplId mechId, int w0, int w1, int w2, int count, int heatsinks)
+	protected void RW_ServerBuild(RplId mechId, int w0, int w1, int w2, int w3, int w4, int w5, int count, int heatsinks)
 	{
 		RplComponent rpl = RplComponent.Cast(Replication.FindItem(mechId));
 		if (!rpl || !rpl.GetEntity())
@@ -75,7 +85,7 @@ modded class SCR_PlayerController
 			frame.ServerCrewMessage("REFUSED: this mech has no hardpoints");
 			return;
 		}
-		if (count < 1 || count > RW_PER_WORD * 3 || count != hardpoints.GetHardpointCount())
+		if (count < 1 || count > RW_PER_WORD * 6 || count != hardpoints.GetHardpointCount())
 		{
 			frame.ServerCrewMessage("REFUSED: invalid loadout hardpoint count");
 			return;
@@ -98,7 +108,7 @@ modded class SCR_PlayerController
 		}
 
 		array<int> modules = {};
-		for (int i = 0; i < count && i < RW_PER_WORD * 3; i++)
+		for (int i = 0; i < count && i < RW_PER_WORD * 6; i++)
 		{
 			int shift = Math.Mod(i, RW_PER_WORD) * RW_BITS;
 			int word = w0;
@@ -106,7 +116,13 @@ modded class SCR_PlayerController
 				word = w1;
 			else if (i / RW_PER_WORD == 2)
 				word = w2;
-			modules.Insert((word >> shift) & 31);
+			else if (i / RW_PER_WORD == 3)
+				word = w3;
+			else if (i / RW_PER_WORD == 4)
+				word = w4;
+			else if (i / RW_PER_WORD == 5)
+				word = w5;
+			modules.Insert((word >> shift) & RW_ID_MASK);
 		}
 
 		string reason;

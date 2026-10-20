@@ -141,13 +141,39 @@ class RW_MechWrench
 	}
 
 	//------------------------------------------------------------------------------------------------
-	//! Server: put module id on the hardpoint through the normal swap (rules, swap time).
-	static bool ServerRequest(IEntity mech, int hardpointIndex, int moduleId)
+	//! Recheck permissions on the server; the client action prompt is not authoritative.
+	static bool CanRefit(IEntity user, IEntity mech, ResourceName tool)
 	{
-		if (!Replication.IsServer() || !mech)
+		if (!user || !mech)
+			return false;
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		if (bay && bay.NoToolNeeded() && bay.CanOperate(user, mech))
+			return true;
+		if (vector.Distance(user.GetOrigin(), mech.GetOrigin()) > 25)
+			return false;
+		return HasTool(user, tool);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Server: put module id on the hardpoint through the normal swap (rules, swap time).
+	static bool ServerRequest(IEntity mech, int hardpointIndex, int moduleId, IEntity user, ResourceName tool)
+	{
+		if (!Replication.IsServer() || !mech || !CanRefit(user, mech, tool))
 			return false;
 		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent));
-		if (!hardpoints)
+		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
+		if (!hardpoints || !frame || hardpoints.IsSwapInProgress())
+			return false;
+		if (hardpointIndex < 0 || hardpointIndex >= hardpoints.GetHardpointCount())
+			return false;
+		Physics physics = mech.GetPhysics();
+		if (physics && physics.GetVelocity().Length() > 0.5)
+			return false;
+		array<int> loadout = {};
+		GetLoadout(hardpoints, loadout);
+		loadout[hardpointIndex] = moduleId;
+		string reason;
+		if (!frame.CheckBuild(hardpoints, loadout, frame.GetExtraHeatsinks(), reason))
 			return false;
 
 		RW_MechFrameComponent.s_bMechBayApplying = RW_MechBayComponent.IsAtBay(mech);
@@ -212,15 +238,24 @@ class RW_MechWrenchActionBase : ScriptedUserAction
 	{
 		if (!GetFrame())
 			return false;
-		// Parked in a Mech Bay: the bay's crew does the work, no wrench needed.
-		if (RW_MechBayComponent.IsAtBay(GetOwner().GetRootParent()))
+		IEntity mech = GetOwner().GetRootParent();
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		if (bay && bay.NoToolNeeded() && bay.CanOperate(user, mech))
 			return true;
+		if (!user || vector.Distance(user.GetOrigin(), mech.GetOrigin()) > 25)
+			return false;
 		return RW_MechWrench.HasToolCached(user, m_sTool);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	override bool CanBePerformedScript(IEntity user)
 	{
+		IEntity mech = GetOwner().GetRootParent();
+		if (!RW_MechWrench.CanRefit(user, mech, m_sTool))
+		{
+			SetCannotPerformReason("Mech Bay or nearby Mech Wrench required");
+			return false;
+		}
 		BFA_MechHardpointComponent hardpoints = GetHardpoints();
 		if (hardpoints && hardpoints.IsSwapInProgress())
 		{
@@ -228,7 +263,6 @@ class RW_MechWrenchActionBase : ScriptedUserAction
 			return false;
 		}
 
-		IEntity mech = GetOwner().GetRootParent();
 		Physics physics = mech.GetPhysics();
 		if (physics && physics.GetVelocity().Length() > 0.5)
 		{
@@ -289,12 +323,12 @@ class RW_MechWrenchFitAction : RW_MechWrenchActionBase
 	//------------------------------------------------------------------------------------------------
 	override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
 	{
-		if (!Replication.IsServer())
+		if (!Replication.IsServer() || !RW_MechWrench.CanRefit(pUserEntity, pOwnerEntity.GetRootParent(), m_sTool))
 			return;
 		int hp = GetHardpointIndex();
 		int next = RW_MechWrench.FindNextFitting(GetFrame(), GetHardpoints(), hp);
 		if (hp >= 0 && next != 0)
-			RW_MechWrench.ServerRequest(pOwnerEntity.GetRootParent(), hp, next);
+			RW_MechWrench.ServerRequest(pOwnerEntity.GetRootParent(), hp, next, pUserEntity, m_sTool);
 	}
 }
 
@@ -331,7 +365,7 @@ class RW_MechWrenchRemoveAction : RW_MechWrenchActionBase
 			return;
 		int hp = GetHardpointIndex();
 		if (hp >= 0)
-			RW_MechWrench.ServerRequest(pOwnerEntity.GetRootParent(), hp, 0);
+			RW_MechWrench.ServerRequest(pOwnerEntity.GetRootParent(), hp, 0, pUserEntity, m_sTool);
 	}
 }
 
@@ -380,7 +414,7 @@ class RW_MechWrenchHeatsinkAction : RW_MechWrenchActionBase
 	//------------------------------------------------------------------------------------------------
 	override void PerformAction(IEntity pOwnerEntity, IEntity pUserEntity)
 	{
-		if (!Replication.IsServer())
+		if (!Replication.IsServer() || !RW_MechWrench.CanRefit(pUserEntity, pOwnerEntity.GetRootParent(), m_sTool))
 			return;
 		RW_MechFrameComponent frame = GetFrame();
 		if (!frame)

@@ -20,7 +20,7 @@ GenericEntity {
    m_MuzzlePoint PointInfo "{6A9623ADCC4F7057}" {
     Offset 0 0.8554 0.906
    }
-   m_bAutoMuzzleFromBounds 1
+   m_bAutoMuzzleFromBounds 0
    m_vMuzzleLocalOffset 0 0 0
    m_fMuzzleClearance 0.05
    m_bReverseMuzzleForward 0
@@ -34,9 +34,6 @@ GenericEntity {
    m_fTracerLength 25
    m_fTracerThickness 0.62
    m_bDebug 0
-  }
-  MeshObject "{6A8C29F2D0FE85D8}" {
-   Object "{6D9E6C15CFDF9CAA}Common/Models/sen_Las_Cannon.xob"
   }
   RigidBody "{6A8C29F2D0FE85DF}" {
    Enabled 0
@@ -73,6 +70,4 @@ GenericEntity {
   Hierarchy "{6A8C29F2D0FE8424}" {
   }
  }
- coords 52.634 25.453 151.694
- scale 2
 }

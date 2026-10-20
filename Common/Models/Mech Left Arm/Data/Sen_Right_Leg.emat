@@ -1,0 +1,6 @@
+MatPBRBasic {
+ VFXMap "{D09A3AAFF8C7F0DE}Common/Models/Sen_Right_Leg.edds"
+ BCRMap "{D09A3AAFF8C7F0DE}Common/Models/Sen_Right_Leg.edds"
+ OpacityMap "{D09A3AAFF8C7F0DE}Common/Models/Sen_Right_Leg.edds"
+ NMOMap "{D09A3AAFF8C7F0DE}Common/Models/Sen_Right_Leg.edds"
+}

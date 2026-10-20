@@ -1,0 +1,25 @@
+GenericEntity {
+ ID "6AA8094C024C62D1"
+ components {
+  SignalsManagerComponent "{6AA8094C024C6521}" {
+  }
+  MeshObject "{6AA8094C024C59A0}" {
+   Object "{55F16F6C46F95447}Common/Models/Mech Body/Mech_Body_Hips.xob"
+  }
+  RigidBody "{6AA8094C024C59AA}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  RplComponent "{6AA8094C024C59B1}" {
+  }
+  Hierarchy "{6AA8094C024C59B4}" {
+  }
+ }
+ coords 85.949 4.48 62.273
+}

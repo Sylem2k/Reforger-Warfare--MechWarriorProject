@@ -64,6 +64,13 @@ class RW_MechLabInput : ScriptedWidgetEventHandler
 			m_Menu.OnRelease(button);
 		return true;
 	}
+
+	override bool OnMouseWheel(Widget w, int x, int y, int wheel)
+	{
+		if (m_Menu)
+			m_Menu.OnWheel(wheel);
+		return true;
+	}
 }
 
 //------------------------------------------------------------------------------------------------
@@ -167,7 +174,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_HS_PLUS = 4;
 	static const int ROW_MARKER = 5;
 	static const int ROW_ORDER = 6;     // value = frame index * 100 + saved slot (0 = bare)
-	static const int ROW_DELETE = 7;    // value = frame index * 100 + saved slot
+	static const int ROW_DELETE = 7;
+	static const int ROW_SCROLL = 8;    // value -1 = up, 1 = down (parts list)    // value = frame index * 100 + saved slot
 
 	static const int BTN_RESET = 0;
 	static const int BTN_APPLY = 1;
@@ -226,6 +234,9 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected ref array<ref RW_LabRow> m_aRows = {};
 	protected bool m_bBuilt;
 	protected int m_iBuildTries;
+	protected int m_iPartScroll;        // first part shown (after Empty)
+	protected int m_iPartCount;         // parts besides Empty
+	protected int m_iPartsShown;
 
 	// Planned build.
 	protected ref array<int> m_aPending = {};
@@ -605,7 +616,11 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (overIndex < 0 || m_aRows[overIndex] != pressed)
 			return;
 
-		if (pressed.m_iKind == ROW_ORDER)
+		if (pressed.m_iKind == ROW_SCROLL)
+		{
+			ScrollParts(pressed.m_iValue);
+		}
+		else if (pressed.m_iKind == ROW_ORDER)
 		{
 			OrderFrame(pressed.m_iValue / 100, pressed.m_iValue % 100);
 		}
@@ -813,15 +828,40 @@ class RW_MechLabMenu : ChimeraMenuBase
 		m_wSpeed = Text(lx + 18, sy + 86, panelW - 36, 18, 14, m_cText);
 
 		float py = sy + 118;
-		Text(lx + 18, py, panelW - 36, 18, 14, m_cAccent, "PARTS   click = fit | drag onto a hardpoint");
+		TextWidget partsHeader = Text(lx + 18, py, panelW - 160, 18, 14, m_cAccent, "PARTS");
 		py += 26;
 
+		// Empty first (always), then a scrolling window of the parts (wheel or the arrows).
 		array<int> parts = {0};
 		for (int id = 1; id <= 31; id++)
 		{
 			if (m_Hardpoints.GetModuleDefinition(id))
 				parts.Insert(id);
 		}
+		m_iPartCount = parts.Count() - 1;
+		int fit = Math.Max((int)((bottom - 10 - py - 46) / ROW_H), 1);
+		m_iPartScroll = Math.Clamp(m_iPartScroll, 0, Math.Max(m_iPartCount - fit, 0));
+		m_iPartsShown = 0;
+		for (int k = parts.Count() - 1; k >= 1; k--)
+		{
+			if (k - 1 < m_iPartScroll || k - 1 >= m_iPartScroll + fit)
+				parts.Remove(k);
+		}
+		if (m_iPartCount > fit)
+		{
+			partsHeader.SetText(string.Format("PARTS  %1-%2 of %3", m_iPartScroll + 1, Math.Min(m_iPartScroll + fit, m_iPartCount), m_iPartCount));
+			RW_LabRow up = AddRow(ROW_SCROLL, -1, lx + panelW - 130, py - 30, 54, 26);
+			up.m_wTitle = Text(lx + panelW - 130, py - 28, 54, 22, 16, m_cText, "UP");
+			up.m_wTitle.SetFlags(WidgetFlags.CENTER);
+			RW_LabRow down = AddRow(ROW_SCROLL, 1, lx + panelW - 70, py - 30, 54, 26);
+			down.m_wTitle = Text(lx + panelW - 70, py - 28, 54, 22, 16, m_cText, "DOWN");
+			down.m_wTitle.SetFlags(WidgetFlags.CENTER);
+		}
+		else
+		{
+			partsHeader.SetText("PARTS   click = fit | drag onto a hardpoint");
+		}
+
 		foreach (int partId : parts)
 		{
 			float rowH = ROW_H;
@@ -829,6 +869,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 				rowH = 46;
 			if (py + rowH > bottom - 10)
 				break;
+			if (partId != 0)
+				m_iPartsShown++;
 			RW_LabRow part = AddRow(ROW_PART, partId, lx + 12, py, panelW - 24, rowH - 6);
 			part.m_wTitle = Text(lx + 26, py + 4, panelW - 130, 22, 18, m_cText);
 			part.m_wSub = Text(lx + 26, py + 23, panelW - 50, 20, 13, m_cDim);
@@ -1340,6 +1382,38 @@ class RW_MechLabMenu : ChimeraMenuBase
 		m_fMouseY = ws.DPIUnscale(my) / m_fS;
 
 		RefreshOrder();
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
+	//! Mouse wheel: scroll the parts list when the mouse is over the left panel.
+	void OnWheel(int wheel)
+	{
+		if (!m_pMech || m_fMouseX > m_fLeftEdge || wheel == 0)
+			return;
+		if (wheel > 0)
+			ScrollParts(-1);
+		else
+			ScrollParts(1);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	protected void ScrollParts(int step)
+	{
+		int maxScroll = Math.Max(m_iPartCount - m_iPartsShown, 0);
+		int next = Math.Clamp(m_iPartScroll + step, 0, maxScroll);
+		if (next == m_iPartScroll)
+			return;
+		m_iPartScroll = next;
+		// Build the screen again with the new window (the plan is kept).
+		if (m_wCanvas)
+			m_wCanvas.RemoveFromHierarchy();
+		m_wCanvas = null;
+		m_aRows.Clear();
+		m_bBuilt = false;
+		m_iBuildTries = 0;
+		m_iPressRow = -1;
+		m_bDragging = false;
 	}
 
 	//------------------------------------------------------------------------------------------------

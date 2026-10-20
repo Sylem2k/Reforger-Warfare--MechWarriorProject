@@ -1,0 +1,23 @@
+GenericEntity {
+ ID "6AA8094B3C994A3B"
+ components {
+  SignalsManagerComponent "{6AA8094B3C994A01}" {
+  }
+  CGS_Titan_Cannon "{6AA8094B3C994A15}" {
+   m_sModuleId "RIGHT_CANNON"
+   m_sDisplayName "Right Cannon"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 1
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 60
+  }
+  MeshObject "{6AA8094B3C994A1B}" {
+   Object "{45A0843E57D0C983}Common/Models/Mech Right Arm/Right_Turret_Arm.xob"
+  }
+  RplComponent "{6AA8094B0DA9CD50}" {
+  }
+  Hierarchy "{6AA8094B3C994A1E}" {
+  }
+ }
+ coords 88.527 4.758 79.451
+}

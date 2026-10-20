@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{477E3E78C554D013}Common/Models/Data/AmmoBox_BCR.edds"
+ NMOMap "{0C488892BE3BCF02}Common/Models/Data/AmmoBox_albedo.edds"
+}

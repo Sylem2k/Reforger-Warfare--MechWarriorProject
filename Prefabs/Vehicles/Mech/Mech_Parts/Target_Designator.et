@@ -21,9 +21,10 @@ GenericEntity {
    m_bToggle 1
   }
   MeshObject "{EEEA7860B126A622}" {
-   Object "{C73836E3B031C35E}Common/Models/sen_Tanna.xob"
+   Object "{C55377D5F6692CF3}Common/Models/Mech Misc/sen_Tanna.xob"
   }
   Hierarchy "{B920CB401D21598E}" {
   }
  }
+ coords 87.911 4.536 76.742
 }

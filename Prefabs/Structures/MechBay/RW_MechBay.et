@@ -4,7 +4,29 @@ GenericEntity {
   MeshObject "{FB79674657F6AFF6}" {
    Object "{102855E4AA84B807}Common/Models/Mech_Bay/Mech Bay.xob"
   }
-  RplComponent "{CD2EED750F10A415}" {
+  RW_MechBayComponent "{8643B81E650A437F}" {
+   m_sBayName "Mech Bay"
+   m_fRadius 15
+   m_vParkingOffset 0 0 12
+   m_aFrames {
+    RW_BayFrameEntry "{6D351B2848CDE0A6}" {
+     m_sName "Test Frame (Light)"
+     m_sPrefab "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et"
+    }
+    RW_BayFrameEntry "{6E6016EC8D41D2BE}" {
+     m_sName "Warden (Medium)"
+     m_sPrefab "{464C756F1E1D8F1E}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Base.et"
+    }
+    RW_BayFrameEntry "{5C2E91A07B3D4F18}" {
+     m_sName "Light Frame B"
+     m_sPrefab "{D8B39EAE0BB68001}Prefabs/Vehicles/Mech/SampleMech/Light_Mech_Frame_B.et"
+    }
+    RW_BayFrameEntry "{A41D6F3C29E85B07}" {
+     m_sName "Medium Frame B"
+     m_sPrefab "{223347F0F553E85B}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Frame_B.et"
+    }
+   }
+   m_fBuildCooldown 20
   }
   ActionsManagerComponent "{F337AFC7C60E18AE}" {
    ActionContexts {
@@ -28,17 +50,9 @@ GenericEntity {
     }
    }
   }
-  RW_MechBayComponent "{8643B81E650A437F}" {
-   m_sBayName "Mech Bay"
-   m_fRadius 15
-   m_vParkingOffset 0 0 12
-   m_aFrames {
-    RW_BayFrameEntry "{6D351B2848CDE0A6}" {
-     m_sName "Test Frame (Light)"
-     m_sPrefab "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et"
-    }
-   }
-   m_fBuildCooldown 20
+  RplComponent "{CD2EED750F10A415}" {
   }
  }
+ coords 80.129 6.657 55.092
+ angles 0 15.431 0
 }

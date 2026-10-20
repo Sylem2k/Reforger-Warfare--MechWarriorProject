@@ -1,0 +1,74 @@
+GenericEntity {
+ ID "49C0C8F152F72AE6"
+ components {
+  SignalsManagerComponent "{8B99B1139D2A77CE}" {
+  }
+  CGS_Titan_Missile "{41B6F113635830B8}" {
+   m_sModuleId "LRM20"
+   m_sDisplayName "LRM-20"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 3
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{C7976A27BA9C9640}" {
+    m_sMuzzleParticle "{6827C9C356E224D7}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Front.ptc"
+    m_sBackblastParticle "{CD49B367ABBC3629}Particles/Blasts/Blast_tiny_solid.ptc"
+    m_sSoundProject "{95AA0243F9DEAB1C}Sounds/Weapons/Launchers/RPG7/Weapons_Launchers_RPG7_Shot.acp"
+    m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
+    m_sTrailParticle "{E60F6CCD3E871566}Particles/Vehicle/Vehicle_smoke_car_exhaust_normal.ptc"
+    m_fLinger 1
+    m_fImpactPrefabLifetime 2
+    m_bImpactOnMiss 1
+   }
+   m_fHeatPerShot 1
+   m_eDamageKind EXPLOSIVE
+   m_Crosshair BFA_MechCrosshair "{FD3373FF2C6BB486}" {
+    m_fSize 120
+    m_Color 0.2 1 0.4 0.9
+   }
+   m_MuzzlePoint PointInfo "{9923DCC611D647B3}" {
+    Offset 0 0.5 0.45
+   }
+   m_fMuzzleClearance 0.3
+   m_iMagazineSize 60
+   m_fReloadTime 16
+   m_iSpareMagazines 2
+   m_fRocketSpeed 90
+   m_fRange 1800
+   m_iSalvoCount 20
+   m_iSalvoIntervalMs 60
+   m_iRefireMs 4500
+   m_fSpreadDeg 2
+   m_fDirectHitDamage 60
+   m_fSplashDamage 25
+   m_fSplashRadius 4
+   m_fTrailLength 8
+   m_fTrailThickness 0.25
+   m_bDebug 0
+   m_aTubeGrids {
+    CGS_TubeGrid "{A3BC11DE3335FFCE}" {
+     m_FirstTube PointInfo "{6C1ED2B2F07304A6}" {
+      Offset -0.24 0.71 0.45
+     }
+     m_iColumns 5
+     m_iRows 4
+     m_fColumnSpacing 0.12
+     m_fRowSpacing 0.12
+    }
+   }
+   m_bRandomTubeOrder 1
+   m_bHoming 1
+   m_bLockTargets 1
+   m_eGuidance BOTH
+   m_fLaserConeDeg 120
+   m_fTurnRate 45
+   m_fArmingDistance 60
+   m_fLoftAngle 45
+  }
+  MeshObject "{713AFE4EA7780CE9}" {
+   Object "{882394FF329F6DA2}Common/Models/Mech Back/Left_Right_4_Pod.xob"
+  }
+  Hierarchy "{8811EE3CD847E8B6}" {
+  }
+ }
+}

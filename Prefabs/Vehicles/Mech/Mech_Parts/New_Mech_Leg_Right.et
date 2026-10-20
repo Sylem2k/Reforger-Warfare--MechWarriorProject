@@ -16,7 +16,7 @@ GenericEntity {
    }
   }
   MeshObject "{6A98589DB046FD34}" {
-   Object "{699F6130C61DC9B4}Common/Models/Mech/Mech_Leg.xob"
+   Object "{00BF568EACF0923C}Common/Models/Mech Leg/Light_Leg.xob"
    RainOccluder 0
    WetnessOccluder 0
    ReceiveLight 0
@@ -66,4 +66,5 @@ GenericEntity {
   Hierarchy "{6A98589DB046FD0F}" {
   }
  }
+ coords 81.219 6.491 65.398
 }

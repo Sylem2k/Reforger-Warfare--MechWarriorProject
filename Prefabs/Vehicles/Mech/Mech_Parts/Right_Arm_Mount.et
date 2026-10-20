@@ -1,0 +1,28 @@
+GenericEntity {
+ ID "905EDD4FAB338B8D"
+ components {
+  SCR_DamageManagerComponent "{D61295093474A7BA}" {
+   "Additional hit zones" {
+    BFA_MechPartHitZone Arm {
+     HZDefault 1
+     MaxHealth 600
+     DamageReduction 2
+     DamageThreshold 1
+     "Melee multiplier" 0.01
+     "Kinetic multiplier" 0.1
+     "Fragmentation multiplier" 0.05
+     "Explosive multiplier" 1
+     "Incendiary multiplier" 0.5
+     m_ePart WEAPON
+     m_fHullShare 0.5
+     m_sDisplayName "RIGHT ARM"
+     m_eHudSection RIGHT_ARM
+    }
+   }
+  }
+  RplComponent "{6ED5802414432B0C}" {
+  }
+  Hierarchy "{969559F918493CFF}" {
+  }
+ }
+}

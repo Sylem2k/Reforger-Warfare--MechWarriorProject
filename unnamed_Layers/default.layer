@@ -1,12 +1,19 @@
 GenericEntity {
- coords 218.107 1 105.049
+ coords 84.993 5.346 76.895
 }
-GenericEntity : "{33B2DFDCD0EBA3DB}Prefabs/Items/Equipment/Kits/RepairKit_01/Mech Wrench.et" {
- coords 214.153 1 102.41
+Vehicle Med_Mech_Frame_B1 : "{223347F0F553E85B}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Frame_B.et" {
+ coords 90.602 4.73 66.521
 }
-Vehicle SampleMech1 : "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et" {
- coords 216.413 3.121 108.918
+Vehicle Med_Mech_Base1 : "{464C756F1E1D8F1E}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Base.et" {
+ coords 84.876 8.363 68.186
 }
 GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
- coords 214.216 2.977 93.981
+ coords 75.967 6.657 56.241
+ angles 0 15.431 0
+}
+GenericEntity : "{9BB5275571625070}Prefabs/Vehicles/Mech/Mech_Parts/Hip2.et" {
+ coords 85.949 4.48 62.273
+}
+GenericEntity : "{CBBAB4D632239450}Prefabs/Vehicles/Mech/Weapons/Autocannon/Mech_Autocannon.et" {
+ coords 81.945 5.304 61.323
 }

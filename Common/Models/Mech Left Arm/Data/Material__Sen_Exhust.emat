@@ -1,0 +1,4 @@
+MatPBRBasic {
+ BCRMap "{A720B26F1F13A0C3}Common/Models/Data/Exhaust_BCR.edds"
+ NMOMap "{51CA4F44D51EF609}Common/Models/Data/Exhaust_albedo.edds"
+}

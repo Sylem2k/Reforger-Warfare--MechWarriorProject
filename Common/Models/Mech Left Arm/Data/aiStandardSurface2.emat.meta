@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{B141A36BD7EF5A11}Common/Models/Mech Left Arm/Data/aiStandardSurface2.emat"
+ Configurations {
+  EMATResourceClass PC {
+  }
+  EMATResourceClass XBOX_ONE : PC {
+  }
+  EMATResourceClass XBOX_SERIES : PC {
+  }
+  EMATResourceClass PS4 : PC {
+  }
+  EMATResourceClass PS5 : PC {
+  }
+  EMATResourceClass HEADLESS : PC {
+  }
+ }
+}

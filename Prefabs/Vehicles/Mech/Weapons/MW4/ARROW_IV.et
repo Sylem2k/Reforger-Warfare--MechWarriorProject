@@ -3,7 +3,7 @@ GenericEntity {
  components {
   SignalsManagerComponent "{29134E6EA98E743B}" {
   }
-  CGS_Titan_Missile "{DC42798FEC45AC75}" {
+  RW_ArrowIVWeapon "{DC42798FEC45AC75}" {
    m_sModuleId "ARROW_IV"
    m_sDisplayName "Arrow IV (Prototype)"
    m_sControlStation "DRIVER"
@@ -57,8 +57,8 @@ GenericEntity {
     }
    }
    m_bRandomTubeOrder 1
-   m_bHoming 0
-   m_bLockTargets 0
+   m_bHoming 1
+   m_bLockTargets 1
    m_eGuidance BOTH
    m_fLaserConeDeg 120
    m_fTurnRate 45

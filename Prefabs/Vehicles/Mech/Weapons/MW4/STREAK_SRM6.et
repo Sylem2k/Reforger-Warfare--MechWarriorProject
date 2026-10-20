@@ -3,7 +3,7 @@ GenericEntity {
  components {
   SignalsManagerComponent "{29134E6EA98E743B}" {
   }
-  CGS_Titan_Missile "{DC42798FEC45AC75}" {
+  RW_StreakSRMWeapon "{DC42798FEC45AC75}" {
    m_sModuleId "STREAK_SRM6"
    m_sDisplayName "Streak SRM-6 (Prototype)"
    m_sControlStation "DRIVER"
@@ -59,11 +59,11 @@ GenericEntity {
    m_bRandomTubeOrder 1
    m_bHoming 1
    m_bLockTargets 1
-   m_eGuidance BOTH
+   m_eGuidance CROSSHAIR
    m_fLaserConeDeg 120
    m_fTurnRate 45
    m_fArmingDistance 60
-   m_fLoftAngle 45
+   m_fLoftAngle 0
   }
   Hierarchy "{9A6D28B0EDF381D7}" {
   }

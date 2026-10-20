@@ -212,6 +212,186 @@ Vehicle {
      m_fWeightTons 0
      m_fSwapTime 3
     }
+    BFA_MechModuleDefinition "{EF110000EF210000}" {
+     m_iId 100
+     m_sLabel "MACHINE GUN"
+     m_iClass 0
+     m_sWeaponModuleId "MACHINE_GUN"
+     m_sPrefab "{BFAA08F6A7711368}Prefabs/Vehicles/Mech/Weapons/MW4/MACHINE_GUN.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110001EF210001}" {
+     m_iId 101
+     m_sLabel "AC2"
+     m_iClass 0
+     m_sWeaponModuleId "AC2"
+     m_sPrefab "{BFAA095BA771149F}Prefabs/Vehicles/Mech/Weapons/MW4/AC2.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110002EF210002}" {
+     m_iId 102
+     m_sLabel "AC5"
+     m_iClass 0
+     m_sWeaponModuleId "AC5"
+     m_sPrefab "{BFAA09C0A77115D6}Prefabs/Vehicles/Mech/Weapons/MW4/AC5.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110003EF210003}" {
+     m_iId 103
+     m_sLabel "AC10"
+     m_iClass 0
+     m_sWeaponModuleId "AC10"
+     m_sPrefab "{BFAA0A25A771170D}Prefabs/Vehicles/Mech/Weapons/MW4/AC10.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110004EF210004}" {
+     m_iId 104
+     m_sLabel "AC20"
+     m_iClass 0
+     m_sWeaponModuleId "AC20"
+     m_sPrefab "{BFAA0A8AA7711844}Prefabs/Vehicles/Mech/Weapons/MW4/AC20.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110005EF210005}" {
+     m_iId 105
+     m_sLabel "ULTRA AC5"
+     m_iClass 0
+     m_sWeaponModuleId "ULTRA_AC5"
+     m_sPrefab "{BFAA0AEFA771197B}Prefabs/Vehicles/Mech/Weapons/MW4/ULTRA_AC5.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110006EF210006}" {
+     m_iId 106
+     m_sLabel "ULTRA AC10"
+     m_iClass 0
+     m_sWeaponModuleId "ULTRA_AC10"
+     m_sPrefab "{BFAA0B54A7711AB2}Prefabs/Vehicles/Mech/Weapons/MW4/ULTRA_AC10.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110007EF210007}" {
+     m_iId 107
+     m_sLabel "LBX AC10"
+     m_iClass 0
+     m_sWeaponModuleId "LBX_AC10"
+     m_sPrefab "{BFAA0BB9A7711BE9}Prefabs/Vehicles/Mech/Weapons/MW4/LBX_AC10.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110008EF210008}" {
+     m_iId 108
+     m_sLabel "GAUSS RIFLE"
+     m_iClass 0
+     m_sWeaponModuleId "GAUSS_RIFLE"
+     m_sPrefab "{BFAA0C1EA7711D20}Prefabs/Vehicles/Mech/Weapons/MW4/GAUSS_RIFLE.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110009EF210009}" {
+     m_iId 109
+     m_sLabel "LIGHT GAUSS"
+     m_iClass 0
+     m_sWeaponModuleId "LIGHT_GAUSS"
+     m_sPrefab "{BFAA0C83A7711E57}Prefabs/Vehicles/Mech/Weapons/MW4/LIGHT_GAUSS.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000AEF21000A}" {
+     m_iId 110
+     m_sLabel "HEAVY GAUSS"
+     m_iClass 0
+     m_sWeaponModuleId "HEAVY_GAUSS"
+     m_sPrefab "{BFAA0CE8A7711F8E}Prefabs/Vehicles/Mech/Weapons/MW4/HEAVY_GAUSS.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000BEF21000B}" {
+     m_iId 111
+     m_sLabel "SRM2"
+     m_iClass 0
+     m_sWeaponModuleId "SRM2"
+     m_sPrefab "{BFAA0D4DA77120C5}Prefabs/Vehicles/Mech/Weapons/MW4/SRM2.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000CEF21000C}" {
+     m_iId 112
+     m_sLabel "SRM4"
+     m_iClass 0
+     m_sWeaponModuleId "SRM4"
+     m_sPrefab "{BFAA0DB2A77121FC}Prefabs/Vehicles/Mech/Weapons/MW4/SRM4.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000DEF21000D}" {
+     m_iId 113
+     m_sLabel "SRM6"
+     m_iClass 0
+     m_sWeaponModuleId "SRM6"
+     m_sPrefab "{BFAA0E17A7712333}Prefabs/Vehicles/Mech/Weapons/MW4/SRM6.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000EEF21000E}" {
+     m_iId 114
+     m_sLabel "STREAK SRM2"
+     m_iClass 0
+     m_sWeaponModuleId "STREAK_SRM2"
+     m_sPrefab "{BFAA0E7CA771246A}Prefabs/Vehicles/Mech/Weapons/MW4/STREAK_SRM2.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF11000FEF21000F}" {
+     m_iId 115
+     m_sLabel "STREAK SRM4"
+     m_iClass 0
+     m_sWeaponModuleId "STREAK_SRM4"
+     m_sPrefab "{BFAA0EE1A77125A1}Prefabs/Vehicles/Mech/Weapons/MW4/STREAK_SRM4.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110010EF210010}" {
+     m_iId 116
+     m_sLabel "STREAK SRM6"
+     m_iClass 0
+     m_sWeaponModuleId "STREAK_SRM6"
+     m_sPrefab "{BFAA0F46A77126D8}Prefabs/Vehicles/Mech/Weapons/MW4/STREAK_SRM6.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110011EF210011}" {
+     m_iId 117
+     m_sLabel "ARROW IV"
+     m_iClass 0
+     m_sWeaponModuleId "ARROW_IV"
+     m_sPrefab "{BFAA0FABA771280F}Prefabs/Vehicles/Mech/Weapons/MW4/ARROW_IV.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110012EF210012}" {
+     m_iId 118
+     m_sLabel "PPC"
+     m_iClass 0
+     m_sWeaponModuleId "PPC"
+     m_sPrefab "{BFAA082CA77110FA}Prefabs/Vehicles/Mech/Weapons/MW4/PPC.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
+    BFA_MechModuleDefinition "{EF110013EF210013}" {
+     m_iId 119
+     m_sLabel "ER PPC"
+     m_iClass 0
+     m_sWeaponModuleId "ER_PPC"
+     m_sPrefab "{BFAA0891A7711231}Prefabs/Vehicles/Mech/Weapons/MW4/ER_PPC.et"
+     m_fWeightTons 0
+     m_fSwapTime 3
+    }
    }
    m_sSwapStation "DRIVER"
    m_bSwapRequiresStationary 1

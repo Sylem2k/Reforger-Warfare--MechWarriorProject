@@ -30,9 +30,5 @@ GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.e
    m_fRange 1700
    m_fSplashDamage 16
   }
-  MeshObject "{65343E93B3B73516}" {
-   Object "{6D9E6C15CFDF9CAA}Common/Models/sen_Las_Cannon.xob"
-  }
  }
- coords 81.787 4.858 54.17
 }

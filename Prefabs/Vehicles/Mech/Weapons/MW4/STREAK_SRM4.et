@@ -65,9 +65,6 @@ GenericEntity {
    m_fArmingDistance 60
    m_fLoftAngle 45
   }
-  MeshObject "{9AE73078BE72EE65}" {
-   Object "{882394FF329F6DA2}Common/Models/Mech Back/Left_Right_4_Pod.xob"
-  }
   Hierarchy "{9A6D28B0EDF381D7}" {
   }
  }

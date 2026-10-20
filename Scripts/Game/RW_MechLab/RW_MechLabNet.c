@@ -26,48 +26,34 @@ modded class SCR_PlayerController
 		if (!rpl)
 			return;
 
-		int w0 = 0;
-		int w1 = 0;
-		int w2 = 0;
-		int w3 = 0;
-		int w4 = 0;
-		int w5 = 0;
-		for (int i = 0; i < modules.Count() && i < RW_PER_WORD * 6; i++)
+		// Serialize the 18 local module IDs in a single RPC string.  Each ID is
+		// validated server-side against the authoritative mech definition.
+		string serialized = "";
+		for (int i = 0; i < modules.Count(); i++)
 		{
-			int id = Math.Clamp(modules[i], 0, RW_ID_MASK);
-			int shift = Math.Mod(i, RW_PER_WORD) * RW_BITS;
-			int word = i / RW_PER_WORD;
-			if (word == 0)
-				w0 = w0 | (id << shift);
-			else if (word == 1)
-				w1 = w1 | (id << shift);
-			else if (word == 2)
-				w2 = w2 | (id << shift);
-			else if (word == 3)
-				w3 = w3 | (id << shift);
-			else if (word == 4)
-				w4 = w4 | (id << shift);
-			else
-				w5 = w5 | (id << shift);
+			if (modules[i] < 0 || modules[i] > RW_ID_MASK)
+				return;
+			if (i > 0)
+				serialized = serialized + ",";
+			serialized = serialized + modules[i].ToString();
 		}
-
 		if (Replication.IsServer())
 		{
-			RW_ServerBuild(rpl.Id(), w0, w1, w2, w3, w4, w5, modules.Count(), heatsinks);
+			RW_ServerBuild(rpl.Id(), serialized, heatsinks);
 			return;
 		}
-		Rpc(RW_RpcAsk_Build, rpl.Id(), w0, w1, w2, w3, w4, w5, modules.Count(), heatsinks);
+		Rpc(RW_RpcAsk_Build, rpl.Id(), serialized, heatsinks);
 	}
 
 	//------------------------------------------------------------------------------------------------
 	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
-	protected void RW_RpcAsk_Build(RplId mechId, int w0, int w1, int w2, int w3, int w4, int w5, int count, int heatsinks)
+	protected void RW_RpcAsk_Build(RplId mechId, string serialized, int heatsinks)
 	{
-		RW_ServerBuild(mechId, w0, w1, w2, w3, w4, w5, count, heatsinks);
+		RW_ServerBuild(mechId, serialized, heatsinks);
 	}
 
 	//------------------------------------------------------------------------------------------------
-	protected void RW_ServerBuild(RplId mechId, int w0, int w1, int w2, int w3, int w4, int w5, int count, int heatsinks)
+	protected void RW_ServerBuild(RplId mechId, string serialized, int heatsinks)
 	{
 		RplComponent rpl = RplComponent.Cast(Replication.FindItem(mechId));
 		if (!rpl || !rpl.GetEntity())
@@ -85,14 +71,39 @@ modded class SCR_PlayerController
 			frame.ServerCrewMessage("REFUSED: this mech has no hardpoints");
 			return;
 		}
-		if (count < 1 || count > RW_PER_WORD * 6 || count != hardpoints.GetHardpointCount())
+
+		// 18 decimal IDs (up to four digits each) plus separators.
+		if (serialized.IsEmpty() || serialized.Length() > 90)
+		{
+			frame.ServerCrewMessage("REFUSED: invalid loadout data");
+			return;
+		}
+		ref array<string> tokens = {};
+		serialized.Split(",", tokens, false);
+		if (tokens.Count() != hardpoints.GetHardpointCount() || tokens.Count() < 1 || tokens.Count() > RW_PER_WORD * 6)
 		{
 			frame.ServerCrewMessage("REFUSED: invalid loadout hardpoint count");
 			return;
 		}
 
-		// Parked in a Mech Bay: the bay does the work (no tool needed, the player can stand at the
-		// bay). Anywhere else: the player must stand at the mech with the Mech Wrench.
+		array<int> modules = {};
+		foreach (string token : tokens)
+		{
+			if (token.IsEmpty() || token.Length() > 4)
+				return;
+			for (int c = 0; c < token.Length(); c++)
+			{
+				int ch = token.ToAscii(c);
+				if (ch < 48 || ch > 57)
+					return;
+			}
+			int id = token.ToInt();
+			if (id < 0 || id > RW_ID_MASK)
+				return;
+			modules.Insert(id);
+		}
+
+		// Parked in a Mech Bay: the bay does the work (no tool needed).
 		IEntity user = GetControlledEntity();
 		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
 		bool bayWorks = bay && bay.NoToolNeeded() && bay.CanOperate(user, mech);
@@ -105,24 +116,6 @@ modded class SCR_PlayerController
 		{
 			frame.ServerCrewMessage("REFUSED: you need the Mech Wrench");
 			return;
-		}
-
-		array<int> modules = {};
-		for (int i = 0; i < count && i < RW_PER_WORD * 6; i++)
-		{
-			int shift = Math.Mod(i, RW_PER_WORD) * RW_BITS;
-			int word = w0;
-			if (i / RW_PER_WORD == 1)
-				word = w1;
-			else if (i / RW_PER_WORD == 2)
-				word = w2;
-			else if (i / RW_PER_WORD == 3)
-				word = w3;
-			else if (i / RW_PER_WORD == 4)
-				word = w4;
-			else if (i / RW_PER_WORD == 5)
-				word = w5;
-			modules.Insert((word >> shift) & RW_ID_MASK);
 		}
 
 		string reason;

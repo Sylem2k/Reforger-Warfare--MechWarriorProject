@@ -3,7 +3,7 @@ GenericEntity {
  components {
   SignalsManagerComponent "{29134E6EA98E743B}" {
   }
-  CGS_Titan_Missile "{DC42798FEC45AC75}" {
+  RW_SRMWeapon "{DC42798FEC45AC75}" {
    m_sModuleId "SRM4"
    m_sDisplayName "SRM-4"
    m_sControlStation "DRIVER"
@@ -63,7 +63,7 @@ GenericEntity {
    m_fLaserConeDeg 120
    m_fTurnRate 45
    m_fArmingDistance 60
-   m_fLoftAngle 45
+   m_fLoftAngle 0
   }
   Hierarchy "{9A6D28B0EDF381D7}" {
   }

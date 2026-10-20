@@ -103,8 +103,8 @@ class RW_EquipmentCatalog
 	{
 		if (!hardpoints || globalWeaponId.IsEmpty())
 			return -1;
-		// Core currently packs module IDs into five bits.
-		for (int localId = 1; localId <= 31; localId++)
+		// Core currently packs module IDs into ten bits.
+		for (int localId = 1; localId <= 1023; localId++)
 		{
 			BFA_MechModuleDefinition definition = hardpoints.GetModuleDefinition(localId);
 			if (definition && definition.m_sWeaponModuleId == globalWeaponId)
@@ -118,7 +118,7 @@ class RW_EquipmentCatalog
 	//! An empty slot is represented by an empty string.
 	string ResolveGlobalWeaponId(BFA_MechHardpointComponent hardpoints, int localId)
 	{
-		if (!hardpoints || localId <= 0 || localId > 31)
+		if (!hardpoints || localId <= 0 || localId > 1023)
 			return string.Empty;
 		BFA_MechModuleDefinition definition = hardpoints.GetModuleDefinition(localId);
 		if (!definition)

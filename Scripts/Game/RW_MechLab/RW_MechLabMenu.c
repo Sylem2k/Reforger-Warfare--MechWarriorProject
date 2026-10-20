@@ -856,7 +856,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// Empty remains available under every filter.
 		array<int> parts = {0};
-		for (int id = 1; id <= 31; id++)
+		for (int id = 1; id <= 1023; id++)
 		{
 			BFA_MechModuleDefinition definition = m_Hardpoints.GetModuleDefinition(id);
 			if (!definition)

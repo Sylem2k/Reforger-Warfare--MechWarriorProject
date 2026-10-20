@@ -41,7 +41,7 @@ class RW_SavedBuild
 		array<string> ids = {};
 		parts[3].Split(",", ids, true);
 		foreach (string id : ids)
-			build.m_aModules.Insert(Math.Clamp(id.ToInt(), 0, 31));
+			build.m_aModules.Insert(Math.Clamp(id.ToInt(), 0, 1023));
 		return build;
 	}
 

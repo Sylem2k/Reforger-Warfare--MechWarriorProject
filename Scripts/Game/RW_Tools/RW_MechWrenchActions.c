@@ -176,9 +176,12 @@ class RW_MechWrench
 		if (!frame.CheckBuild(hardpoints, loadout, frame.GetExtraHeatsinks(), reason))
 			return false;
 
-		RW_MechFrameComponent.s_bMechBayApplying = RW_MechBayComponent.IsAtBay(mech);
+		IEntity previousBayMech = RW_MechFrameComponent.s_pMechBayApplying;
+		RW_MechFrameComponent.s_pMechBayApplying = null;
+		if (RW_MechBayComponent.IsAtBay(mech))
+			RW_MechFrameComponent.s_pMechBayApplying = mech;
 		bool ok = hardpoints.ServerRequestModule(hardpoints.m_sSwapStation, hardpointIndex, moduleId);
-		RW_MechFrameComponent.s_bMechBayApplying = false;
+		RW_MechFrameComponent.s_pMechBayApplying = previousBayMech;
 		return ok;
 	}
 }

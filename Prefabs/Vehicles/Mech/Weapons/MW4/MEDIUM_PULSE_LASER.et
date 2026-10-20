@@ -1,0 +1,41 @@
+GenericEntity {
+ ID "BFAA03ADA77109B3"
+ components {
+  SignalsManagerComponent "{6A8C29F2D0FE85CF}" {
+  }
+  RW_PulseLaserWeapon "{E0B3EAA1FF77BABB}" {
+   m_sModuleId "MEDIUM_PULSE_LASER"
+   m_sDisplayName "Medium Pulse Laser"
+   m_sControlStation "GUNNER"
+   m_iWeaponGroup 1
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 0
+   m_FX BFA_MechWeaponFX "{A1C9A9D2F44A1A65}" {
+    m_sMuzzleParticle "{25B1DC5E3A244EFB}Particles/Weapon/RPG_22_muzzle_front.ptc"
+    m_sSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+    m_iTracerEvery 4
+   }
+   m_fHeatPerShot 5
+   m_eDamageKind ENERGY
+   m_MuzzlePoint PointInfo "{6A9623ADCC4F7057}" {
+    Offset 0 0.8554 0.906
+   }
+   m_bAutoMuzzleFromBounds 0
+   m_vMuzzleLocalOffset 0 0 0
+   m_fMuzzleClearance 0.05
+   m_bReverseMuzzleForward 0
+   m_eCgsSplash MIXED
+   m_fShotsPerMinute 480
+   m_fRange 850
+   m_fDamage 28
+   m_fBeamSpeed 300
+   m_fTracerLength 25
+   m_fTracerThickness 0.62
+   m_bDebug 0
+  }
+  RplComponent "{F171EBDA68C05DBF}" {
+  }
+  Hierarchy "{6A8C29F2D0FE8424}" {
+  }
+ }
+}

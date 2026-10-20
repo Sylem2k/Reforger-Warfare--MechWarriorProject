@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{BFAA0C83A7711E57}Prefabs/Vehicles/Mech/Weapons/MW4/LIGHT_GAUSS.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

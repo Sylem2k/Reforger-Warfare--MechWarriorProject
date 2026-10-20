@@ -1,7 +1,7 @@
 GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.et" {
  ID "BFAA07DDA77116DD"
  components {
-  BFA_MechAutocannonModuleComponent "{0F7D60594254EA2D}" {
+  RW_LBXAutocannon "{0F7D60594254EA2D}" {
    m_sModuleId "LBX_AC10"
    m_sDisplayName "LB-X AC/10 (Prototype)"
    m_sControlStation "GUNNER"
@@ -28,7 +28,9 @@ GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.e
    m_fReloadTime 4
    m_eCgsSplash MIXED
    m_fRange 850
-   m_fSplashDamage 65
+   m_fDamage 65
+   m_iPelletCount 10
+   m_fClusterSpread 3
   }
  }
 }

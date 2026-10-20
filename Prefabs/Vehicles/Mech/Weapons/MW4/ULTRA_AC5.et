@@ -1,7 +1,7 @@
 GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.et" {
  ID "BFAA0713A771146F"
  components {
-  BFA_MechAutocannonModuleComponent "{0F7D60594254EA2D}" {
+  RW_UltraAutocannon "{0F7D60594254EA2D}" {
    m_sModuleId "ULTRA_AC5"
    m_sDisplayName "Ultra AC/5 (Prototype)"
    m_sControlStation "GUNNER"
@@ -28,7 +28,7 @@ GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.e
    m_fReloadTime 4
    m_eCgsSplash MIXED
    m_fRange 1200
-   m_fSplashDamage 28
+   m_fDamage 28
   }
  }
 }

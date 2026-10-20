@@ -1,4 +1,10 @@
-GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
- coords 193.886 3.137 96.674
- angles 0 0 0
+$grp GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
+ {
+  coords 193.886 3.137 96.674
+  angles 0 0 0
+ }
+ {
+  coords 72.86 3.377 87.848
+  angles 0 0 0
+ }
 }

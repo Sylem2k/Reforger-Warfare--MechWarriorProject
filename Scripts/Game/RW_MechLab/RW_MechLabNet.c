@@ -14,6 +14,13 @@ modded class SCR_PlayerController
 	{
 		if (!mech)
 			return;
+		// The current wire format carries at most 18 module IDs.
+		// Never send a partial build while reporting its original count.
+		if (modules.Count() < 1 || modules.Count() > RW_PER_WORD * 3)
+		{
+			Print("[RW MECH LAB] Build refused: unsupported hardpoint count", LogLevel.WARNING);
+			return;
+		}
 		RplComponent rpl = RplComponent.Cast(mech.FindComponent(RplComponent));
 		if (!rpl)
 			return;
@@ -62,6 +69,17 @@ modded class SCR_PlayerController
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
 		if (!frame)
 			return;
+		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent));
+		if (!hardpoints)
+		{
+			frame.ServerCrewMessage("REFUSED: this mech has no hardpoints");
+			return;
+		}
+		if (count < 1 || count > RW_PER_WORD * 3 || count != hardpoints.GetHardpointCount())
+		{
+			frame.ServerCrewMessage("REFUSED: invalid loadout hardpoint count");
+			return;
+		}
 
 		// Parked in a Mech Bay: the bay does the work (no tool needed, the player can stand at the
 		// bay). Anywhere else: the player must stand at the mech with the Mech Wrench.
@@ -93,7 +111,7 @@ modded class SCR_PlayerController
 
 		string reason;
 		if (frame.ServerApplyBuild(modules, heatsinks, reason))
-			frame.ServerCrewMessage(string.Format("Build accepted: %1 / %2 t, %3 extra heatsinks", frame.BuildTons(BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent)), modules, heatsinks), frame.GetMaxTons(), heatsinks));
+			frame.ServerCrewMessage(string.Format("Build accepted: %1 / %2 t, %3 extra heatsinks", frame.BuildTons(hardpoints, modules, heatsinks), frame.GetMaxTons(), heatsinks));
 		else
 			frame.ServerCrewMessage("REFUSED: " + reason);
 	}

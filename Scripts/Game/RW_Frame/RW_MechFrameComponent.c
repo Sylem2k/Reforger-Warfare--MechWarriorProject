@@ -312,8 +312,23 @@ class RW_MechFrameComponent : ScriptComponent
 	bool CheckItem(BFA_MechHardpointComponent hardpoints, int hardpointIndex, int moduleId, out string reason)
 	{
 		reason = string.Empty;
-		if (!hardpoints || moduleId == 0)
+		if (!hardpoints)
+		{
+			reason = "this mech has no hardpoints";
+			return false;
+		}
+		if (hardpointIndex < 0 || hardpointIndex >= hardpoints.GetHardpointCount())
+		{
+			reason = "invalid hardpoint";
+			return false;
+		}
+		if (moduleId == 0)
 			return true;
+		if (moduleId < 0 || !hardpoints.GetModuleDefinition(moduleId))
+		{
+			reason = "unknown module";
+			return false;
+		}
 		if (!hardpoints.CanModuleFit(hardpointIndex, moduleId))
 		{
 			reason = "wrong hardpoint class";
@@ -347,7 +362,15 @@ class RW_MechFrameComponent : ScriptComponent
 	{
 		reason = string.Empty;
 		if (!hardpoints)
-			return true;
+		{
+			reason = "this mech has no hardpoints";
+			return false;
+		}
+		if (modules.Count() != hardpoints.GetHardpointCount())
+		{
+			reason = "loadout hardpoint count mismatch";
+			return false;
+		}
 		if (heatsinks < 0 || heatsinks > m_iMaxExtraHeatsinks)
 		{
 			reason = string.Format("heatsinks must be 0 - %1", m_iMaxExtraHeatsinks);
@@ -357,6 +380,8 @@ class RW_MechFrameComponent : ScriptComponent
 		RW_EquipmentCatalog catalog = RW_EquipmentCatalog.Get();
 		for (int i = 0; i < modules.Count(); i++)
 		{
+			if (!CheckItem(hardpoints, i, modules[i], reason))
+				return false;
 			BFA_MechModuleDefinition module = hardpoints.GetModuleDefinition(modules[i]);
 			if (!module)
 				continue; // empty

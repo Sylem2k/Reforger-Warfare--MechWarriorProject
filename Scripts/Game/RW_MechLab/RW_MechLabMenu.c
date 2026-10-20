@@ -887,12 +887,14 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (m_iPartCount > fit)
 		{
 			partsHeader.SetText(string.Format("PARTS  %1-%2 of %3", m_iPartScroll + 1, Math.Min(m_iPartScroll + fit, m_iPartCount), m_iPartCount));
-			RW_LabRow up = AddRow(ROW_SCROLL, -1, lx + panelW - 130, py - 30, 54, 26);
-			up.m_wTitle = Text(lx + panelW - 130, py - 28, 54, 22, 16, m_cText, "UP");
+			// Navigation is below the family tabs, in its own row.
+			RW_LabRow up = AddRow(ROW_SCROLL, -1, lx + panelW - 132, py, 54, 26);
+			up.m_wTitle = Text(lx + panelW - 132, py + 2, 54, 22, 14, m_cText, "UP");
 			up.m_wTitle.SetFlags(WidgetFlags.CENTER);
-			RW_LabRow down = AddRow(ROW_SCROLL, 1, lx + panelW - 70, py - 30, 54, 26);
-			down.m_wTitle = Text(lx + panelW - 70, py - 28, 54, 22, 16, m_cText, "DOWN");
+			RW_LabRow down = AddRow(ROW_SCROLL, 1, lx + panelW - 72, py, 54, 26);
+			down.m_wTitle = Text(lx + panelW - 72, py + 2, 54, 22, 14, m_cText, "DOWN");
 			down.m_wTitle.SetFlags(WidgetFlags.CENTER);
+			py += 32;
 		}
 		else
 		{

@@ -841,9 +841,9 @@ Vehicle {
   }
   CGS_MechShieldComponent "{E60F0000000000AB}" {
    m_fMaxShield 30000
-   m_fRegenPerSecond 750
-   m_fRegenDelay 7
-   m_fBrokenDelay 20
+   m_fRegenPerSecond 250
+   m_fRegenDelay 20
+   m_fBrokenDelay 40
    m_fReactivateAt 0.4
    m_fBleedThrough 0.03
    m_fKineticCost 1

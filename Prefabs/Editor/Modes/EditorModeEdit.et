@@ -1,9 +1,13 @@
-SCR_EditorModeEntity : "{59EF8ECAE1DCD417}Prefabs/Editor/Modes/EditorModeEdit.et" {
+SCR_EditorModeEntity : "{E56F54E533ACE527}Prefabs/Editor/Modes/EditorModeBase.et" {
  ID "54F0A77282A3AA3B"
  components {
   SCR_PlacingEditorComponent "{5145484399BAA2E7}" {
    m_Registries {
     SCR_PlaceableEntitiesRegistry "{62D50D1E4E26AF2D}" : "{2DA412452F22AF0B}Configs/Editor/BFA_Mech_Entities.conf" {
+    }
+    SCR_PlaceableEntitiesRegistry "{D82026000000E002}" : "{D82026000000E001}Configs/Editor/PlaceableEntities/Vehicles/EnemyMechs.conf" {
+    }
+    SCR_PlaceableEntitiesRegistry "{F1A6E20D202601B0}" : "{C1F628B047DDA106}Configs/Editor/PlaceableEntities/MW_MechBay.conf" {
     }
    }
   }

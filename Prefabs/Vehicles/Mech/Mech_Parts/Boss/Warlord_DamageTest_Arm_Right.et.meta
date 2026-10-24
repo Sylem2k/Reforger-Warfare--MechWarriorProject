@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{ED24000000000032}Prefabs/Vehicles/Mech/Mech_Parts/Boss/Warlord_DamageTest_Arm_Right.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

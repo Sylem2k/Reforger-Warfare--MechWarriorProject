@@ -1,0 +1,29 @@
+GenericEntity : "{3764FA8EDD9C9864}Prefabs/Vehicles/Mech/Mech_Parts/Titan_Stomp_Pulse.et" {
+ ID "D600202610230201"
+ components {
+  CGS_ForcePulseModuleComponent "{A5ADE4175BAF8327}" {
+   m_sModuleId "FORCE_PULSE"
+   m_sDisplayName "Warlord Seismic Stomp"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 8
+   m_bRequiresCrew 0
+   m_fTriggerRadius 45
+   m_iMinTargets 1
+   m_fMaxHeight 38
+   m_fCooldown 12
+   m_fChargeTime 2
+   m_fPushRadius 65
+   m_fPushSpeed 48
+   m_fLiftSpeed 12
+   m_fFalloffPower 0.65
+   m_fInfantryThrowScale 0.8
+   m_fSpin 1.4
+   m_bKnockDownInfantry 1
+   m_bPushFriendlies 0
+   m_fVehicleDamage 450
+   m_fInfantryDamage 75
+   m_iRingCount 16
+   m_bDebug 0
+  }
+ }
+}

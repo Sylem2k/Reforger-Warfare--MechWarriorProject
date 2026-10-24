@@ -1,0 +1,31 @@
+GenericEntity {
+ ID "E8A2000000000034"
+ components {
+  SignalsManagerComponent "{E8A2000000000035}" {
+  }
+  CGS_AntiAirModuleComponent "{E8A2000000000036}" {
+   m_sModuleId "Warlord_AA_Flak"
+   m_sDisplayName "Warlord_AA_Flak"
+   m_bRequiresCrew 0
+   m_fRange 1500
+   m_fScanInterval 0.8
+   m_fShellSpeed 1000
+   m_fBurstDamage 175
+   m_fBurstRadius 12
+   m_fMissRadius 1
+   m_fMissPer100m 0.2
+   m_iBurstShots 3
+   m_fBurstPause 2
+   m_fShotsPerMinute 150
+   m_bAnimateTurret 1
+   // Rotation applies to the root, so future custom meshes aim with the module.
+   m_fTurnSpeed 160
+   m_fMinElevation 10
+   m_fMaxElevation 89
+   m_fBarrelLength 0.3
+   m_eDamageKind EXPLOSIVE
+  }
+  Hierarchy "{E8A2000000000038}" {
+  }
+ }
+}

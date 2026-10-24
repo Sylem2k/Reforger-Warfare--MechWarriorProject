@@ -1,0 +1,318 @@
+MY M9 GRAPPLING HOOK TEST - 22 OCT 2026
+========================================
+
+I switched the grappling-hook test over to the firearm-based M9 prefab:
+{70D23AC15EE70D8F}Prefabs/Weapons/Handguns/M9/Handgun_Grapling.et
+
+I kept the original prefab name, GUID, inherited M9 firearm handling,
+ADS, weapon slots, pickup/equip and weapon attachment storage intact.
+I did NOT change the older ETool grappling test prefabs.
+
+My new RW_GrapplingHookComponent is on this pistol with:
+  Use Weapon Trigger = ON
+  Max Range = 50 metres
+  Pull Speed = 18 m/s
+  Stop Distance = 2 metres
+  Cooldown = 3 seconds
+  Maximum Pull Time = 6 seconds
+  Ground Release Lift = 0.65 metres
+  Scripted Position Fallback = OFF
+  Delete Projectile = ON (best effort; see warning)
+  Debug = ON
+
+TEST CONTROLS
+- Right mouse button: normal M9 aim down sights.
+- Left mouse button: fire normal M9 trigger. A server weapon-fire event
+  should start the grapple toward the aimed solid surface.
+- Fire a second time while being pulled: request grapple release.
+- The M9 still needs a valid magazine/round to generate a firing event.
+- The trace must hit a world or entity surface within 50 metres.
+- No cable/hook mesh or shooting sound replacement has been added.
+
+TEST FIRST IN A DISPOSABLE EMPTY WORLD, AIMED AWAY FROM PEOPLE.
+The inherited M9 still uses its live ammunition. The script tries to
+delete the actual bullet one tick after it fires, but this is NOT
+guaranteed to prevent damage, especially from a very close bullet hit,
+nor is projectile cleanup yet verified for multiplayer.
+Before public testing I must replace pistol ammunition with a verified
+zero-damage dummy round and inspect replication behavior.
+
+FIRING EVENT HOOK
+The script tries SCR_MuzzleEffectComponent.GetOnWeaponFired() first,
+if the inherited M9 has that scripted muzzle effect, and also subscribes
+to the equipped character EventHandlerManagerComponent OnProjectileShot.
+Duplicate callbacks for one round are ignored.
+
+KNOWN LIMITATIONS
+- NOT compiled in Enfusion Workbench yet; engine API and runtime still
+  require verification.
+- The player may not be pulled if the character controller cancels native
+  physics velocity. Check the console for [RW GRAPPLE] logs.
+- If I get "Native player motion blocked" I may temporarily switch
+  Scripted Position Fallback to ON in an isolated test world. That uses
+  SetOrigin and can snap the first-person camera or clip collision.
+- Surface acquisition uses weapon aiming direction when exposed by the
+  player/weapon AimingComponent. Otherwise it falls back to character
+  facing and needs further correction before release.
+- Movement collision checks are only a first prototype, not full capsule
+  sweeps or safe rooftop climbing. Falling can still hurt the player.
+- Changing weapon during pull stops it automatically.
+- The second click fires another normal pistol round: use dummy ammo
+  before normal multiplayer use.
+- This hook does not require any extra weapon interaction action,
+  and does not change the existing firearm ADS input binding.
+
+MY FIRST CHECK
+1. Merge this feature branch into the MW addon and compile Game scripts.
+2. Spawn Handgun_Grapling.et and give it one ordinary M9 magazine only
+   inside a disposable test world.
+3. Equip it; check right-click still ADS.
+4. Aim at a wall about 10-20m away and left-click.
+5. Check [RW GRAPPLE] logs for listener attach / pistol trigger / anchor
+   and observe whether server moves the player.
+6. If trigger was not detected, inspect M9 muzzle effect and the player
+   EventHandlerManagerComponent in Workbench.
+7. If trigger is detected but pull stalls, diagnose character physics
+   before changing projectiles or adding a rope effect.
+
+FIX: EMPTY MAGAZINE CANNOT ACTIVATE OnProjectileShot (user video at 02:29)
+------------------------------------------------------------------------
+I confirmed the pistol is equipped and ADS works, but the HUD has ZERO
+rounds. My first grappling hook depends on a fired projectile event;
+with zero ammo, that event never occurs. This explains the observed
+failure before any grapple raycast or movement happens.
+
+I changed the test M9 to poll the player's LOCAL CharacterFire action.
+It detects the rising edge of left-click while this exact gun is equipped,
+including when the gun is EMPTY and contains no magazine. The local client
+sends the aiming direction by Reliable RPC to the corresponding weapon
+component on the server; the server checks that the weapon is equipped
+before starting/stopping a grapple.
+
+NEW TEST PREFAB SETTINGS:
+  m_bUseWeaponTrigger 0
+  m_bUseDirectFireInput 1
+  m_bDeleteProjectile 0 (no projectile events expected)
+  m_bDebug 1
+
+IMPORTANT: I must NOT load real M9 ammo during this prototype test. The
+base pistol remains a real firearm: loading its magazine can fire live
+bullets concurrently with the input-driven hook. The grapple needs NO
+ammo, and no attempt is made to override vanilla gunfire.
+
+TEST:
+1. Pull MW fix/grappling-m9-ammo-free-input-20261022 and compile.
+2. Spawn Handgun_Grapling.et. Equip with ZERO ammo.
+3. Aim at a solid rock or wall 8-20m away, right-click ADS if desired.
+4. Left-click ONCE. Expected CLIENT log:
+     [RW GRAPPLE INPUT] CharacterFire pressed
+5. Expected SERVER log (in multiplayer):
+     [RW GRAPPLE INPUT] Server received LEFT CLICK
+   and then:
+     [RW GRAPPLE] player=... anchor=... range=...
+6. Left-click while airborne to release; or wait until stop range.
+7. If there is no CLIENT log, the local input frame or weapon detection
+   isn't being invoked. If the CLIENT log occurs without SERVER log,
+   troubleshoot the pistol's RplComponent ownership/RPC replication.
+   If SERVER log occurs without movement, debug the native character
+   controller, raycast, and collision trace.
+8. Testing still required on a dedicated server. Movement physics could
+   be cancelled by the default character controller; scripted-position
+   fallback is OFF and can be tested in a disposable isolated world.
+
+This remains a prototype. There is no rope, safe climbing, fall protection,
+or verified multiplayer synchronization yet.
+
+23 OCT 2026 - PLAYER CONTROLLER FIRING FIX AND LOG ANALYSIS
+----------------------------------------------------------
+I corrected an earlier incorrect claim that the M9 video proved there
+were no bullets. The weapon actually fired a complete magazine. The
+brief provided log showed no [RW GRAPPLE] trace, so I cannot claim
+the gun was empty or that movement failed: a firing activation was
+never established by the supplied log.
+
+The provided Grappling_Hook.et attachment is the ORIGINAL ALICE ETool
+shovel item (no RW_GrapplingHookComponent); it is NOT the new M9 pistol.
+My grappling test pistol remains:
+{70D23AC15EE70D8F}Prefabs/Weapons/Handguns/M9/Handgun_Grapling.et
+
+The previous script attempted to read CharacterFire from a component
+attached to a weapon entity and send an RPC on that firearm; ownership
+and frame-event execution are not guaranteed in multiplayer.
+Instead I added:
+  Scripts/Game/RW_Grapple/RW_GrapplingPlayerController.c
+
+This modded SCR_PlayerController reads CharacterFire on the LOCAL player's
+controller OnUpdate. When the CURRENT equipped gun is Handgun_Grapling
+and contains RW_GrapplingHookComponent with Use Controller Fire Input
+enabled, it invokes a server-side controller RPC. The server resolves
+its actual current weapon again, and then calls the grapple component.
+
+M9 SETTINGS:
+  m_bUseWeaponTrigger 0
+  m_bUseDirectFireInput 0
+  m_bUseControllerFireInput 1
+  m_bDeleteProjectile 0
+  m_bDebug 1
+
+EXPECTED LOGS:
+1. On game start, once: [RW GRAPPLE CTRL] Player-controller input hook loaded
+2. On equipped M9 left click: [RW GRAPPLE CTRL] Local FIRE input detected
+3. Multiplayer server: [RW GRAPPLE CTRL] Server received fire input
+4. Server: [RW GRAPPLE CTRL] Component received player-controller fire
+5. On an accepted surface: [RW GRAPPLE] player=... anchor=...
+6. If there's no surface: [RW GRAPPLE] No surface within range
+7. If no motion after server start: [RW GRAPPLE] Native player motion blocked
+
+This code is committed but has not been compiled or tested in Workbench.
+I should TEST WITH UNLOADED PISTOL / NO LIVE AMMO, because its vanilla
+firearm still shoots normal bullets when loaded. ADS remains untouched.
+
+23 OCT 2026 - HELD FIRE DOUBLE-TOGGLE FIX (HARD RELOAD TEST)
+------------------------------------------------------------
+My hard reload confirmed the M9 grip, ADS, controller input and server
+raycast code were running. I logged 4 grapple anchors at roughly 18-25m.
+Three started but stopped with cancelled=1 almost immediately after
+another input. The fourth travelled from approximately
+<86.46, 4.00, 80.10> to <85.69, 11.87, 102.14> and stopped normally.
+The raw log contained 111 "CharacterFire press observed" entries.
+This proves the pull can work, but the fire input is retriggering.
+
+I fixed RW_GrapplingPlayerController.c by removing this input logic:
+  GetActionTriggered("CharacterFire") || (fireDown && !wasDown)
+and using only:
+  fireDown && !wasDown
+with wasDown updated each frame. A held left-click now sends one
+command only; I must release and click again to cancel. I also added
+a 250ms guard between accepted commands for brief input-value glitches.
+
+The M9 prefab, its GUID, its ADS configuration, weapon scripts and
+movement settings are unchanged in this fix. This is NOT yet compiled
+or tested in Workbench.
+
+My next test:
+1. Merge fix/grapple-one-click-one-toggle-20261023 into MW and hard
+   reload Workbench after Game scripts compile.
+2. Spawn Handgun_Grapling.et, equip it, aim at a wall and click once.
+3. Check there is one [RW GRAPPLE] player=... anchor=... event, and
+   no immediate "stopped cancelled=1" until I release and click again.
+4. Hold left-click for several seconds: no repeated start/stop spam.
+5. Release and click again while pulling: grapple cancels.
+6. Keep the pistol EMPTY during testing; the M9 still uses ordinary
+   damaging ammunition if a magazine is installed.
+
+23 OCT 2026 - THREE FIRING PATHS CONFLICTING / LIFT-FIRST TEST
+--------------------------------------------------------------
+I reviewed my latest hard-reload trace (03:05). It shows all grapple
+components loaded and 8 successful surface acquisitions. Every one of
+those 8 starts logged "stopped cancelled=1", with the controller fire
+input immediately following the legacy pistol-entity fire event. The
+same click was handled by TWO different grappling systems. This is why
+the character often only lifts and never begins pulling.
+
+The test pistol prefab in MW main had THREE modes on simultaneously:
+  m_bUseWeaponTrigger 1
+  m_bUseDirectFireInput 1
+  m_bUseControllerFireInput 1
+
+I turned off the first two, leaving ONLY player controller input:
+  m_bUseWeaponTrigger 0
+  m_bUseDirectFireInput 0
+  m_bUseControllerFireInput 1
+
+I also made the controller path override the old weapon and direct
+input handlers at script level to stop this recurring if these prefab
+settings get edited incorrectly again.
+
+I PRESERVED my new stats:
+  m_fMaxRange 100
+  m_fGroundReleaseLift 1
+  m_fPullSpeed 18
+  m_fStopDistance 2
+  m_fCooldown 3
+  m_fMaxDuration 6
+  m_bScriptedPositionFallback 0
+
+The takeoff logic ALREADY lifts me 1 metre with SetOrigin (when clear
+above), then waits 0.08s before trying the normal native velocity
+pull. I left these timings and the physics unchanged until I can
+separately confirm pull operation without duplicate-input cancellation.
+I added logging for:
+  [RW GRAPPLE] Initial clear-space lift applied: ... metres
+  [RW GRAPPLE] Initial lift blocked by overhead collision
+  [RW GRAPPLE] Pull phase started: speed=...
+  [RW GRAPPLE] Pull path blocked by nearby collision
+
+Test:
+1. Pull this branch, compile, hard-reload Workbench.
+2. Spawn the actual M9 Handgun_Grapling.et with no live ammunition.
+3. Aim at 10-30m solid surface, left click ONCE and HOLD it.
+4. Expected: one "player=... anchor", optional initial lift, then
+   "Pull phase started", WITHOUT instant "stopped cancelled=1".
+5. Release and press once more if I need to cancel.
+6. If pull starts but I remain stationary, then test whether player
+   controller rejects Physics.SetVelocity; avoid changing native
+   motion until logs prove that issue.
+7. Keep actual ammo out of pistol during this prototype: the M9
+   inherits vanilla bullet firing and may still cause damage.
+
+No Enfusion Workbench compile or in-game test has been run for this
+commit; it is a code/prefab fix based on the traces I supplied.
+
+23 OCT 2026 - WALL IMPACT SAFETY / CONTROLLED ARRIVAL
+-----------------------------------------------------
+I confirmed the initial 1m lift, the actual pull at 18m/s, and a
+normal stop near the anchor in my test log. However I then died from
+being pulled directly into the wall. My old 2m stop distance was
+measured from the chest to a POINT raycast hit, without slowing the
+player or accounting for their body collision.
+
+I updated my Grappling M9 to try a SAFE ARRIVAL prototype:
+- Keep 100m maximum targeting range.
+- Keep 1m initial lift where overhead space is clear.
+- Keep max 18m/s travel speed over the long part of the pull.
+- Start reducing speed inside 14m of the impact point.
+- Stop moving horizontally at least 4.5m short of the impact point.
+- Check forward clearance with 3 traces from foot/chest/head,
+  including a buffer in the direction of movement.
+- If the path gets too close to the wall, immediately brake and
+  begin a controlled descent instead of driving toward the wall.
+- During descent, keep horizontal velocity at zero and apply at most
+  2.5m/s of downward velocity until I am close to walkable ground.
+- Extend active pull duration 6s -> 12s because the last metres
+  now use gradual deceleration at the configured 100m range.
+- Allow up to 90s of controlled descent for very tall structures,
+  with manual second-click cancel still available.
+
+MY NEW M9 VALUES:
+  m_fMaxRange 100
+  m_fPullSpeed 18
+  m_fStopDistance 2             (legacy distance)
+  m_fSafeArrivalDistance 4.5    (effective arrival distance)
+  m_fBrakeStartDistance 14
+  m_fSafeDescentSpeed 2.5
+  m_fSafeDescentTimeout 90
+  m_fMaxDuration 12
+  m_fGroundReleaseLift 1
+  m_bScriptedPositionFallback 0
+  m_bUseWeaponTrigger 0
+  m_bUseDirectFireInput 0
+  m_bUseControllerFireInput 1
+
+MY EXPECTED LOGS:
+  [RW GRAPPLE] Initial clear-space lift applied
+  [RW GRAPPLE] Pull phase started
+  [RW GRAPPLE SAFE] Approach ended (...). Controlled descent started.
+  [RW GRAPPLE SAFE] Landed, foot gap=...
+  [RW GRAPPLE] stopped cancelled=0 ...
+
+CAVEATS:
+This is a WALL-IMPACT SAFETY PROTOTYPE, not an automatic ledge climb.
+If I hook the side of a tall wall, I stop away from it and descend to
+the nearest walkable ground directly below, instead of being teleported
+onto the rooftop. A future ledge/roof-top traversal feature needs a
+separate validated path that cannot phase my character into geometry.
+Cancelling manually in midair may still allow an ordinary fall.
+Rapid changes in player-controller physics, fall damage or other mods
+might still create injuries. The new code is committed and structurally
+checked but NOT compiled or tested inside Workbench.

@@ -1,0 +1,42 @@
+GenericEntity {
+ ID "6AAE3A12334BDACF"
+ components {
+  SignalsManagerComponent "{6AAE3A12334BDAD4}" {
+  }
+  CGS_TargetDesignator "{6AAE3A12334BDD22}" {
+   m_sModuleId "TARGET_DESIGNATOR"
+   m_sDisplayName "Target Designator"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 2
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 0
+   m_fHeatPerShot 0
+   m_MuzzlePoint PointInfo "{6AAE3A12334BDD27}" {
+    Offset 0 0 0.3
+   }
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 100
+   m_fDesignatorRange 1500
+   m_fHeatPerSecond 2
+   m_bToggle 1
+  }
+  CGS_TorsoTwistComponent "{6AB0559E98BA325D}" {
+  }
+  MeshObject "{6AAE3A12334BDD2A}" {
+   Object "{8F91A214D9047D09}Common/Models/Titan_War_Lord/War_Lord_Head.xob"
+  }
+  SlotManagerComponent "{ED24000000000001}" {
+   Slots {
+    EntitySlotInfo HB_Head {
+     Offset 0 0 0
+     MergePhysics 0
+     DisablePhysicsInteraction 1
+     Prefab "{383A959AA5817612}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_Body_Head.et"
+    }
+   }
+  }
+  Hierarchy "{6AAE3A12334BDD29}" {
+  }
+ }
+ coords 47.692 9.507 37.622
+}

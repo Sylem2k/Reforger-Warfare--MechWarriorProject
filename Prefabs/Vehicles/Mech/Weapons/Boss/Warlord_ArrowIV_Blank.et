@@ -1,0 +1,82 @@
+GenericEntity {
+ ID "E8A3000000000083"
+ components {
+  SignalsManagerComponent "{E8A3000000000084}" {
+  }
+  RW_ArrowIVWeapon "{E8A3000000000085}" {
+   m_sModuleId "ARROW_IV"
+   m_sDisplayName "Arrow IV (Prototype)"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 3
+   m_fDamageVsInfantry 1
+   m_fDamageVsVehicles 1
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 35
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{29B69BD185B9D9D3}" {
+    m_sMuzzleParticle "{6C2D3E7434E3D254}Particles/Weapon/Muzzle_Rocket_Pod_M260_Front.ptc"
+    m_sBackblastParticle "{D4CDEE9D1C462324}Particles/Weapon/Muzzle_Rocket_Pod_M260_Back.ptc"
+    m_sSoundProject "{4623A5BCFEA997F1}Sounds/Weapons/AircraftWeapons/RocketPods/Weapons_RocketPods_Generic_Shot.acp"
+    m_sTrailParticle "{DEC251C9AC594341}Particles/Logistics/Explosion/Trails/Smoke_Trail_Medium.ptc"
+    m_sImpactParticle "{D3F38F8AA37B77E8}Particles/Weapon/Explosion_M72LAW.ptc"
+    m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
+    m_fLinger 1
+    m_fImpactPrefabLifetime 2
+    m_bImpactOnMiss 1
+   }
+   m_fHeatPerShot 15
+   m_eDamageKind EXPLOSIVE
+   m_Crosshair BFA_MechCrosshair "{B4A12579903DCEF6}" {
+    m_fSize 120
+    m_Color 0.2 1 0.4 0.9
+   }
+   m_MuzzlePoint PointInfo "{451DDF98D7EB63DF}" {
+    Offset 0 0.5 0.45
+   }
+   m_fMuzzleClearance 0.3
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 180
+   m_iMagazineSize 12
+   m_fReloadTime 10
+   m_iSpareMagazines 2
+   m_fRocketSpeed 140
+   m_fRange 2500
+   m_iSalvoCount 1
+   m_iSalvoIntervalMs 60
+   m_iRefireMs 6000
+   m_fSpreadDeg 0
+   m_fDirectHitDamage 150
+   m_fSplashDamage 25
+   m_fSplashRadius 4
+   m_fTrailLength 8
+   m_fTrailThickness 0.25
+   m_bDebug 0
+   m_aTubeGrids {
+    CGS_TubeGrid "{E8A3000000000086}" {
+     m_FirstTube PointInfo "{06B0CAB245395573}" {
+      Offset -0.24 0.35 0.45
+     }
+     m_iColumns 1
+     m_iRows 1
+     m_fColumnSpacing 0.12
+     m_fRowSpacing 0.12
+    }
+   }
+   m_bRandomTubeOrder 1
+   m_bHoming 1
+   m_bLockTargets 1
+   m_eGuidance BOTH
+   m_fLaserConeDeg 120
+   m_fTurnRate 100
+   m_fArmingDistance 30
+   m_fLoftAngle 45
+   m_iCourseSyncMs 100
+   m_bRequireFireSolution 1
+   m_fMinimumTargetRange 175
+   m_bLaserOnly 0
+  }
+  Hierarchy "{E8A3000000000087}" {
+  }
+ }
+}

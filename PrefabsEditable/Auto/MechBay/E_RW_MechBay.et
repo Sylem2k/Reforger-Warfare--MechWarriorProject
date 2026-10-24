@@ -1,0 +1,36 @@
+GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
+ ID "F1A6E20D202601AB"
+ components {
+  SCR_EditableEntityComponent "{F1A6E20D202601AC}" : "{996046FE206C699A}Prefabs/Editor/Components/Default_SCR_EditableEntityComponent.ct" {
+   m_UIInfo SCR_EditableEntityUIInfo "{F1A6E20D202601AD}" {
+    Name "Mech Lab - Mech Bay"
+    Description "GM placeable Mech Bay. Order Cricket, Warden, Judiciar and Gravemarch chassis, or customize a parked mech."
+    Icon "{A489F552FB7489C3}UI/Textures/Editor/EditableEntities/Characters/EditableEntity_Character_Custom.edds"
+    m_aAuthoredLabels {
+     CONTENT_MODDED
+    }
+    m_aAutoLabels {
+     ENTITYTYPE_OBJECT SIZE_L
+    }
+   }
+   m_bAutoRegister ALWAYS
+   m_Flags 773
+  }
+  SCR_PreviewEntityComponent "{F1A6E20D202601AE}" : "{6CADA7A88A6265FD}Prefabs/Editor/Components/PreviewEntityComponentClass.ct" {
+   m_bRuntime 0
+   m_aEntries {
+    SCR_BasePreviewEntry "{F1A6E20D202601AF}" {
+     m_iParentID -1
+     m_Mesh "{102855E4AA84B807}Common/Models/Mech_Bay/Mech Bay.xob"
+     m_Flags EDITABLE
+     m_Shape MESH
+     m_iPivotID ""
+     m_vScale 1 1 1
+     m_vPosition 0 0 0
+     m_vAngles 0 0 0
+    }
+   }
+  }
+ }
+ coords 0 0 0
+}

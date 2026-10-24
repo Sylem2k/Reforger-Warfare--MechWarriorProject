@@ -13,6 +13,7 @@ GenericEntity {
    m_bDebug 0
   }
   CGS_Titan_Cannon "{6A9858979D653937}" {
+   m_fArmorPenetrationPercent 30
   }
   MeshObject "{6A9858944855CB43}" {
    Object "{A38F8E5A295D14AC}Common/Models/Mech/Mech_Cannon.xob"

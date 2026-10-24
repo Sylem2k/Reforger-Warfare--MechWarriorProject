@@ -1,0 +1,17 @@
+MetaFileClass {
+ Name "{6AD9E00E174AF606}Prefabs/Vehicles/Mech/Mech_Parts/Warlord_top_Cannon_Right.et"
+ Configurations {
+  EntityTemplateResourceClass PC {
+  }
+  EntityTemplateResourceClass XBOX_ONE : PC {
+  }
+  EntityTemplateResourceClass XBOX_SERIES : PC {
+  }
+  EntityTemplateResourceClass PS4 : PC {
+  }
+  EntityTemplateResourceClass PS5 : PC {
+  }
+  EntityTemplateResourceClass HEADLESS : PC {
+  }
+ }
+}

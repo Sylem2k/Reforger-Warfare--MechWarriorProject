@@ -1,0 +1,39 @@
+CGS COMPANION FOLLOW MOTION TEST — 2026-10-22
+
+Paired dependencies:
+Mech Core: fix/companion-follow-movement-20261022
+MW Gameplay: fix/companion-follow-distance-diagnostics-20261022
+
+The attached log showed:
+* The server successfully claimed the SampleMech for player 1 and accepted FOLLOW.
+* No driver/movement telemetry was printed, so FOLLOW acceptance does not prove
+  the AI crew is sending movement input.
+* A separate BFA_MechHardpointComponent prefab binder mismatch exists for
+  m_aLoadoutPresets; it is not evidence of the no-motion cause.
+* An unrelated missing weathered_olive_drab_mech_uv_atlas.edds texture also
+  appears in the spawn log.
+
+Changes:
+* Core AI crew retries locating its CGS brain until it exists, rather than
+  permanently caching null from an early tick.
+* FOLLOW stops at 8m instead of 18m on all 8 friendly Bay frames. This helps
+  show movement without walking far outside the normal 20m interaction radius.
+* SampleMech (first Mech Bay entry) enables bounded AI debug to diagnose
+  follow state. Other 7 frames retain normal low-volume logging.
+
+Test:
+1. Compile both branches, then spawn the FIRST Mech Bay entry, SampleMech
+   (Cricket Light).
+2. From an ordinary infantry character, use its normal "Mech: FOLLOW ME"
+   interaction (not squad command wheel).
+3. Walk 30-40 metres away on level open ground.
+4. Look for console: [CGS FOLLOW DRIVER], [BFA AI DRIVER].
+5. If [CGS FOLLOW DRIVER] appears with >8m distance AND
+   physicsDynamic=1 and inputBefore remaining 0:
+   investigate the AI steering path. If physicsDynamic=0, inspect the
+   root RigidBody. If the message does not appear, inspect TickDriver/
+   brain hooks and component initialization before changing physics.
+6. Board the mech and verify AI ceases driving. Exit and retry FOLLOW.
+7. Test 2 friends claim 2 different mechs simultaneously.
+
+Neither main branch is modified. No weapon or HUD files changed.

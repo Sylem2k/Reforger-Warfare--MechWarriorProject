@@ -1,5 +1,5 @@
 LRM racks (Catapult-style back missiles) for MechWarrior Project
-Built on Mech Core's CGS_Titan_Missile (homing rocket launcher). One prefab = ONE rack.
+Built on RW_LRMWeapon (inherits Mech Core's CGS_Titan_Missile homing rocket launcher). One prefab = ONE rack.
 
   Prefab      Module Id  Tubes (grid)  Size    Tons  Fits on
   LRM5.et     LRM5        5  (5 x 1)   SMALL   2     Light + Medium back spots
@@ -9,8 +9,12 @@ Built on Mech Core's CGS_Titan_Missile (homing rocket launcher). One prefab = ON
 Weight / size live in Configs/RW/RW_Equipment.conf. Light Frame B lists LRM5 + LRM10,
 Medium Frame B lists all four, so e.g. one LRM15 on BACK_L and one LRM20 on BACK_R.
 
-FIRING - one, some or all (all Mech Core, nothing custom)
-  - One trigger pull = the whole rack ripples out (Salvo Count = tube count, 60 ms apart).
+FIRING - MW-style lock gate + Core salvo simulation
+  - Hold the crosshair on an entity or friendly laser-designator spot for 1200 ms to LOCK.
+  - Press FIRE after LOCKED: one trigger pull ripples out the whole rack (60 ms apart).
+  - Firing early does nothing and does NOT queue an automatic salvo.
+  - Moving off the target, losing a laser spot or selecting a different target resets lock progress.
+  - Laser-designator spots count as a lock source, including ground designation.
   - BACK_L and BACK_R are both weapon group 3, so:
       Group fire (default)  : one pull fires BOTH racks.
       Chain fire (X)        : the racks take turns, one rack per pull.
@@ -39,3 +43,7 @@ WHEN THE MODEL IS DONE
   5. Muzzle Point: centre of the rack (used for the crosshair / aim).
 
 DAMAGE (per missile): 60 direct, 25 splash, 4 m radius. Range 1800 m, speed 90 m/s.
+
+LOCK STATUS
+  - Lock acquisition is server-authoritative. No client HUD progress/LOCKED indicator yet.
+  - For debugging, enable the launcher Debug property to print LOCKED and blocked shots.

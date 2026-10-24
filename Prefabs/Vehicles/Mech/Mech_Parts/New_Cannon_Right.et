@@ -4,6 +4,7 @@ GenericEntity {
   SignalsManagerComponent "{6AA8094B3C994A01}" {
   }
   CGS_Titan_Cannon "{6AA8094B3C994A15}" {
+   m_fArmorPenetrationPercent 30
    m_sModuleId "RIGHT_CANNON"
    m_sDisplayName "Right Cannon"
    m_sControlStation "DRIVER"

@@ -1,0 +1,33 @@
+TITAN WARLORD — AI PERCEPTION & PILOT SEAT TEST
+October 24, 2026
+Branch: fix/warlord-ai-perception-pilot-20261024
+
+I repaired AI visual detection on my active Titan_WarLord_OPFOR.et without changing the weapons, hardpoints, shields, damage, legs or arm placement.
+
+WHAT I CHANGED
+- I added four genuine Enfusion "Additional aim points" to the existing SCR_VehiclePerceivableComponent, following the serialized config structure used by working Reforger vehicles.
+- Aimpoints: front upper torso (0,5,0), head/cockpit (-0.2166,12.339,7.5671), rear torso (0,2,-5), lower body (0,-7,0).
+- Each aimpoint inherits the vanilla APC hull or crew aimpoint configuration. The aimpoints are detection/aiming references, not new damage hitboxes.
+- I kept "UnitType VehicleHeavy" and the existing USSR faction.
+- I removed a duplicate, conflicting US hidden-pilot prefab assignment, retaining the USSR REDFOR_BRAIN prefab that successfully spawned in the log.
+- I set m_sPilotGroupPrefab "" on this stationary boss. This prevents the CGS brain from explicitly activating and enrolling the hidden pilot in a regular AI infantry group, which may have ordered it out of the vehicle.
+- The CGS_MechBrainComponent still creates, seats and protects the hidden pilot. It continues to provide HOLD / FIRE_AT_WILL and operate the eight virtual gunner stations.
+- Disabling the separate pilot AI group means I cannot assign Game Master group waypoints to that hidden pilot through the former pilot group; this is appropriate for the planted boss test, but I can restore the group if needed later.
+- I left all seven gunner station m_iCompartmentIndex -1 values in place. Their BFA CORE warnings are expected for virtual unmanned stations. I should NOT assign them the driver's real seat.
+
+WHAT I EXPECT
+- No more "PerceivableComponent has no aimpoints" warning on the Warlord.
+- Opposing soldiers should visually perceive and aim at the mech if their faction, range, cover, line of sight, and weapon behavior allow it.
+- The hidden pilot should remain in the driver's seat without regular AI group dismount orders.
+- All eight weapon stations, existing shield, 17 restored hitboxes, 40,000 hull HP and 30,000 shield HP remain as before.
+
+WHAT I NEED TO TEST IN WORKBENCH
+1. Spawn a brand-new Titan_WarLord_OPFOR.et and check for errors loading AimPoint_Hull_APC.conf / AimPoint_Crew_APC.conf. Those vanilla config resources should resolve from Arma Reforger.
+2. Confirm the "no aimpoints" warning is gone.
+3. Confirm pilot spawned, pilot seated, brain mode HOLD and faction USSR, with no repeated "pilot got out" warnings over 2-3 minutes.
+4. Place multiple US/BLUFOR enemy AI at 75, 150, 300 metres, facing the Titan with clear line of sight. Confirm they turn toward and engage it as a hostile vehicle.
+5. If detection works but they still don't shoot, test whether their weapon/class will attack armored vehicles. Compare a rifleman vs anti-tank unit, and check AI combat task behavior.
+6. Check that all eight virtual gunner stations still aim/fire and the Titan holds its ground.
+7. Run separate shield damage tests. An AI perception warning says nothing about armor/shield routing; do not change HP or armor based on this test alone.
+
+I have inspected the prefab structure and references, but I still need an Enfusion Workbench compile and in-game confirmation before using this branch on production servers.

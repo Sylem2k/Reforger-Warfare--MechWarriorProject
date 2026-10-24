@@ -1,0 +1,41 @@
+GenericEntity {
+ ID "E8A200000000003E"
+ components {
+  SignalsManagerComponent "{E8A200000000003F}" {
+  }
+  RW_WarlordOmniTurret "{E8A2000000000040}" {
+   m_sModuleId "Warlord_Omni_Laser"
+   m_sDisplayName "Autonomous Beam Laser"
+   m_bRequiresCrew 0
+   m_fRange 1300
+   m_fScanInterval 1.1
+   m_fTargetHoldSeconds 6
+   m_fShellSpeed 1000
+   m_fBurstDamage 60
+   m_fBurstRadius 4
+   m_fMissRadius 1
+   m_fMissPer100m 0.2
+   m_iBurstShots 3
+   m_fBurstPause 2
+   m_fShotsPerMinute 150
+   m_bAnimateTurret 1
+   // Rotation applies to the root, so future custom meshes aim with the module.
+   m_fTurnSpeed 55
+   m_fMinElevation -80
+   m_fMaxElevation 89
+   m_fBarrelLength 0.3
+   m_FX BFA_MechWeaponFX "{E8A30000000000A5}" {
+    m_sBeamPrefab "{F9F15A6E70B2C046}Prefabs/Vehicles/Mech/Weapons/CGS_LaserBeam.et"
+    m_fBeamDuration 0.16
+    m_fBeamWidth 0.13
+    m_fProjectileSpeed 1500
+    m_iTracerEvery 1
+   }
+   m_eDamageKind ENERGY
+   m_fSectorBias 3
+   m_iImpactType 1
+  }
+  Hierarchy "{E8A2000000000042}" {
+  }
+ }
+}

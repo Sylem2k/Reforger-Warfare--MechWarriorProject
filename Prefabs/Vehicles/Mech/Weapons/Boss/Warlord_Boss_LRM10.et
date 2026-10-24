@@ -1,0 +1,79 @@
+GenericEntity {
+ ID "E9C1000000000121"
+ components {
+  SignalsManagerComponent "{E9C1000000000122}" {
+  }
+  RW_WarlordBossLRM "{E9C1000000000123}" {
+   m_sModuleId "LRM10"
+   m_sDisplayName "LRM-10"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 3
+   m_fDamageVsInfantry 1.25
+   m_fDamageVsVehicles 1
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 10
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{E9C1000000000124}" {
+    m_sMuzzleParticle "{6C2D3E7434E3D254}Particles/Weapon/Muzzle_Rocket_Pod_M260_Front.ptc"
+    m_sBackblastParticle "{D4CDEE9D1C462324}Particles/Weapon/Muzzle_Rocket_Pod_M260_Back.ptc"
+    m_sSoundProject "{4623A5BCFEA997F1}Sounds/Weapons/AircraftWeapons/RocketPods/Weapons_RocketPods_Generic_Shot.acp"
+    m_sTrailParticle "{BAA54A138D448E09}Particles/Logistics/Explosion/Trails/Smoke_Trail_Small.ptc"
+    m_sImpactParticle "{636C188C0D4E6074}Particles/Weapon/Explosion_S5KO.ptc"
+    m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
+    m_fLinger 1
+    m_fImpactPrefabLifetime 2
+    m_bImpactOnMiss 1
+   }
+   m_fHeatPerShot 1
+   m_eDamageKind EXPLOSIVE
+   m_Crosshair BFA_MechCrosshair "{E9C1000000000125}" {
+    m_fSize 120
+    m_Color 0.2 1 0.4 0.9
+   }
+   m_MuzzlePoint PointInfo "{E9C1000000000126}" {
+    Offset 0 0.5 0.45
+   }
+   m_fMuzzleClearance 0.3
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 180
+   m_iMagazineSize 60
+   m_fReloadTime 10
+   m_iSpareMagazines 2
+   m_fRocketSpeed 110
+   m_fRange 1800
+   m_iSalvoCount 4
+   m_iSalvoIntervalMs 130
+   m_iRefireMs 6000
+   m_fSpreadDeg 1.25
+   m_fDirectHitDamage 60
+   m_fSplashDamage 25
+   m_fSplashRadius 4
+   m_fTrailLength 8
+   m_fTrailThickness 0.25
+   m_bDebug 0
+   m_aTubeGrids {
+    CGS_TubeGrid "{E9C1000000000127}" {
+     m_FirstTube PointInfo "{E9C1000000000128}" {
+      Offset -0.24 0.47 0.45
+     }
+     m_iColumns 5
+     m_iRows 2
+     m_fColumnSpacing 0.12
+     m_fRowSpacing 0.12
+    }
+   }
+   m_bRandomTubeOrder 1
+   m_bHoming 1
+   m_bLockTargets 1
+   m_eGuidance CROSSHAIR
+   m_iLockTimeMs 450
+   m_fLaserConeDeg 170
+   m_fTurnRate 95
+   m_fArmingDistance 12
+   m_fLoftAngle 12
+  }
+  Hierarchy "{E9C1000000000129}" {
+  }
+ }
+}

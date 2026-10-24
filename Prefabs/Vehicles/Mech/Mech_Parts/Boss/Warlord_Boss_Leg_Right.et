@@ -1,0 +1,83 @@
+GenericEntity {
+ ID "E9B1000000000611"
+ components {
+  SignalsManagerComponent "{E9B1000000000612}" {
+  }
+  SoundComponent "{E9B1000000000613}" {
+   Filenames {
+    "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+   }
+  }
+  BFA_MechLegComponent "{E9B1000000000614}" {
+   m_fStepHeight 0.85
+   m_fObstacleStepHeight 3.5
+   m_fSizeScale 2.5
+   m_fSwingFraction 0.42
+   m_fMotionDeadZone 0.15
+   m_fStrideLength 3.8
+   m_fStrideRefSpeed 5.0
+   m_fStrideMin 1.8
+   m_fStrideMax 5.8
+   m_fMinCadence 0.25
+   m_fMaxCadence 0.95
+   m_fMaxFootLead 3.6
+   m_fMaxSideLead 0.7
+   m_fNoCrossMargin 0.55
+   m_fStepCameraShake 0.2
+   m_LastBone PointInfo "{E9B1000000000615}" {
+    PivotID "J3"
+   }
+  }
+  MeshObject "{E9B1000000000616}" {
+   Object "{8AA09729CA0DB2A2}Common/Models/Titan_War_Lord/War_Lord_Right_Leg.xob"
+   RainOccluder 0
+   WetnessOccluder 0
+   ReceiveLight 0
+  }
+  RigidBody "{E9B1000000000617}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  SCR_DamageManagerComponent "{E9B1000000000618}" {
+   "Additional hit zones" {
+    BFA_MechPartHitZone Leg {
+     HZDefault 1
+     MaxHealth 10000
+     DamageReduction 2
+     DamageThreshold 1
+     "Melee multiplier" 0.01
+     "Kinetic multiplier" 0.1
+     "Fragmentation multiplier" 0.05
+     "Explosive multiplier" 1
+     "Incendiary multiplier" 0.5
+     m_fHullShare 0.6
+    }
+   }
+  }
+  SCR_SoundDataComponent "{E9B1000000000619}" {
+   m_aAudioSourceConfiguration {
+    SCR_AudioSourceConfiguration "{E9B100000000061A}" {
+     m_sSoundProject "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+     m_sSoundEventName "SOUND_MECH_STEP"
+    }
+   }
+  }
+  AnimationControllerComponent "{E9B100000000061B}" {
+   AnimGraph "{087ADD06D87386F4}Anims/Workspaces/Mech/IK_Arm.agr"
+   AnimInstance "{E51088DDC47AD41A}Anims/Workspaces/Mech/IK_Arm.asi"
+   StartNode "IK Chain to IK Target"
+   AnimUpdate EOnFrame
+  }
+  RplComponent "{E9B100000000061C}" {
+  }
+  Hierarchy "{E9B100000000061D}" {
+  }
+ }
+ coords 59.165 4.792 34.933
+}

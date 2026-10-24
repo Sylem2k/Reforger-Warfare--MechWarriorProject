@@ -1,0 +1,25 @@
+GenericEntity : "{13EAD5AB3E4F2AA8}Prefabs/Vehicles/Mech/Mech_Parts/Point_Defense_Module.et" {
+ ID "A600202610230301"
+ components {
+  BFA_MechPointDefenseModuleComponent "{ABB842CF8BB1C2B2}" {
+   m_sModuleId "POINT_DEFENSE"
+   m_sDisplayName "Warlord Interceptor Array"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 4
+   m_bAutoMode 1
+   m_bAutoRequiresCrew 0
+   m_fDetectRadius 150
+   m_fProtectRadius 44
+   m_fMinEngageRange 5
+   m_fMaxTimeToImpact 3.5
+   m_iScanIntervalMs 200
+   m_iMaxCharges 18
+   m_fRechargeTime 1.5
+   m_fInterceptCooldown 0.25
+   m_fInterceptChance 0.98
+   m_fBurstRadius 45
+   m_bInterceptVanilla 1
+   m_bDebug 0
+  }
+ }
+}

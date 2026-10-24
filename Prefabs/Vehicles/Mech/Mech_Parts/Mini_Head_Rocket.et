@@ -13,6 +13,7 @@ GenericEntity {
    m_bDebug 0
   }
   CGS_Titan_Missile "{6A9858966DC84B47}" {
+   m_fArmorPenetrationPercent 12
   }
   MeshObject "{6A985895BB3A6A22}" {
    Object "{8204E63959C96521}Common/Models/Mech/Mech_Mini_Missle.xob"

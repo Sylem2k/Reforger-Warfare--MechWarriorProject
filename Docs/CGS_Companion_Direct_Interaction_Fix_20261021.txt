@@ -1,0 +1,41 @@
+CGS COMPANION — DIRECT INTERACTION FIX (2026-10-21)
+====================================================
+
+WHY FOLLOW ME WAS MISSING:
+The old test only added companion actions to Light_Mech_Frame_B and
+Med_Mech_Frame_B. The Mech Bay also orders SampleMech, Med_Mech_Base,
+both Heavy Judiciar variants, and both Assault Gravemarch variants.
+Those six had no companion brain or interaction actions at all.
+
+FIX:
+All EIGHT friendly Mech Bay frames now expose two normal interaction
+actions (context "default"), with VisibilityRange 20 metres:
+  Mech: FOLLOW ME
+  Mech: GUARD HERE
+
+They do not use Arma's squad-command menu, a squad leader, a GM commander,
+or a command-rank permission. Approach the physical mech on foot and
+use the normal interaction menu (usually hold F) to choose the action.
+
+Each mech can be claimed by a different friendly player. The Core
+validates the player's actual ID, faction and distance on the server,
+then keeps that owner assigned to that mech until disconnect.
+
+REQUIRES paired Core branch:
+  fix/companion-action-visibility-20261021
+
+BEFORE MERGE:
+- Load both fix branches in Workbench, compile scripts, and test in a
+  dedicated multiplayer session.
+- Spawn each Bay frame and check the action prompt from an ordinary
+  non-commander infantry player, within 20 metres.
+- Order FOLLOW and GUARD, then board and dismount to test AI handoff.
+- Verify AI weapon groups continue attacking while companion is autonomous.
+- Check two players controlling different mechs independently.
+- Check a different player cannot claim an already owned mech.
+- Test faction mismatch and disconnect fallback.
+
+This patch does NOT modify enemy AI prefabs, weapon effects, HUD, or
+gameplay firing, and does NOT add laser-designation missile support.
+Only sample/friendly Mech Bay frame prefabs are changed.
+Main remains untouched until validated.

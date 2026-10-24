@@ -1,0 +1,22 @@
+GenericEntity {
+ ID "6AAE3A0F4AC13A6D"
+ components {
+  SignalsManagerComponent "{6AAE3A0F4AC13A7F}" {
+  }
+  BFA_MechPointDefenseModuleComponent "{6AAE3A0F4AC13A44}" {
+   m_sModuleId "POINT_DEFENSE"
+   m_sDisplayName "Anti-Missile Point Defense"
+   m_sControlStation "COMMANDER"
+   m_iWeaponGroup 4
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 1
+   m_bDebug 0
+  }
+  MeshObject "{6AAE3A0F4AC13A48}" {
+   Object "{3F743FE45DE3354E}Common/Models/Titan_War_Lord/War_Lord_Shoulder_Gun.xob"
+  }
+  Hierarchy "{6AAE3A0F4AC13A4F}" {
+  }
+ }
+ coords 43.567 7.381 72.419
+}

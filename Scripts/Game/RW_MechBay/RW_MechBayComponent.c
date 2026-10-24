@@ -53,6 +53,9 @@ class RW_MechBayComponent : ScriptComponent
 	protected int m_iBayMessageSeq;
 
 	protected float m_fNextBuildTime;   // server
+	// Last mech ordered here; only its ordering player can return it while it remains on the pad.
+	protected IEntity m_pOrderedMech;   // server only
+	protected int m_iOrderedByPlayerId; // server only
 	protected IEntity m_pPendingMech;   // server: saved build waiting to be fitted
 	protected ref RW_SavedBuild m_pPendingBuild;
 	protected int m_iPendingTries;
@@ -176,7 +179,7 @@ class RW_MechBayComponent : ScriptComponent
 
 	//------------------------------------------------------------------------------------------------
 	//! Server: build frame 'index' on the pad for this player.
-	bool ServerOrderFrame(int index, IEntity user, RW_SavedBuild build = null)
+	bool ServerOrderFrame(int index, IEntity user, int playerId, RW_SavedBuild build = null)
 	{
 		if (!Replication.IsServer())
 			return false;
@@ -240,6 +243,8 @@ class RW_MechBayComponent : ScriptComponent
 			return false;
 		}
 
+		m_pOrderedMech = mech;
+		m_iOrderedByPlayerId = playerId;
 		m_fNextBuildTime = now + Math.Max(m_fBuildCooldown, 0);
 		string name = entry.m_sName;
 		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
@@ -318,6 +323,70 @@ class RW_MechBayComponent : ScriptComponent
 		ServerBayMessage("REFUSED: saved build doesn't fit any more - " + reason + " (fix it in the Mech Lab)");
 		m_pPendingMech = null;
 		m_pPendingBuild = null;
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Only the player who ordered the current pad mech can return it. The server owns the decision.
+	//! This cannot delete an arbitrary mech parked in the bay, a crewed mech or a frame being fitted.
+	bool ServerDeleteOrderedMech(IEntity mech, int playerId, IEntity user)
+	{
+		if (!Replication.IsServer())
+			return false;
+
+		RW_MechFrameComponent frame = RW_MechFrameComponent.Find(mech);
+		if (!mech || !frame)
+			return false;
+
+		if (playerId <= 0 || m_iOrderedByPlayerId != playerId || m_pOrderedMech != mech)
+		{
+			frame.ServerCrewMessage("REFUSED: only the player who ordered this mech can delete it");
+			return false;
+		}
+
+		if (!user || !CanOperate(user, mech) || !Contains(mech) || FindParkedMech() != mech)
+		{
+			frame.ServerCrewMessage("REFUSED: mech must be on its original Mech Bay pad");
+			return false;
+		}
+
+		if (m_pPendingMech == mech)
+		{
+			frame.ServerCrewMessage("REFUSED: wait for the saved build to finish");
+			return false;
+		}
+
+		BFA_MechHardpointComponent hardpoints = BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent));
+		if (hardpoints && hardpoints.IsSwapInProgress())
+		{
+			frame.ServerCrewMessage("REFUSED: wait for the crew to finish fitting weapons");
+			return false;
+		}
+
+		// Never delete a mech with a player or AI in any seat.
+		BaseCompartmentManagerComponent seats = BaseCompartmentManagerComponent.Cast(mech.FindComponent(BaseCompartmentManagerComponent));
+		if (!seats)
+		{
+			frame.ServerCrewMessage("REFUSED: could not verify mech seats are empty");
+			return false;
+		}
+		array<BaseCompartmentSlot> slots = {};
+		seats.GetCompartments(slots);
+		foreach (BaseCompartmentSlot slot : slots)
+		{
+			if (slot && slot.GetOccupant())
+			{
+				frame.ServerCrewMessage("REFUSED: someone is still inside the mech");
+				return false;
+			}
+		}
+
+		// Clear server ownership before deletion; reset cooldown so the correct frame can be ordered.
+		m_pOrderedMech = null;
+		m_iOrderedByPlayerId = 0;
+		m_fNextBuildTime = 0;
+		ServerBayMessage("Mech deleted - pad ready for another order");
+		SCR_EntityHelper.DeleteEntityAndChildren(mech);
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------

@@ -1,0 +1,15 @@
+// Client-local translucent shield only; damage is handled by CGS_MechShieldComponent.
+GenericEntity {
+ ID "E8A3000000000061"
+ components {
+  MeshObject "{E8A3000000000062}" {
+   Object "{BF012179927EE2BD}Assets/Characters/Sphere/spheretest.xob"
+   Materials {
+    MaterialAssignClass "{E8A3000000000063}" {
+     SourceMaterial "DefaultGeneratedMaterial"
+     AssignedMaterial "{E8A100000000B135}Common/Models/Titan_War_Lord/Data/Warlord_Boss_Shield.emat"
+    }
+   }
+  }
+ }
+}

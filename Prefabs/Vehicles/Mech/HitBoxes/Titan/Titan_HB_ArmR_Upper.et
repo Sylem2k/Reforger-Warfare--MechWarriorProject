@@ -19,7 +19,7 @@ GenericEntity {
    Geometries {
     PhysicsBoxGeometry Box {
      LayerPreset "VehicleFireView"
-     Extents 26.74 24.68 33.02
+     Extents 3 2.2 2.6
     }
    }
   }

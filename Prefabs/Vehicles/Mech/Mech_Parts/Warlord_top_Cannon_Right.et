@@ -1,0 +1,24 @@
+GenericEntity {
+ ID "6AAE3A0F3571C06B"
+ components {
+  SignalsManagerComponent "{6AAE3A0F3571C07A}" {
+  }
+  CGS_Titan_Cannon "{6AAE3A0F3571C044}" {
+   m_sModuleId "RIGHT_CANNON"
+   m_sDisplayName "Right Cannon"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 1
+   m_fArmorPenetrationPercent 30
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 60
+  }
+  MeshObject "{6AAE3A0F3571C04D}" {
+   Object "{3F743FE45DE3354E}Common/Models/Titan_War_Lord/War_Lord_Shoulder_Gun.xob"
+  }
+  RplComponent "{6AAE3A0F3571C050}" {
+  }
+  Hierarchy "{6AAE3A0F3571C054}" {
+  }
+ }
+ coords 31.427 12.561 65.921
+}

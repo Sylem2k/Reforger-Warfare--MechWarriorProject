@@ -10,7 +10,7 @@ GenericEntity {
      DamageThreshold 0
      m_fMultiplier 1
      m_sLabel "LEGL SHIN"
-     m_bLogHits 0
+     m_bLogHits 1
     }
    }
   }
@@ -19,7 +19,7 @@ GenericEntity {
    Geometries {
     PhysicsBoxGeometry Box {
      LayerPreset "VehicleFireView"
-     Extents 43.44 40.54 45.08
+     Extents 2.4 4.5 2.7
     }
    }
   }

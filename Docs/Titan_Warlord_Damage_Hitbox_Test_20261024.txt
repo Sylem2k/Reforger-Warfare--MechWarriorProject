@@ -1,0 +1,32 @@
+TITAN WARLORD DAMAGE / HITBOX RESTORATION — TEST NOTES
+24 October 2026
+Branch: fix/warlord-damage-hitboxes-test-20261024
+
+I identified why the Warlord appeared invulnerable:
+- My original Titan hitbox ZIP had seventeen CGS_HitBoxZone prefabs, but none were referenced in the active Titan_WarLord_OPFOR.et.
+- The Warlord's single root RigidBody only had a 2.5 x 2.5 x 3.5 Vehicle box near its origin, not a full silhouette hitbox.
+- The hull itself has 40,000 health, a 0.05 kinetic multiplier and a 0.65 explosive multiplier.
+- The shield has 30,000 capacity with 750/s regeneration after 7 seconds; the boss caps fully counted small arms at 60/s and heavy damage at 2200/s. Those values are deliberately unchanged for the first hitbox test.
+
+I added all seventeen hitbox resources under Prefabs/Vehicles/Mech/HitBoxes/Titan/:
+body chest, torso, pelvis, head, weak spot (3x), 3 each on the two arms, and 3 each on the two legs.
+The body boxes are attached to the root, head to the head entity, arm boxes to separate left/right cannon-arm prefabs, and leg boxes to the boss leg entities with J1/J2/J3 pivots.
+
+The ZIP did not contain the original attachment coordinates and some PhysicsBoxGeometry extents were far larger than the visible mech. I chose smaller TEST extents and provisional offsets. Those are estimates, not a verified reconstruction of the original alignment. I must inspect them in Workbench and adjust before use on the production server.
+
+Test diagnostics:
+- Hull BFA_MechHitZone m_bLogDamage = 1
+- CGS_MechBossComponent m_bDebug = 1 (10-second server damage summaries)
+- m_bLogHits = 1 for BODY CHEST, BODY HEAD, LEGL SHIN and WEAKSPOT only
+- Always-visible, brighter green Warlord shield bubble
+- Shield HP, regen, damage multipliers, boss caps and weapon damage are unchanged
+
+My test order:
+1. Verify the prefab compiles and all seventeen child hitbox slots actually spawn.
+2. In Game Master or Workbench, inspect the collision boxes from front, side and rear. Check that each limb box follows its movement and that the weak spot can be hit independently.
+3. Shoot the upper chest with a rifle, then an RPG/vehicle cannon. Check [CGS HITBOX], [BFA DAMAGE], [CGS BOSS], and shield output in the SERVER log.
+4. Repeat on a shin/arm, then aim at the rear weak spot. Confirm health transfer to the leg/arm part and to the hull, with 3x pre-armour damage only on the weak spot.
+5. Verify shield health decreases even while hull health remains nearly unchanged, and test what happens once the shield is down.
+6. Disable verbose damage logs before testing with 100–128 players. Balance shields and caps only AFTER the hit routing is confirmed.
+
+I must not merge this branch into main until the collision shape, forwarding and multiplayer checks pass.

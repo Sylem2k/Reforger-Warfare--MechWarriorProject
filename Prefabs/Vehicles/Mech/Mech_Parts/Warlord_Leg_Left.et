@@ -1,0 +1,71 @@
+GenericEntity {
+ ID "6AAE3A14633A5D0D"
+ components {
+  SignalsManagerComponent "{6AAE3A14633A5D1B}" {
+  }
+  SoundComponent "{6AAE3A14633A5D60}" {
+   Filenames {
+    "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+   }
+  }
+  BFA_MechLegComponent "{6AAE3A14633A5D67}" {
+   m_fStepHeight 1
+   m_fObstacleStepHeight 3
+   m_fSwingFraction 0.36
+   m_LastBone PointInfo "{6AAE3A14633A5D6B}" {
+    PivotID "J3"
+   }
+  }
+  MeshObject "{6AAE3A14633A5D69}" {
+   Object "{BD016348D7396FEF}Common/Models/Titan_War_Lord/War_Lord_Left_Leg.xob"
+   RainOccluder 0
+   WetnessOccluder 0
+   ReceiveLight 0
+  }
+  RigidBody "{6AAE3A14633A5D6C}" {
+   Gravity 0
+   Geometries {
+    PhysicsBoxGeometry asd {
+     LayerPreset "VehicleFireView"
+     Offset 0 1.5 0.133
+     Extents 1 3 2
+    }
+   }
+  }
+  SCR_DamageManagerComponent "{6AAE3A14633A5D70}" {
+   "Additional hit zones" {
+    BFA_MechPartHitZone Leg {
+     HZDefault 1
+     MaxHealth 10000
+     DamageReduction 2
+     DamageThreshold 1
+     "Melee multiplier" 0.01
+     "Kinetic multiplier" 0.1
+     "Fragmentation multiplier" 0.05
+     "Explosive multiplier" 1
+     "Incendiary multiplier" 0.5
+     m_fHullShare 0.6
+    }
+   }
+  }
+  SCR_SoundDataComponent "{6AAE3A14633A5D77}" {
+   m_aAudioSourceConfiguration {
+    SCR_AudioSourceConfiguration "{6AAE3A14633A5D7B}" {
+     m_sSoundProject "{8B7D7D9A72F30BAD}Sounds/SampleMech.acp"
+     m_sSoundEventName "SOUND_MECH_STEP"
+    }
+   }
+  }
+  AnimationControllerComponent "{6AAE3A14633A5D7E}" {
+   AnimGraph "{087ADD06D87386F4}Anims/Workspaces/Mech/IK_Arm.agr"
+   AnimInstance "{E51088DDC47AD41A}Anims/Workspaces/Mech/IK_Arm.asi"
+   StartNode "IK Chain to IK Target"
+   AnimUpdate EOnFrame
+  }
+  RplComponent "{6AAE3A14633A5D7C}" {
+  }
+  Hierarchy "{6AAE3A14633A5D42}" {
+  }
+ }
+ coords 72.413 21.805 38.982
+}

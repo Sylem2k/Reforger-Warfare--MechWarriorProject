@@ -1,5 +1,0 @@
-MatPBRBasic {
- EmissiveMap "{8C82FF002F34D022}Common/Models/Data/LaserGun_emissive.edds"
- BCRMap "{B782D5EA4D5CDBBD}Common/Models/Data/LaserGun_BCR.edds"
- NMOMap "{D6E501B46B932BEC}Common/Models/Data/LaserGun_albedo.edds"
-}

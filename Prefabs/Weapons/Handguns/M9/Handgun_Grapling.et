@@ -1,0 +1,32 @@
+GenericEntity : "{809488C4984AC087}Prefabs/Weapons/Handguns/M9/Handgun_M9_base.et" {
+ ID "CFBAA4B725411E45"
+ components {
+  RW_GrapplingHookComponent "{7260102200260001}" {
+   m_fMaxRange 100
+   m_fPullSpeed 18
+   m_fStopDistance 2
+   m_fSafeArrivalDistance 4.5
+   m_fBrakeStartDistance 14
+   m_fSafeDescentSpeed 2.5
+   m_fSafeDescentTimeout 90
+   m_fCooldown 3
+   m_fMaxDuration 12
+   m_fEyeHeight 1.5
+   m_fGroundReleaseLift 1
+   m_bScriptedPositionFallback 0
+   m_bDebug 1
+   m_bUseWeaponTrigger 0
+   m_bDeleteProjectile 0
+   m_bUseDirectFireInput 0
+   m_bUseControllerFireInput 1
+  }
+  SCR_WeaponAttachmentsStorageComponent "{51F080D5CE45A1A2}" {
+   Attributes SCR_ItemAttributeCollection "{51F080D5C64F12C5}" {
+    ItemPhysAttributes ItemPhysicalAttributes "{5534C5023A57E47F}" {
+     SizeSetupStrategy Manual
+    }
+   }
+  }
+ }
+ coords 86.458 4.362 81.918
+}

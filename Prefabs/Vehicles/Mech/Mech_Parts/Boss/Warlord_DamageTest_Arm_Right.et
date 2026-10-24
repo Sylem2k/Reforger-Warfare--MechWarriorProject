@@ -1,0 +1,33 @@
+// Boss-only override. Keep Titan_Cannon_Arm.xob and the working slot placement.
+// Correct the actual shot toward the server-authoritative AI station aim point.
+GenericEntity : "{BF5A995C0FD5EEAC}Prefabs/Vehicles/Mech/Mech_Parts/Titan_Cannon_Arm.et" {
+ ID "ED24000000000022"
+ components {
+  BFA_MechLasCannonModuleComponent "{6AAE3A126AD58E22}" {
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 110
+  }
+  SlotManagerComponent "{ED24000000000003}" {
+   Slots {
+    EntitySlotInfo HB_ArmUpper {
+     Offset 0 2 0
+     MergePhysics 0
+     DisablePhysicsInteraction 1
+     Prefab "{7975B2294DF4E1A2}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_ArmR_Upper.et"
+    }
+    EntitySlotInfo HB_ArmFore {
+     Offset 0 -2 0
+     MergePhysics 0
+     DisablePhysicsInteraction 1
+     Prefab "{659E91AC0E6AA5E9}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_ArmR_Fore.et"
+    }
+    EntitySlotInfo HB_ArmHand {
+     Offset 0 -5 0
+     MergePhysics 0
+     DisablePhysicsInteraction 1
+     Prefab "{5E90B5A5500B783B}Prefabs/Vehicles/Mech/HitBoxes/Titan/Titan_HB_ArmR_Hand.et"
+    }
+   }
+  }
+ }
+}

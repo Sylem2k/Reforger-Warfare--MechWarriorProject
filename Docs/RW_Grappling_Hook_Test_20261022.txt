@@ -1,0 +1,76 @@
+REFORGER WARFARE - GRAPPLING HOOK TEST (22 OCT 2026)
+========================================================
+
+I added a self-contained experimental grapple to my existing ETool-based
+Grappling_Hook.et. I did not modify Mech Core, the MW weapons, or any enemy AI.
+
+PREFAB (existing filename/GUID unchanged)
+{33725EE7FBEE48D9}Prefabs/Items/Equipment/Accessories/ETool_ALICE/Grappling_Hook.et
+
+NEW SCRIPTS
+Scripts/Game/RW_Grapple/RW_GrapplingHookComponent.c
+Scripts/Game/RW_Grapple/RW_GrapplingHookAction.c
+
+FIRST TEST
+1. Merge/pull this MW branch into Workbench and compile Game scripts.
+2. Spawn Grappling_Hook.et and equip it in my RIGHT hand.
+3. Check for "GRAPPLE: FIRE / RELEASE (TEST)" in the equipped item's
+   interaction menu. The user action is wired to the prefab's default
+   ActionsManagerComponent context.
+4. Face a solid surface around 10-30 metres away, activate grapple.
+   First-pass aim uses the CHARACTER'S facing direction, NOT the camera
+   crosshair. No surface hit means nothing happens.
+5. The server traces up to 50m, raises the character 0.65m only if headroom
+   is available, then applies 18m/s physics velocity toward the anchor.
+6. Activate again to cancel, or let proximity, collision, timeout,
+   tool unequip, or stalled movement stop the pull.
+
+EDITABLE COMPONENT SETTINGS
+Max Range 50m; Pull Speed 18m/s; Stop Distance 2m;
+Cooldown 3s; Max Duration 6s; Eye Height 1.5m;
+Ground Release Lift 0.65m; Scripted Position Fallback OFF; Debug ON.
+
+LIMITATIONS / SAFETY
+- This is a prototype, NOT a finished grappling firearm or a weapon firing
+  action. The ETool mesh is only a temporary handheld test object.
+- No physical hook projectile, cable rendering, rope physics, climbing,
+  fall-damage protection or client camera-aim RPC yet.
+- Server motion vs client-owned character control is UNTESTED.
+- If the controller cancels physics motion, the test stops after 0.65s
+  without silently teleporting. In a disposable test world ONLY, I can
+  opt into Scripted Position Fallback to compare SetOrigin motion. This
+  fallback may create camera snapping and may need stronger collision checks.
+- If the equipped item action is not exposed by vanilla ETool input, check
+  inherited ETool_base.et ActionsManagerComponent and action contexts in
+  Workbench. A character-side or custom input binding may be needed.
+- Stop near the anchor: this test does NOT climb over a roof edge.
+- Test at low altitude first. Falling from a grapple can still cause damage.
+- Confirm Workbench script compile and both host+remote client behavior
+  before adopting this in normal gameplay.
+
+DUPLICATE ACTIONS MANAGER FIX (23 OCT TEST)
+----------------------------------------
+Workbench reported:
+  GenericEntity component ActionsManagerComponent cannot be combined with
+  component ActionsManagerComponent
+
+The inherited ETool_base.et already contains ActionsManagerComponent.
+The first test prefab mistakenly added a SECOND one, blocking creation.
+The fix branch removes only the duplicate component, leaving the existing
+mesh, RigidBody, loadout cloth and RW_GrapplingHookComponent unchanged.
+
+IMPORTANT: Once the duplicate is removed, the grapple action is NOT yet
+registered with the inherited manager. To restore the Grapple action:
+  1. Open Grappling_Hook.et in Workbench's Prefab Editor.
+  2. Locate the inherited ActionsManagerComponent from ETool_base.et.
+  3. Edit/override that SAME component; do NOT Add Component again.
+  4. In additionalActions add RW_GrapplingHookAction.
+  5. Set ParentContextList to default; set UIInfo.Name to
+     GRAPPLE: FIRE / RELEASE (TEST). Save and push the prefab override.
+
+Alternatively copy the existing ActionsManagerComponent's ID from
+ETool_base.et and update its SAME inherited component in the prefab text.
+Do NOT assign a new GUID; that creates another duplicate component.
+
+The item should now spawn visibly. The interaction remains unavailable until
+the inherited manager is configured. Compile and test the resulting action.

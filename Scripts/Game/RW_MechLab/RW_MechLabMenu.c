@@ -13,7 +13,7 @@
 //!   - Right-click a hardpoint to empty it.
 //!   - Markers on the mech show where each hardpoint is; click one to select it, drop parts on it.
 //!   - VIEW < > turns the showroom camera around the mech.
-//! Built in code on a blank layout (UI/RW/RW_MechLab.layout); restyle the colours below.
+//! V2 hangar HUD uses native Enfusion widgets and keeps the same functional RPC / equipment pipeline.
 //! Everything is laid out on a 1080p-high design screen and scaled by UI_SCALE.
 
 modded enum ChimeraMenuPreset
@@ -176,6 +176,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int ROW_ORDER = 6;     // value = frame index * 100 + saved slot (0 = bare)
 	static const int ROW_DELETE = 7;
 	static const int ROW_FILTER = 9;    // filter parts by family
+	static const int ROW_ORDER_PAGE = 10; // move between chassis cards
+	static const int ROW_HARDPOINT_PAGE = 11; // display all slots, including large assault frames
 	static const int ROW_SCROLL = 8;    // value -1 = up, 1 = down (parts list)    // value = frame index * 100 + saved slot
 
 	static const int BTN_RESET = 0;
@@ -184,24 +186,27 @@ class RW_MechLabMenu : ChimeraMenuBase
 	static const int BTN_VIEW_LEFT = 3;
 	static const int BTN_VIEW_RIGHT = 4;
 	static const int BTN_SAVE = 5;
+	static const int BTN_DELETE_MECH = 6;
 
 	static const float UI_SCALE = 1.3;      // bigger = everything bigger
-	static const float PANEL_W = 410;
-	static const float EDGE = 30;
+	static const float PANEL_W = 398;
+	static const float EDGE = 24;
 	static const float ROW_H = 66;
 	static const float MAX_DISTANCE = 25;
 	static const bool SHOWROOM_CAMERA = true;
 
-	// Colours (restyle here).
-	protected ref Color m_cPanel = new Color(0.03, 0.04, 0.05, 0.86);
-	protected ref Color m_cRow = new Color(1, 1, 1, 0.05);
-	protected ref Color m_cRowHover = new Color(1, 1, 1, 0.12);
-	protected ref Color m_cRowSelected = new Color(0.95, 0.65, 0.2, 0.28);
-	protected ref Color m_cAccent = new Color(0.95, 0.65, 0.2, 1);
-	protected ref Color m_cText = new Color(0.93, 0.93, 0.93, 1);
-	protected ref Color m_cDim = new Color(0.55, 0.55, 0.55, 1);
-	protected ref Color m_cGood = new Color(0.45, 1, 0.55, 1);
-	protected ref Color m_cBad = new Color(1, 0.35, 0.3, 1);
+	// Hangar UI: deep graphite glass, cool cyan instrumentation, amber actions, red safety.
+	protected ref Color m_cPanel = new Color(0.025, 0.043, 0.055, 0.96);
+	protected ref Color m_cHeader = new Color(0.018, 0.031, 0.044, 0.94);
+	protected ref Color m_cRow = new Color(0.065, 0.11, 0.13, 0.9);
+	protected ref Color m_cRowHover = new Color(0.10, 0.21, 0.24, 0.96);
+	protected ref Color m_cRowSelected = new Color(0.07, 0.33, 0.36, 0.76);
+	protected ref Color m_cAccent = new Color(0.23, 0.86, 0.85, 1);
+	protected ref Color m_cWarm = new Color(1, 0.71, 0.38, 1);
+	protected ref Color m_cText = new Color(0.94, 0.97, 0.98, 1);
+	protected ref Color m_cDim = new Color(0.55, 0.66, 0.71, 1);
+	protected ref Color m_cGood = new Color(0.43, 0.91, 0.64, 1);
+	protected ref Color m_cBad = new Color(1, 0.35, 0.37, 1);
 
 	protected static IEntity s_pNextMech;
 	protected static RW_MechBayComponent s_pNextBay;
@@ -209,6 +214,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	// Order Frame mode (bay with an empty pad): pick a frame, the bay builds it, the lab opens.
 	protected RW_MechBayComponent m_OrderBay;
 	protected float m_fNextPadLook;
+	protected int m_iOrderPage;  // one frame per page: fits all five saved builds at 1080p
 	protected int m_iOrderSeenSeq = -1;
 	protected float m_fOrderMsgUntil;
 
@@ -239,6 +245,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected int m_iPartScroll;        // first part shown (after Empty)
 	protected int m_iPartCount;         // parts besides Empty
 	protected int m_iPartsShown;
+	protected int m_iHardpointPage;
+	protected int m_iHardpointsPerPage = 5;
 
 	// Planned build.
 	protected ref array<int> m_aPending = {};
@@ -266,12 +274,19 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected TextWidget m_wStatus;
 	protected TextWidget m_wDragGhost;
 	protected TextWidget m_wSwapping;
+	protected TextWidget m_wTopState;
+	protected TextWidget m_wSelectedTitle;
+	protected TextWidget m_wSelectedPart;
+	protected TextWidget m_wCapacityStatus;
+	protected ImageWidget m_wHeatFill;
+	protected float m_fHeatBarW;
 
 	protected string m_sLocalMessage;
 	protected bool m_bLocalBad;
 	protected float m_fLocalUntil;
 	protected int m_iSeenSeq = -1;
 	protected float m_fServerUntil;
+	protected float m_fConfirmDeleteUntil;  // two clicks required within five seconds
 
 	//------------------------------------------------------------------------------------------------
 	//! Open the Mech Lab for this mech (local player).
@@ -318,6 +333,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		if (m_pMech == mech && m_bBuilt)
 			return;
 		m_pMech = mech;
+		m_fConfirmDeleteUntil = 0;
 		m_Frame = RW_MechFrameComponent.Find(mech);
 		m_Hardpoints = BFA_MechHardpointComponent.Cast(mech.FindComponent(BFA_MechHardpointComponent));
 		m_Heat = CGS_MechHeatComponent.Cast(mech.FindComponent(CGS_MechHeatComponent));
@@ -628,6 +644,23 @@ class RW_MechLabMenu : ChimeraMenuBase
 		{
 			ScrollParts(pressed.m_iValue);
 		}
+		else if (pressed.m_iKind == ROW_ORDER_PAGE)
+		{
+			if (m_OrderBay)
+			{
+				m_iOrderPage = Math.Clamp(m_iOrderPage + pressed.m_iValue, 0, Math.Max(m_OrderBay.GetFrameCount() - 1, 0));
+				RebuildOrder();
+			}
+		}
+		else if (pressed.m_iKind == ROW_HARDPOINT_PAGE)
+		{
+			if (m_Hardpoints)
+			{
+				int pages = Math.Max((m_Hardpoints.GetHardpointCount() - 1) / m_iHardpointsPerPage, 0);
+				m_iHardpointPage = Math.Clamp(m_iHardpointPage + pressed.m_iValue, 0, pages);
+				ScrollParts(0, true);
+			}
+		}
 		else if (pressed.m_iKind == ROW_ORDER)
 		{
 			OrderFrame(pressed.m_iValue / 100, pressed.m_iValue % 100);
@@ -643,6 +676,15 @@ class RW_MechLabMenu : ChimeraMenuBase
 		else if (pressed.m_iKind == ROW_HARDPOINT || pressed.m_iKind == ROW_MARKER)
 		{
 			m_iSelectedHp = pressed.m_iValue;
+			if (pressed.m_iKind == ROW_MARKER && m_iHardpointsPerPage > 0)
+			{
+				int page = m_iSelectedHp / m_iHardpointsPerPage;
+				if (page != m_iHardpointPage)
+				{
+					m_iHardpointPage = page;
+					ScrollParts(0, true);
+				}
+			}
 		}
 		else if (pressed.m_iKind == ROW_HS_MINUS)
 		{
@@ -671,6 +713,10 @@ class RW_MechLabMenu : ChimeraMenuBase
 			else if (pressed.m_iValue == BTN_SAVE)
 			{
 				SaveBuild();
+			}
+			else if (pressed.m_iValue == BTN_DELETE_MECH)
+			{
+				DeleteOrderedMech();
 			}
 			else if (pressed.m_iValue == BTN_VIEW_RIGHT)
 			{
@@ -735,6 +781,27 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	// Decorative HUD geometry. All elements are non-interactive; row hit testing remains unchanged.
+	protected void HangarPanel(float x, float y, float w, float h)
+	{
+		Rect(x + 5, y + 6, w, h, new Color(0, 0, 0, 0.35), 0);
+		Rect(x, y, w, h, m_cPanel, 0);
+		Rect(x, y, w, 45, m_cHeader, 0);
+		Rect(x, y, w, 3, m_cAccent, 1);
+		Rect(x + 12, y + 44, w - 24, 1, new Color(0.3, 0.72, 0.75, 0.28), 1);
+		Rect(x, y, 2, h, new Color(0.22, 0.66, 0.7, 0.3), 1);
+	}
+
+	protected void TopChrome(float sw, string section)
+	{
+		Rect(0, 0, sw, 59, m_cHeader);
+		Rect(0, 57, sw, 2, m_cAccent, 1);
+		Rect(EDGE, 12, 5, 31, m_cWarm, 2);
+		Text(EDGE + 18, 12, 250, 35, 23, m_cText, "CGS / MECH SYSTEMS");
+		Text(EDGE + 300, 17, 390, 27, 16, m_cAccent, section);
+		m_wTopState = Text(sw - 305, 18, 270, 25, 16, m_cGood, "BAY SYSTEMS  //  ONLINE");
+	}
+
 	protected RW_LabRow AddRow(int kind, int value, float x, float y, float w, float h)
 	{
 		RW_LabRow row = new RW_LabRow();
@@ -754,7 +821,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 	protected void AddButton(int which, string label, float x, float y, float w)
 	{
 		RW_LabRow row = AddRow(ROW_BUTTON, which, x, y, w, 48);
-		row.m_wTitle = Text(x, y + 13, w, 24, 18, m_cText, label);
+		row.m_wTitle = Text(x, y + 13, w, 24, 16, m_cText, label);
 		row.m_wTitle.SetFlags(WidgetFlags.CENTER);
 	}
 
@@ -810,33 +877,46 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// Narrow screens: shrink the panels so the mech stays visible in the middle.
 		float panelW = Math.Min(PANEL_W, (sw - EDGE * 2) * 0.32);
-		float top = EDGE;
-		float bottom = sh - EDGE - 70;
+		float top = EDGE + 58;
+		float bottom = sh - EDGE - 76;
+		TopChrome(sw, "CONFIGURATION / LIVE CHASSIS");
 
-		// ---------------- Left panel: frame + parts ----------------
+		// ---------------- Left panel: frame + weapon catalog ----------------
 		float lx = EDGE;
-		Rect(lx, top, panelW, bottom - top, m_cPanel, 0);
-		Rect(lx, top, panelW, 3, m_cAccent, 1);
-		string header = "MECH LAB  |  FIELD REFIT";
+		HangarPanel(lx, top, panelW, bottom - top);
+		string header = "01  //  FIELD REFIT";
 		RW_MechBayComponent bayHere = RW_MechBayComponent.FindBayFor(m_pMech);
 		if (bayHere)
-			header = "MECH LAB  |  " + bayHere.GetBayName();
+			header = "01  //  " + bayHere.GetBayName();
 		Text(lx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, header);
-		m_wFrameName = Text(lx + 18, top + 32, panelW - 36, 34, 28, m_cText);
-		m_wFrameClass = Text(lx + 18, top + 66, panelW - 36, 20, 14, m_cDim);
+		m_wFrameName = Text(lx + 18, top + 54, panelW - 36, 34, 26, m_cText);
+		m_wFrameClass = Text(lx + 18, top + 88, panelW - 36, 20, 13, m_cDim);
 
-		float sy = top + 96;
-		Text(lx + 18, sy, 140, 18, 14, m_cDim, "TONNAGE");
-		m_wTonsText = Text(lx + 160, sy, panelW - 178, 18, 15, m_cText);
-		m_wTonsBg = Rect(lx + 18, sy + 24, panelW - 36, 12, new Color(1, 1, 1, 0.1), 1);
-		m_wTonsFill = Rect(lx + 18, sy + 24, panelW - 36, 12, m_cGood, 2);
-		m_fBarW = panelW - 36;
-		m_wCooling = Text(lx + 18, sy + 46, panelW - 36, 18, 14, m_cText);
-		m_wFireHeat = Text(lx + 18, sy + 66, panelW - 36, 18, 14, m_cText);
-		m_wSpeed = Text(lx + 18, sy + 86, panelW - 36, 18, 14, m_cText);
+		float sy = top + 116;
+		Rect(lx + 12, sy - 5, panelW - 24, 119, m_cRow, 0);
+		Text(lx + 22, sy + 2, 145, 18, 14, m_cAccent, "MASS / LOAD");
+		m_wTonsText = Text(lx + 164, sy + 2, panelW - 188, 18, 14, m_cText);
+		m_wTonsBg = Rect(lx + 22, sy + 26, panelW - 44, 11, new Color(0.02, 0.15, 0.18, 1), 1);
+		m_wTonsFill = Rect(lx + 22, sy + 26, panelW - 44, 11, m_cGood, 2);
+		m_fBarW = panelW - 44;
+		m_wCooling = Text(lx + 22, sy + 48, panelW - 44, 17, 13, m_cText);
+		m_wFireHeat = Text(lx + 22, sy + 68, panelW - 44, 18, 13, m_cText);
+		m_wSpeed = Text(lx + 22, sy + 90, panelW - 44, 18, 13, m_cText);
+		m_fHeatBarW = panelW - 44;
+		Rect(lx + 22, sy + 119, m_fHeatBarW, 5, new Color(0.06, 0.22, 0.24, 1), 1);
+		m_wHeatFill = Rect(lx + 22, sy + 119, m_fHeatBarW, 5, m_cGood, 2);
 
-		float py = sy + 118;
-		TextWidget partsHeader = Text(lx + 18, py, panelW - 160, 18, 14, m_cAccent, "PARTS");
+		float py = sy + 145;
+		Rect(lx + 12, py - 7, panelW - 24, 2, new Color(0.26, 0.52, 0.56, 0.5), 1);
+		TextWidget partsHeader = Text(lx + 18, py, panelW - 160, 18, 14, m_cAccent, "02  //  EQUIPMENT");
+		// Keep DELETE on the bay-specific Mech Lab, away from the main fitting buttons.
+		if (bayHere)
+		{
+			float dx = lx + panelW - 146;
+			RW_LabRow removeMech = AddRow(ROW_BUTTON, BTN_DELETE_MECH, dx, py - 6, 132, 27);
+			removeMech.m_wTitle = Text(dx + 2, py - 3, 128, 20, 13, m_cBad, "DELETE MECH");
+			removeMech.m_wTitle.SetFlags(WidgetFlags.CENTER);
+		}
 		py += 26;
 
 		// Each family has its own page; no need to scroll through every weapon.
@@ -921,15 +1001,30 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// ---------------- Right panel: hardpoints + heatsinks ----------------
 		float rx = sw - EDGE - panelW;
-		Rect(rx, top, panelW, bottom - top, m_cPanel, 0);
-		Rect(rx, top, panelW, 3, m_cAccent, 1);
-		Text(rx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, "HARDPOINTS   click = select | right-click = empty");
+		HangarPanel(rx, top, panelW, bottom - top);
+		Text(rx + 18, top + 12, panelW - 36, 20, 14, m_cAccent, "03  //  WEAPON HARDPOINTS");
+		Text(rx + 18, top + 50, panelW - 36, 19, 12, m_cDim, "CLICK SELECT  /  RIGHT CLICK CLEAR");
 
-		float hy = top + 42;
-		for (int hp = 0; hp < m_Hardpoints.GetHardpointCount(); hp++)
+		m_iHardpointsPerPage = Math.Max((int)((bottom - 150 - (top + 110)) / 64), 1);
+		int totalHardpoints = m_Hardpoints.GetHardpointCount();
+		int totalPages = Math.Max((totalHardpoints - 1) / m_iHardpointsPerPage, 0);
+		m_iHardpointPage = Math.Clamp(m_iHardpointPage, 0, totalPages);
+		int startHardpoint = m_iHardpointPage * m_iHardpointsPerPage;
+		if (totalHardpoints > m_iHardpointsPerPage)
 		{
-			if (hy + 64 > bottom - 140)
-				break;
+			RW_LabRow hpPrev = AddRow(ROW_HARDPOINT_PAGE, -1, rx + 15, top + 73, 92, 28);
+			hpPrev.m_wTitle = Text(rx + 15, top + 77, 92, 18, 13, m_cText, "< PREV");
+			hpPrev.m_wTitle.SetFlags(WidgetFlags.CENTER);
+			TextWidget hardpointPageLabel = Text(rx + 118, top + 78, panelW - 236, 18, 13, m_cAccent, string.Format("%1 / %2", m_iHardpointPage + 1, totalPages + 1));
+			if (hardpointPageLabel)
+				hardpointPageLabel.SetFlags(WidgetFlags.CENTER);
+			RW_LabRow hpNext = AddRow(ROW_HARDPOINT_PAGE, 1, rx + panelW - 107, top + 73, 92, 28);
+			hpNext.m_wTitle = Text(rx + panelW - 107, top + 77, 92, 18, 13, m_cText, "NEXT >");
+			hpNext.m_wTitle.SetFlags(WidgetFlags.CENTER);
+		}
+		float hy = top + 109;
+		for (int hp = startHardpoint; hp < Math.Min(startHardpoint + m_iHardpointsPerPage, totalHardpoints); hp++)
+		{
 			RW_LabRow slot = AddRow(ROW_HARDPOINT, hp, rx + 12, hy, panelW - 24, 58);
 			slot.m_wTitle = Text(rx + 26, hy + 6, 200, 20, 16, m_cAccent);
 			slot.m_wSub = Text(rx + 26, hy + 30, panelW - 50, 22, 18, m_cText);
@@ -939,7 +1034,8 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// Heatsinks.
 		float hsY = bottom - 120;
-		Text(rx + 18, hsY, panelW - 36, 18, 14, m_cAccent, "HEATSINKS");
+		Rect(rx + 12, hsY - 11, panelW - 24, 1, new Color(0.26, 0.52, 0.56, 0.55), 1);
+		Text(rx + 18, hsY, panelW - 36, 18, 14, m_cAccent, "04  //  THERMAL MANAGEMENT");
 		m_wHsText = Text(rx + 18, hsY + 26, panelW - 150, 44, 16, m_cText);
 		RW_LabRow minus = AddRow(ROW_HS_MINUS, 0, rx + panelW - 120, hsY + 22, 48, 44);
 		minus.m_wTitle = Text(rx + panelW - 120, hsY + 28, 48, 30, 26, m_cText, "-");
@@ -950,24 +1046,39 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		// ---------------- Bottom bar ----------------
 		float by = sh - EDGE - 56;
-		float bw = 150;
-		float vw = 60;
-		float groupW = vw * 2 + bw * 4 + 12 * 5;
+		float bw = 128;
+		float vw = 50;
+		float groupW = vw * 2 + bw * 4 + 10 * 5;
 		float bx = sw * 0.5 - groupW * 0.5;
-		Rect(lx, by - 8, sw - EDGE * 2, 64, m_cPanel, 0);
+		Rect(0, by - 16, sw, 79, m_cHeader, 0);
+		Rect(0, by - 16, sw, 2, m_cAccent, 1);
 		AddButton(BTN_VIEW_LEFT, "<", bx, by, vw);
-		AddButton(BTN_RESET, "RESET", bx + vw + 12, by, bw);
-		AddButton(BTN_APPLY, "APPLY", bx + vw + bw + 24, by, bw);
-		AddButton(BTN_SAVE, "SAVE", bx + vw + bw * 2 + 36, by, bw);
-		AddButton(BTN_CLOSE, "CLOSE", bx + vw + bw * 3 + 48, by, bw);
-		AddButton(BTN_VIEW_RIGHT, ">", bx + vw + bw * 4 + 60, by, vw);
-		m_wStatus = Text(lx + 18, by + 14, bx - lx - 36, 24, 16, m_cText);
-		m_wSwapping = Text(bx + groupW + 20, by + 14, sw - EDGE - bx - groupW - 30, 24, 16, m_cAccent);
+		AddButton(BTN_RESET, "RESET", bx + vw + 10, by, bw);
+		AddButton(BTN_APPLY, "APPLY BUILD", bx + vw + bw + 20, by, bw);
+		AddButton(BTN_SAVE, "SAVE BUILD", bx + vw + bw * 2 + 30, by, bw);
+		AddButton(BTN_CLOSE, "EXIT LAB", bx + vw + bw * 3 + 40, by, bw);
+		AddButton(BTN_VIEW_RIGHT, ">", bx + vw + bw * 4 + 50, by, vw);
+		m_wStatus = Text(lx + 7, by + 3, bx - lx - 24, 43, 14, m_cText);
+		m_wSwapping = Text(bx + groupW + 14, by + 6, sw - EDGE - bx - groupW - 22, 35, 14, m_cAccent);
+
+		// Live selection HUD sits below the visible mech, without covering its hardpoint markers.
+		float centreX = lx + panelW + 16;
+		float centreW = rx - centreX - 16;
+		if (centreW >= 210)
+		{
+			Rect(centreX, by - 92, centreW, 62, m_cPanel);
+			Rect(centreX, by - 92, 4, 62, m_cAccent, 1);
+			m_wSelectedTitle = Text(centreX + 14, by - 83, centreW - 24, 21, 15, m_cAccent, "SELECTED HARDPOINT");
+			m_wSelectedPart = Text(centreX + 14, by - 58, centreW - 24, 26, 16, m_cText, "Select a slot to configure");
+			TextWidget viewportCaption = Text(centreX + 8, top + 14, centreW - 16, 20, 13, m_cAccent, "MECH VIEWPORT  //  REAL-TIME LOADOUT");
+			if (viewportCaption)
+				viewportCaption.SetFlags(WidgetFlags.CENTER);
+		}
 
 		// ---------------- Markers on the mech (one per hardpoint) ----------------
 		m_fLeftEdge = lx + panelW + 10;
 		m_fRightEdge = rx - 10;
-		m_fBottomEdge = by - 16;
+		m_fBottomEdge = by - 101;
 		for (int m = 0; m < m_Hardpoints.GetHardpointCount(); m++)
 		{
 			RW_LabRow marker = new RW_LabRow();
@@ -1110,6 +1221,21 @@ class RW_MechLabMenu : ChimeraMenuBase
 		m_wFrameName.SetText(m_Frame.GetFrameName());
 		m_wFrameClass.SetText(typename.EnumToString(RW_EWeightClass, m_Frame.GetWeightClass()) + " FRAME  |  empty " + Tons(m_Frame.GetFrameTons()));
 		m_wTonsText.SetText(Tons(tons) + " / " + Tons(maxTons));
+		if (m_wTopState)
+		{
+			if (m_Hardpoints.IsSwapInProgress())
+				m_wTopState.SetText("ENGINEERS  //  FITTING");
+			else if (over)
+				m_wTopState.SetText("WARNING  //  OVER MASS");
+			else if (PlanChanged())
+				m_wTopState.SetText("BUILD PLAN  //  MODIFIED");
+			else
+				m_wTopState.SetText("MECH SYSTEMS  //  READY");
+			if (over)
+				m_wTopState.SetColor(m_cBad);
+			else
+				m_wTopState.SetColor(m_cGood);
+		}
 		float used = Math.Clamp(tons / Math.Max(maxTons, 1), 0, 1);
 		SizeS(m_wTonsFill, Math.Max(m_fBarW * used, 1), 12);
 		if (over)
@@ -1155,8 +1281,33 @@ class RW_MechLabMenu : ChimeraMenuBase
 			m_wFireHeat.SetColor(m_cGood);
 		}
 		m_wFireHeat.SetText(fireLine);
+		if (m_wHeatFill)
+		{
+			float heatRatio = fireHeat / Math.Max(totalCooling, 0.1);
+			SizeS(m_wHeatFill, Math.Max(2, Math.Min(m_fHeatBarW, heatRatio * m_fHeatBarW)), 5);
+			if (fireHeat > totalCooling + 0.01)
+				m_wHeatFill.SetColor(m_cBad);
+			else
+				m_wHeatFill.SetColor(m_cGood);
+		}
 
 		m_wSpeed.SetText("TOP SPEED   " + Math.Round(m_Frame.SpeedScaleForTons(tons) * 100).ToString() + "%");
+		if (m_wSelectedTitle && m_wSelectedPart)
+		{
+			if (m_iSelectedHp >= 0 && m_iSelectedHp < m_Hardpoints.GetHardpointCount() && m_iSelectedHp < m_aPending.Count())
+			{
+				m_wSelectedTitle.SetText("SELECTED  //  " + m_Hardpoints.GetHardpointName(m_iSelectedHp));
+				string selection = PartName(m_aPending[m_iSelectedHp]);
+				if (m_aPending[m_iSelectedHp] != m_Hardpoints.GetModuleAt(m_iSelectedHp))
+					selection = selection + "  [PENDING]";
+				m_wSelectedPart.SetText(selection);
+			}
+			else
+			{
+				m_wSelectedTitle.SetText("SELECT A HARDPOINT");
+				m_wSelectedPart.SetText("Click a slot, then choose a weapon");
+			}
+		}
 
 		// Camera for the markers.
 		vector cam[4];
@@ -1210,6 +1361,17 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		row.m_wTitle.SetText(PartName(id));
 		RW_EquipmentEntry item = Item(id);
+		if (row.m_wAccent)
+		{
+			if (item && item.m_eType == RW_EHardpointType.ENERGY)
+				row.m_wAccent.SetColor(m_cAccent);
+			else if (item && item.m_eType == RW_EHardpointType.BALLISTIC)
+				row.m_wAccent.SetColor(m_cWarm);
+			else if (item && item.m_eType == RW_EHardpointType.MISSILE)
+				row.m_wAccent.SetColor(new Color(0.71, 0.59, 1, 1));
+			else
+				row.m_wAccent.SetColor(m_cDim);
+		}
 		string sub = "remove whatever is on the hardpoint";
 		if (id != 0)
 		{
@@ -1294,15 +1456,67 @@ class RW_MechLabMenu : ChimeraMenuBase
 	}
 
 	//------------------------------------------------------------------------------------------------
+	//! Deliberately require two separate clicks before sending a server-side delete request.
+	protected void DeleteOrderedMech()
+	{
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(m_pMech);
+		if (!bay)
+		{
+			Say("A mech can only be deleted at its Mech Bay", true);
+			return;
+		}
+		if (Now() > m_fConfirmDeleteUntil)
+		{
+			m_fConfirmDeleteUntil = Now() + 5;
+			Say("Click CONFIRM DELETE within 5 seconds. Only your ordered mech can be removed.", true);
+			return;
+		}
+		m_fConfirmDeleteUntil = 0;
+		SCR_PlayerController pc = SCR_PlayerController.Cast(GetGame().GetPlayerController());
+		if (!pc)
+			return;
+		pc.RW_RequestDeleteOrderedMech(m_pMech);
+		Say("Asking the bay crew to delete this mech...", false);
+	}
+
+	//------------------------------------------------------------------------------------------------
 	protected void RefreshButton(RW_LabRow row, bool hovered, bool over)
 	{
 		row.m_wAccent.SetVisible(false);
 		bool enabled = true;
+		if (row.m_iKind == ROW_FILTER)
+		{
+			bool selectedTab = row.m_iValue == m_iPartFilter;
+			row.m_wAccent.SetVisible(selectedTab);
+			if (selectedTab)
+				row.m_wBg.SetColor(m_cRowSelected);
+			else if (hovered)
+				row.m_wBg.SetColor(m_cRowHover);
+			else
+				row.m_wBg.SetColor(m_cRow);
+			return;
+		}
+		if (row.m_iKind == ROW_BUTTON && row.m_iValue == BTN_DELETE_MECH)
+		{
+			if (row.m_wTitle)
+			{
+				if (Now() <= m_fConfirmDeleteUntil)
+					row.m_wTitle.SetText("CONFIRM DELETE");
+				else
+					row.m_wTitle.SetText("DELETE MECH");
+				row.m_wTitle.SetColor(m_cBad);
+			}
+			if (hovered)
+				row.m_wBg.SetColor(new Color(0.7, 0.1, 0.1, 0.42));
+			else
+				row.m_wBg.SetColor(m_cRow);
+			return;
+		}
 		if (row.m_iKind == ROW_BUTTON && row.m_iValue == BTN_APPLY)
 		{
 			enabled = PlanChanged() && !over && !m_Hardpoints.IsSwapInProgress();
 			if (enabled)
-				row.m_wBg.SetColor(new Color(0.95, 0.65, 0.2, 0.55));
+				row.m_wBg.SetColor(new Color(0.56, 0.32, 0.09, 0.65));
 			else
 				row.m_wBg.SetColor(m_cRow);
 			if (row.m_wTitle)
@@ -1313,7 +1527,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 					row.m_wTitle.SetColor(m_cDim);
 			}
 			if (hovered && enabled)
-				row.m_wBg.SetColor(new Color(0.95, 0.65, 0.2, 0.8));
+				row.m_wBg.SetColor(new Color(0.72, 0.4, 0.1, 0.86));
 			return;
 		}
 		if (hovered)
@@ -1520,67 +1734,93 @@ class RW_MechLabMenu : ChimeraMenuBase
 
 		RW_SavedBuild.ParseAll(s_sBuildsData, m_aBuilds);
 		m_iBuildsSeenSeq = s_iBuildsSeq;
-
-		float w = 760;
 		int count = m_OrderBay.GetFrameCount();
-		float listH = 0;
-		for (int f = 0; f < count; f++)
+		m_iOrderPage = Math.Clamp(m_iOrderPage, 0, Math.Max(count - 1, 0));
+
+		float w = Math.Min(820, sw - EDGE * 2);
+		// Compact saved-build cards on short windows: the footer and close button stay visible.
+		float savedRowH = 66;
+		if (sh < 805)
+			savedRowH = 50;
+		float slotsHeight = 0;
+		if (count > 0)
 		{
-			RW_BayFrameEntry counted = m_OrderBay.GetFrameEntry(f);
-			listH += 76;
-			if (counted)
-				listH += 66 * RW_SavedBuild.CountFor(m_aBuilds, RW_SavedBuild.GuidOf(counted.m_sPrefab));
+			RW_BayFrameEntry selected = m_OrderBay.GetFrameEntry(m_iOrderPage);
+			if (selected)
+				slotsHeight = 76 + savedRowH * RW_SavedBuild.CountFor(m_aBuilds, RW_SavedBuild.GuidOf(selected.m_sPrefab));
 		}
-		float h = 150 + listH + 100;
+		float h = 200 + slotsHeight + 92;
 		float x = sw * 0.5 - w * 0.5;
-		float y = Math.Max(sh * 0.5 - h * 0.5, EDGE);
+		// Enfusion Script does not support inline ?: conditional expressions here.
+		float minTop = EDGE + 70;
+		if (sh < 805)
+			minTop = 70;
+		float y = Math.Max(sh * 0.5 - h * 0.5, minTop);
+		TopChrome(sw, "REQUISITIONS / MECH BAY");
+		HangarPanel(x, y, w, h);
+		Text(x + 24, y + 12, w - 48, 20, 14, m_cAccent, "05  //  " + m_OrderBay.GetBayName());
+		Text(x + 24, y + 57, w - 48, 35, 27, m_cText, "CHASSIS REQUISITION");
+		Text(x + 24, y + 100, w - 48, 22, 14, m_cDim, "SELECT A FRAME OR LAUNCH ONE OF YOUR SAVED LOADOUTS");
 
-		Rect(x, y, w, h, m_cPanel, 0);
-		Rect(x, y, w, 3, m_cAccent, 1);
-		Text(x + 20, y + 14, w - 40, 20, 14, m_cAccent, "MECH BAY  |  " + m_OrderBay.GetBayName());
-		Text(x + 20, y + 36, w - 40, 34, 28, m_cText, "ORDER FRAME");
-		Text(x + 20, y + 74, w - 40, 40, 14, m_cDim, "BUILD = bare frame, then fit it in the Mech Lab.\nYour saved builds come ready-made (save them with SAVE in the Mech Lab).");
-
-		float ry = y + 126;
-		for (int i = 0; i < count; i++)
+		if (count > 0)
 		{
-			RW_BayFrameEntry entry = m_OrderBay.GetFrameEntry(i);
-			if (!entry)
-				continue;
-			string title;
-			string line = FrameLine(entry, title);
-			RW_LabRow row = AddRow(ROW_ORDER, i * 100, x + 14, ry, w - 28, 68);
-			row.m_wTitle = Text(x + 30, ry + 8, w - 200, 26, 22, m_cText, title);
-			row.m_wSub = Text(x + 30, ry + 38, w - 60, 20, 15, m_cDim, line);
-			row.m_wRight = Text(x + w - 150, ry + 22, 120, 24, 18, m_cAccent, "BUILD >");
-			ry += 76;
+			RW_LabRow prev = AddRow(ROW_ORDER_PAGE, -1, x + 24, y + 137, 148, 36);
+			prev.m_wTitle = Text(x + 26, y + 145, 144, 21, 16, m_cText, "< PREVIOUS");
+			prev.m_wTitle.SetFlags(WidgetFlags.CENTER);
+			TextWidget orderPageLabel = Text(x + 192, y + 145, w - 384, 22, 16, m_cAccent, string.Format("FRAME  %1 / %2", m_iOrderPage + 1, count));
+			if (orderPageLabel)
+				orderPageLabel.SetFlags(WidgetFlags.CENTER);
+			RW_LabRow next = AddRow(ROW_ORDER_PAGE, 1, x + w - 172, y + 137, 148, 36);
+			next.m_wTitle = Text(x + w - 170, y + 145, 144, 21, 16, m_cText, "NEXT >");
+			next.m_wTitle.SetFlags(WidgetFlags.CENTER);
+		}
 
-			// This player's saved builds for the frame.
-			string frameGuid = RW_SavedBuild.GuidOf(entry.m_sPrefab);
-			int slots = RW_SavedBuild.CountFor(m_aBuilds, frameGuid);
-			for (int slot = 1; slot <= slots; slot++)
+		float ry = y + 191;
+		if (count == 0)
+			Text(x + 25, ry + 20, w - 50, 26, 18, m_cBad, "No chassis are configured for this Mech Bay.");
+		else
+		{
+			RW_BayFrameEntry entry = m_OrderBay.GetFrameEntry(m_iOrderPage);
+			if (entry)
 			{
-				RW_SavedBuild build = RW_SavedBuild.FindSlot(m_aBuilds, frameGuid, slot);
-				// Two lines (label + full name) and a separate READY button, so nothing overlaps.
-				float rowW = w - 44 - 14 - 190;
-				RW_LabRow saved = AddRow(ROW_ORDER, i * 100 + slot, x + 44, ry, rowW, 58);
-				saved.m_wSub = Text(x + 60, ry + 6, rowW - 30, 18, 13, m_cGood, "SAVED BUILD " + slot.ToString());
-				saved.m_wTitle = Text(x + 60, ry + 26, rowW - 30, 24, 17, m_cText, build.m_sName);
+				string title;
+				string line = FrameLine(entry, title);
+				RW_LabRow row = AddRow(ROW_ORDER, m_iOrderPage * 100, x + 20, ry, w - 40, 67);
+				row.m_wTitle = Text(x + 38, ry + 8, w - 220, 28, 23, m_cText, title);
+				row.m_wSub = Text(x + 38, ry + 40, w - 90, 18, 14, m_cDim, line);
+				row.m_wRight = Text(x + w - 162, ry + 21, 135, 24, 18, m_cWarm, "BUILD FRAME >");
+				ry += 76;
 
-				RW_LabRow ready = AddRow(ROW_ORDER, i * 100 + slot, x + 44 + rowW + 8, ry, 120, 58);
-				ready.m_wTitle = Text(x + 44 + rowW + 8, ry + 17, 120, 24, 17, m_cGood, "READY >");
-				ready.m_wTitle.SetFlags(WidgetFlags.CENTER);
+				string frameGuid = RW_SavedBuild.GuidOf(entry.m_sPrefab);
+				int slots = RW_SavedBuild.CountFor(m_aBuilds, frameGuid);
+				if (slots == 0)
+					Text(x + 30, ry + 12, w - 60, 20, 15, m_cDim, "NO SAVED BUILDS FOR THIS FRAME");
+				for (int slot = 1; slot <= slots; slot++)
+				{
+					RW_SavedBuild build = RW_SavedBuild.FindSlot(m_aBuilds, frameGuid, slot);
+					if (!build)
+						continue;
+					float rowW = w - 44 - 14 - 190;
+					RW_LabRow saved = AddRow(ROW_ORDER, m_iOrderPage * 100 + slot, x + 44, ry, rowW, savedRowH - 8);
+					saved.m_wSub = Text(x + 60, ry + 4, rowW - 30, 18, 13, m_cAccent, "SAVED CONFIG  //  " + slot.ToString());
+					saved.m_wTitle = Text(x + 60, ry + 21, rowW - 30, 24, 17, m_cText, build.m_sName);
 
-				RW_LabRow del = AddRow(ROW_DELETE, i * 100 + slot, x + 44 + rowW + 136, ry, 48, 58);
-				del.m_wTitle = Text(x + 44 + rowW + 136, ry + 16, 48, 26, 20, m_cBad, "X");
-				del.m_wTitle.SetFlags(WidgetFlags.CENTER);
-				ry += 66;
+					RW_LabRow ready = AddRow(ROW_ORDER, m_iOrderPage * 100 + slot, x + 44 + rowW + 8, ry, 120, savedRowH - 8);
+					ready.m_wTitle = Text(x + 44 + rowW + 8, ry + 12, 120, 24, 16, m_cGood, "DEPLOY >");
+					ready.m_wTitle.SetFlags(WidgetFlags.CENTER);
+
+					RW_LabRow del = AddRow(ROW_DELETE, m_iOrderPage * 100 + slot, x + 44 + rowW + 136, ry, 48, savedRowH - 8);
+					del.m_wTitle = Text(x + 44 + rowW + 136, ry + 12, 48, 24, 16, m_cBad, "X");
+					del.m_wTitle.SetFlags(WidgetFlags.CENTER);
+					ry += savedRowH;
+				}
 			}
 		}
 
 		float by = y + h - 70;
-		m_wStatus = Text(x + 20, by + 14, w - 240, 44, 16, m_cText);
-		AddButton(BTN_CLOSE, "CLOSE", x + w - 170, by, 150);
+		Rect(x + 12, by - 8, w - 24, 1, new Color(0.26, 0.52, 0.56, 0.55), 1);
+		m_wStatus = Text(x + 24, by + 7, w - 220, 42, 15, m_cText);
+		AddButton(BTN_CLOSE, "CLOSE", x + w - 165, by, 140);
 		return true;
 	}
 
@@ -1604,7 +1844,7 @@ class RW_MechLabMenu : ChimeraMenuBase
 		for (int r = 0; r < m_aRows.Count(); r++)
 		{
 			RW_LabRow row = m_aRows[r];
-			row.m_wAccent.SetVisible(r == hover && row.m_iKind == ROW_ORDER);
+			row.m_wAccent.SetVisible(r == hover && (row.m_iKind == ROW_ORDER || row.m_iKind == ROW_ORDER_PAGE));
 			if (r == hover)
 				row.m_wBg.SetColor(m_cRowHover);
 			else

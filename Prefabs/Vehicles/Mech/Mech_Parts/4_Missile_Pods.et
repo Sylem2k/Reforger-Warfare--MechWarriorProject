@@ -9,6 +9,7 @@ GenericEntity {
   Hierarchy "{6A9858959DB5C3B1}" {
   }
   CGS_Titan_Missile "{6AA82E23B5B9C3EC}" {
+   m_fArmorPenetrationPercent 16
    m_sModuleId "POD_MISSILE"
    m_sDisplayName "Missile Pods"
    m_sControlStation "DRIVER"
@@ -16,10 +17,12 @@ GenericEntity {
    m_bSupportsHeldFire 0
    m_bSupportsPulseFire 1
    m_FX BFA_MechWeaponFX "{6AA82E23BE51EEAC}" {
-    m_sMuzzleParticle "{0B4A2E9ADB3FC664}Particles/Weapon/RPG_75_muzzle_front.ptc"
-    m_sBackblastParticle "{C085879348375C59}Particles/Weapon/RPG_75_muzzle_back.ptc"
+    m_sMuzzleParticle "{6C2D3E7434E3D254}Particles/Weapon/Muzzle_Rocket_Pod_M260_Front.ptc"
+    m_sBackblastParticle "{D4CDEE9D1C462324}Particles/Weapon/Muzzle_Rocket_Pod_M260_Back.ptc"
+    m_sSoundProject "{4623A5BCFEA997F1}Sounds/Weapons/AircraftWeapons/RocketPods/Weapons_RocketPods_Generic_Shot.acp"
+    m_sTrailParticle "{BAA54A138D448E09}Particles/Logistics/Explosion/Trails/Smoke_Trail_Small.ptc"
+    m_sImpactParticle "{636C188C0D4E6074}Particles/Weapon/Explosion_S5KO.ptc"
     m_sProjectilePrefab "{796DDC90350F1BC0}Prefabs/Vehicles/Mech/Weapons/S13/S13_Rocket_Pod.et"
-    m_sTrailParticle "{0F364F4CD1D72350}Particles/Weapon/Trail_PG7VL.ptc"
    }
    m_fHeatPerShot 20
    m_fRange 1500

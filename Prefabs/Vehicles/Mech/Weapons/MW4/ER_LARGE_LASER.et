@@ -11,31 +11,47 @@ GenericEntity {
    m_bSupportsHeldFire 1
    m_bSupportsPulseFire 0
    m_FX BFA_MechWeaponFX "{A1C9A9D2F44A1A65}" {
-    m_sMuzzleParticle "{25B1DC5E3A244EFB}Particles/Weapon/RPG_22_muzzle_front.ptc"
+    m_sMuzzleParticle "{4DEF02F09203DF08}Particles/Weapon/Muzzle_Base_Medium_01.ptc"
     m_sSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
-    m_iTracerEvery 4
+    m_sFireSoundEvent ""
+    m_sImpactSoundProject "{F487145888100320}Sounds/Weapons/Las/Weapons_LasHits.acp"
+    m_sImpactSoundEvent "SOUND_SHOT"
+    m_fProjectileSpeed 1350
+    m_fLinger 0.18
+    m_sBeamPrefab "{F9F15A6E70B2C046}Prefabs/Vehicles/Mech/Weapons/CGS_LaserBeam.et"
+    m_fBeamDuration 0.16
+    m_fBeamWidth 0.2
+    m_bBeamContinuous 1
+    m_fBeamIdleTimeout 1.25
+    m_sImpactParticle "{5C1A77E3B0A95302}Particles/BFA_Las/BFA_LasBolt_Hit_API.ptc"
+    m_iTracerEvery 1
    }
    m_fHeatPerShot 12
    m_eDamageKind ENERGY
+   m_fDamageVsInfantry 2
+   m_fDamageVsVehicles 3
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 16
    m_MuzzlePoint PointInfo "{6A9623ADCC4F7057}" {
-    Offset 0 0.8554 0.906
+    Offset -0.0225 0.5016 1.2873
    }
    m_bAutoMuzzleFromBounds 0
    m_vMuzzleLocalOffset 0 0 0
    m_fMuzzleClearance 0.05
    m_bReverseMuzzleForward 0
-   m_eCgsSplash MIXED
    m_fShotsPerMinute 140
+   m_eCgsSplash MIXED
    m_fRange 1550
    m_fDamage 55
    m_fBeamSpeed 300
-   m_fTracerLength 25
-   m_fTracerThickness 0.62
-   m_bDebug 0
   }
   RplComponent "{F171EBDA68C05DBF}" {
   }
   Hierarchy "{6A8C29F2D0FE8424}" {
   }
+  MeshObject "{6AAE3A1C02D08AA9}" {
+   Object "{45A0843E57D0C983}Common/Models/Mech Right Arm/Right_Turret_Arm.xob"
+  }
  }
+ coords 86.678 4.641 66.314
 }

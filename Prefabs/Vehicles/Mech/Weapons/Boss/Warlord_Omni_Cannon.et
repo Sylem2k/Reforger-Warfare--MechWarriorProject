@@ -1,0 +1,44 @@
+GenericEntity {
+ ID "E8A2000000000039"
+ components {
+  SignalsManagerComponent "{E8A200000000003A}" {
+  }
+  RW_WarlordOmniTurret "{E8A200000000003B}" {
+   m_sModuleId "Warlord_Omni_Cannon"
+   m_sDisplayName "Warlord_Omni_Cannon"
+   m_bRequiresCrew 0
+   m_fRange 1000
+   m_fScanInterval 1.1
+   m_fTargetHoldSeconds 6
+   m_fShellSpeed 1000
+   m_fBurstDamage 90
+   m_fBurstRadius 5
+   m_fMissRadius 1
+   m_fMissPer100m 0.2
+   m_iBurstShots 3
+   m_fBurstPause 2
+   m_fShotsPerMinute 150
+   m_bAnimateTurret 1
+   // Rotation applies to the root, so future custom meshes aim with the module.
+   m_fTurnSpeed 55
+   m_fMinElevation -80
+   m_fMaxElevation 89
+   m_fBarrelLength 0.3
+   m_fTracerLength 5
+   m_fTracerThickness 0.22
+   m_FX BFA_MechWeaponFX "{E8A30000000000BD}" {
+    m_sMuzzleParticle "{254588526C5E861A}Particles/Weapon/Muzzle_KPVT.ptc"
+    m_sSoundProject "{66E74C5A23D6C8A0}Sounds/Weapons/HeavyWeapons/KPVT/Weapons_HeavyWeapons_KPVT_Shot.acp"
+    m_sImpactParticle "{6FE5C11AEE0A28A1}Particles/Weapon/Explosion_HEI.ptc"
+    m_sProjectilePrefab "{D52D998FF0829639}Prefabs/Particles/RocketTrace.et"
+    m_fProjectileSpeed 1000
+    m_iTracerEvery 1
+   }
+   m_eDamageKind KINETIC
+   m_fSectorBias 3
+   m_iImpactType 0
+  }
+  Hierarchy "{E8A200000000003D}" {
+  }
+ }
+}

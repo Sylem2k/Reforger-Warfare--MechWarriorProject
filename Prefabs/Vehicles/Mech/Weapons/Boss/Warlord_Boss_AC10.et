@@ -1,0 +1,45 @@
+GenericEntity : "{8942F09222374843}Prefabs/Vehicles/Mech/Core/Mech_Module_Base.et" {
+ ID "E9C1000000000321"
+ components {
+  RW_WarlordBossAutocannon "{E9C1000000000322}" {
+   m_sModuleId "WARLORD_BOSS_AC10"
+   m_sDisplayName "Warlord Siege AC/10"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 3
+   m_eDamageKind KINETIC
+   m_fDamageVsInfantry 2
+   m_fDamageVsVehicles 1.2
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 26
+   m_fDamage 105
+   m_fSpread 0.35
+   m_bSupportsHeldFire 1
+   m_bSupportsPulseFire 1
+   m_FX BFA_MechWeaponFX "{E9C1000000000323}" {
+    m_sMuzzleParticle "{254588526C5E861A}Particles/Weapon/Muzzle_KPVT.ptc"
+    m_sSoundProject "{66E74C5A23D6C8A0}Sounds/Weapons/HeavyWeapons/KPVT/Weapons_HeavyWeapons_KPVT_Shot.acp"
+    m_sImpactParticle "{6FE5C11AEE0A28A1}Particles/Weapon/Explosion_HEI.ptc"
+    m_sTrailParticle ""
+    m_fProjectileSpeed 0
+    m_sImpactSoundProject "{25FCE4141ECBD633}Sounds/Weapons/Machineguns/UK59/LasCannon.acp"
+    m_sProjectilePrefab "{D52D998FF0829639}Prefabs/Particles/RocketTrace.et"
+    m_bDebugTracer 0
+   }
+   m_fHeatPerShot 1.4
+   m_Crosshair BFA_MechCrosshair "{E9C1000000000324}" {
+   }
+   m_bFireAtAimPoint 1
+   m_fMaxAimCorrection 180
+   m_MuzzlePoint PointInfo "{E9C1000000000325}" {
+    Offset 0.0088 0.4332 0.4515
+   }
+   m_fShotsPerMinute 50
+   m_iMagazineSize 80
+   m_fReloadTime 5
+   m_eCgsSplash MIXED
+   m_fRange 1200
+   m_fSplashDamage 70
+   m_fSplashRadius 3.5
+  }
+ }
+}

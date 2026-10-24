@@ -1,0 +1,142 @@
+TITAN WARLORD - OPFOR BOSS OVERHAUL (23 OCT 2026)
+================================================
+MY TARGET PREFAB
+{D60000000000000F}Prefabs/Vehicles/Mech/Enemies/Assault/Titan_WarLord_OPFOR.et
+
+I am rebuilding my old Titan boss using the MW / MechCore systems.
+I left the Titan body model, legs and main vehicle prefab GUID alone,
+and did not add a chest cannon. The chest is ARMOUR / HULL ONLY.
+
+CORE SYSTEMS I REUSED
+I located my old Mech-Core-CGS addon. MW already depends on that
+project GUID: 6A8C4B3A46C28E1B. I am using its original:
+- CGS_MechShieldComponent / CGS_MechShieldExtension
+- CGS_MechBossComponent
+- CGS_ForcePulseModuleComponent (Titan stomp)
+- CGS_AntiAirModuleComponent (autonomous aircraft hunting)
+- BFA_MechPointDefenseModuleComponent (anti-missile defense)
+This feature branch does not duplicate those old scripts; the old
+Mech-Core-CGS dependency MUST be installed when I compile and play.
+
+ARMOUR / SHIELD
+- Hull increased from 6,800 HP to 40,000 HP.
+- Kinetic multiplier 0.05, fragmentation 0.03, explosive 0.65,
+  incendiary 0.35.
+- Old CGS shield: 30,000 max shield, 750 points/second recharge,
+  7 seconds recharge delay, 20 seconds after-break delay.
+- Shield bleed-through 3%. EMP drains shields faster (cost x3).
+- Shield bubble 35m radius, centred at model-space Y=13.
+- Old CGS sphere bubble resource; bubble flashes on hits, not always on.
+- Old boss damage caps: 2,200 heavy damage / second and 60 small
+  arms / second; damage above heavy cap counts at 10%.
+- Shield restored once at 66% and 33% remaining hull health.
+- Titan leg part health 800 -> 10,000 each.
+- Titan cannon / saw arm part health 600 -> 8,000 each.
+
+MAXIMUM HARDPOINT SETUP
+The installed BFA_MechHardpointComponent allows up to 18 hardpoints.
+My Warlord now defines and starts with all 18 populated. Both the
+BFA weapon registry and the MW frame registry use the same names.
+No CHEST_GUN is in either list.
+
+01 ARM                 Heavy las cannon  (fixed visual aim mount)
+02 SHOULDER            Target designator
+03 RIGHT_ARM           Heavy las cannon  (fixed visual aim mount)
+04 BACK_L              LRM-10
+05 BACK_R              LRM-10
+06 RACK_OUTER_L        LRM-15
+07 RACK_INNER_L        LRM-15
+08 RACK_INNER_R        LRM-15
+09 RACK_OUTER_R        LRM-15
+10 RACK_TOP_L          LRM-15
+11 RACK_TOP_R          LRM-15
+12 AA_TURRET_LEFT      Warlord Valk Hunter Flak
+13 AA_TURRET_RIGHT     Warlord Valk Hunter Flak
+14 STOMP_PULSE         Warlord Seismic Stomp
+15 AA_REAR_LEFT        Warlord Valk Hunter Flak
+16 AA_REAR_RIGHT       Warlord Valk Hunter Flak
+17 POINT_DEFENSE_LEFT  Warlord Interceptor Array
+18 POINT_DEFENSE_RIGHT Warlord Interceptor Array
+
+All 18 MW frame hardpoint rules now accept ANY weapon type at up to
+LARGE size. I raised frame tonnage capacity 100 -> 250, frame tonnage
+56 -> 170, and heatsinks 24 start / 48 maximum. Mech heat rose to
+1,850 max and 105 cooling per second.
+
+WEAPONS
+- Both giant arm slots match the existing LAS_CANNON module ID and
+  reuse their actual visible arms; left / right default module ID 1.
+- Both arm mounts yaw -125 to +125 degrees and pitch -70 to +85.
+  The new traverse limits do NOT prove the model can clear its hull;
+  I must inspect mesh clipping, downward alignment and joint axes.
+- Titan arm las cannon damage 75 -> 230; range 1,500 -> 2,400m;
+  RPM 300 -> 380; penetration 18 -> 38%; heat per shot 10 -> 14.
+- Four autonomous anti-air flak modules scan aircraft up to 1,800m,
+  aim vertically from -35 to +88 degrees, and lead targets with
+  1,050m/s shells. Each burst has 6 flak shots, 320 max splash damage
+  in a 12m radius, plus its normal spread/settle rules.
+- AA has min altitude 5m (so hovering low Valkyries are still eligible
+  while ordinary grounded vehicles are rejected).
+- Two automatic point-defense units watch for incoming missiles
+  within 150m, protect 44m around the Titan, carry 18 charges each,
+  and refill a charge every 1.5s.
+- Stomp watches for hostiles within 45m, charges for 2s, throws/
+  knocks down targets in a 65m radius, damages enemy vehicles up to
+  450 and infantry up to 75, and waits 12s between activations.
+- Autonomous AA / stomp / point-defense do NOT need a human crew.
+  These modules are still subject to original damage, faction, heat
+  and server authority code from the old CGS core.
+
+MODEL-SPECIFIC CAVEAT
+The old shoulder part slots Exhust and Exhust2 contained overlapping
+visual guns. I removed those two slots and replaced their functions
+with hardpoint-spawned independent flak modules. Their CURRENT
+PointInfo positions are an INITIAL GUESS based on the existing
+slots (around X +-7.4, model Y 21.75) rather than verified rig-space
+aim pivots. The rear AA pair is initially at X +-7.35,Y21.5,Z-6.8;
+point defense near X +-9,Y8.5,Z3. I must adjust them in Workbench
+to match the actual 3D model and avoid clipping.
+
+FIRST TEST IN WORKBENCH
+1. Pull the feature branch, compile Game scripts, and HARD RELOAD.
+2. Confirm Mech-Core-CGS dependency resolves the old shield, boss,
+   AA, force pulse and point-defense classes. If any are missing,
+   stop and align the installed dependency version first.
+3. Spawn exactly one Titan_WarLord_OPFOR.et. Observe any
+   [BFA HARDPOINT] config error or module spawn errors.
+4. Open it in the editor and verify the 18 equipped weapon entries;
+   especially no CHEST_GUN and no AA prefab overlap.
+5. Fire a controlled test shot into the bubble from OUTSIDE.
+   Confirm the 30,000 shield absorbs damage while the hull stays
+   protected, and confirm shots fired from inside can escape.
+6. Place an enemy faction US Valk in flight. Observe the AA barrels
+   traverse and check hostiles/altitude and actual projectile bursts.
+   Anti-air only engages hostile aircraft, not friendly ones.
+7. Place a hostile AI infantry/vehicle within 45m of the Titan's
+   feet. Observe the automatic stomp charge, knockback, and damage.
+8. Fire a rocket and confirm the two PD systems intercept incoming
+   threats without interfering with the Titan's outbound rockets.
+9. Shoot the arm and leg parts separately, then verify hull/part
+   damage and shield drain. Test destruction and boss shield
+   restoration at 66% and 33% hull health.
+
+THIS BRANCH IS NOT WORKBENCH-COMPILED OR MULTIPLAYER-VERIFIED.
+Do not assume the AA visuals, shield mesh offsets, AI target tracking,
+point-defense scanning or boss phases are working until in-game logs
+confirm them. Four autonomous AA turrets, two PD arrays, 8 missile
+hardpoints and 18 total weapons may be EXPENSIVE on the server. I
+should performance-test one Warlord before allowing multiple spawns.
+
+No adjustments have been made to other MW vehicle prefabs.
+The Titan arm/leg part prefabs themselves WERE changed in this branch;
+these changes affect any other mechs that share those specific part
+prefabs.
+
+PREFAB META FIX
+While validating resource IDs I found that the existing
+Titan_WarLord_OPFOR.et.meta still said Gravemarch_Tempest_OPFOR.et.
+I corrected its Name to exactly:
+  {D60000000000000F}Prefabs/Vehicles/Mech/Enemies/Assault/Titan_WarLord_OPFOR.et
+I did not change the original resource GUID or prefab filename.
+This matters because mismatched .meta Name and actual resource path
+can cause Workbench wrong-GUID/name resource warnings.

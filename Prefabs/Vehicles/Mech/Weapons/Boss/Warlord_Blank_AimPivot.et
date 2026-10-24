@@ -1,0 +1,10 @@
+// Mesh-free attachment pivot: add your custom mesh as a child later.
+GenericEntity {
+ ID "E8A3000000000021"
+ components {
+  SignalsManagerComponent "{E8A3000000000022}" {
+  }
+  Hierarchy "{E8A3000000000023}" {
+  }
+ }
+}

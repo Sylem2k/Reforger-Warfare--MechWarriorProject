@@ -1,10 +1,26 @@
-$grp GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
+GenericEntity : "{250CB28327A7B233}Prefabs/Vehicles/Mech/Mech_Parts/New_Cannon_Right.et" {
+ coords 33.019 12.241 71.065
+}
+$grp GenericEntity : "{70D23AC15EE70D8F}Prefabs/Weapons/Handguns/M9/Handgun_Grapling.et" {
  {
-  coords 193.886 3.137 96.674
-  angles 0 0 0
+  coords 86.458 4.362 81.918
  }
  {
-  coords 72.86 3.377 87.848
-  angles 0 0 0
+  coords 87.008 3.907 82.464
  }
+}
+GenericEntity : "{95039F3CB89CB4B2}Prefabs/Structures/MechBay/RW_MechBay.et" {
+ coords 78.463 4.707 43.501
+}
+GenericEntity : "{BFAA0698A7710C1E}Prefabs/Vehicles/Mech/Weapons/MW4/ER_LARGE_LASER.et" {
+ coords 86.678 4.641 66.314
+}
+GenericEntity : "{BFAA0FABA771280F}Prefabs/Vehicles/Mech/Weapons/MW4/ARROW_IV.et" {
+ coords 84.565 4.703 68.301
+}
+Vehicle Gravemarch_Tempest_OPFOR1 : "{D60000000000000F}Prefabs/Vehicles/Mech/Enemies/Assault/Titan_WarLord_OPFOR.et" {
+ coords 81.715 21.905 39.154
+}
+GenericEntity : "{FA805DA3DE09220B}Prefabs/Items/Equipment/Radios/CGS Mech Command Radio.et" {
+ coords 79.187 6.457 57.178
 }

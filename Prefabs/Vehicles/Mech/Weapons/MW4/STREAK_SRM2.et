@@ -8,14 +8,19 @@ GenericEntity {
    m_sDisplayName "Streak SRM-2 (Prototype)"
    m_sControlStation "DRIVER"
    m_iWeaponGroup 3
+   m_fDamageVsInfantry 1.25
+   m_fDamageVsVehicles 1
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 19
    m_bSupportsHeldFire 0
    m_bSupportsPulseFire 1
    m_FX BFA_MechWeaponFX "{29B69BD185B9D9D3}" {
     m_sMuzzleParticle "{6827C9C356E224D7}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Front.ptc"
-    m_sBackblastParticle "{CD49B367ABBC3629}Particles/Blasts/Blast_tiny_solid.ptc"
-    m_sSoundProject "{95AA0243F9DEAB1C}Sounds/Weapons/Launchers/RPG7/Weapons_Launchers_RPG7_Shot.acp"
+    m_sBackblastParticle "{3D36027A37FD85EC}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Back.ptc"
+    m_sSoundProject "{4623A5BCFEA997F1}Sounds/Weapons/AircraftWeapons/RocketPods/Weapons_RocketPods_Generic_Shot.acp"
+    m_sTrailParticle "{DE6E9481E0342723}Particles/Weapon/Trail_S5KO.ptc"
+    m_sImpactParticle "{636C188C0D4E6074}Particles/Weapon/Explosion_S5KO.ptc"
     m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
-    m_sTrailParticle "{E60F6CCD3E871566}Particles/Vehicle/Vehicle_smoke_car_exhaust_normal.ptc"
     m_fLinger 1
     m_fImpactPrefabLifetime 2
     m_bImpactOnMiss 1
@@ -33,12 +38,12 @@ GenericEntity {
    m_iMagazineSize 12
    m_fReloadTime 10
    m_iSpareMagazines 2
-   m_fRocketSpeed 90
+   m_fRocketSpeed 125
    m_fRange 700
    m_iSalvoCount 2
    m_iSalvoIntervalMs 60
    m_iRefireMs 3000
-   m_fSpreadDeg 2
+   m_fSpreadDeg 0.25
    m_fDirectHitDamage 45
    m_fSplashDamage 25
    m_fSplashRadius 4
@@ -61,9 +66,12 @@ GenericEntity {
    m_bLockTargets 1
    m_eGuidance CROSSHAIR
    m_fLaserConeDeg 120
-   m_fTurnRate 45
-   m_fArmingDistance 60
+   m_fTurnRate 110
+   m_fArmingDistance 8
    m_fLoftAngle 0
+   m_iLockTimeMs 700
+   m_iAcquireTimeoutMs 4000
+   m_iCourseSyncMs 100
   }
   Hierarchy "{9A6D28B0EDF381D7}" {
   }

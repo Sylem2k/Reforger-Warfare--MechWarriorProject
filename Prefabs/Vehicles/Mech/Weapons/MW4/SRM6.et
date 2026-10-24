@@ -8,14 +8,19 @@ GenericEntity {
    m_sDisplayName "SRM-6"
    m_sControlStation "DRIVER"
    m_iWeaponGroup 3
+   m_fDamageVsInfantry 1.25
+   m_fDamageVsVehicles 1
+   m_fInfantryArmourFloor 0.4
+   m_fArmorPenetrationPercent 15
    m_bSupportsHeldFire 0
    m_bSupportsPulseFire 1
    m_FX BFA_MechWeaponFX "{29B69BD185B9D9D3}" {
     m_sMuzzleParticle "{6827C9C356E224D7}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Front.ptc"
-    m_sBackblastParticle "{CD49B367ABBC3629}Particles/Blasts/Blast_tiny_solid.ptc"
-    m_sSoundProject "{95AA0243F9DEAB1C}Sounds/Weapons/Launchers/RPG7/Weapons_Launchers_RPG7_Shot.acp"
+    m_sBackblastParticle "{3D36027A37FD85EC}Particles/Weapon/Muzzle_Rocket_Pod_UB1657_Back.ptc"
+    m_sSoundProject "{4623A5BCFEA997F1}Sounds/Weapons/AircraftWeapons/RocketPods/Weapons_RocketPods_Generic_Shot.acp"
+    m_sTrailParticle "{DE6E9481E0342723}Particles/Weapon/Trail_S5KO.ptc"
+    m_sImpactParticle "{636C188C0D4E6074}Particles/Weapon/Explosion_S5KO.ptc"
     m_sProjectilePrefab "{557C851E5BF78457}Prefabs/Vehicles/Mech/Weapons/SenMissile/Sen_Missile_Visual.et"
-    m_sTrailParticle "{E60F6CCD3E871566}Particles/Vehicle/Vehicle_smoke_car_exhaust_normal.ptc"
     m_fLinger 1
     m_fImpactPrefabLifetime 2
     m_bImpactOnMiss 1

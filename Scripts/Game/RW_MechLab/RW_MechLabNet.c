@@ -171,7 +171,45 @@ modded class SCR_PlayerController
 			if (!build)
 				return;
 		}
-		bay.ServerOrderFrame(index, GetControlledEntity(), build);
+		bay.ServerOrderFrame(index, GetControlledEntity(), GetPlayerId(), build);
+	}
+
+	//------------------------------------------------------------------------------------------------
+	//! Client: return the mech ordered at this Mech Bay (saved builds are not affected).
+	void RW_RequestDeleteOrderedMech(IEntity mech)
+	{
+		if (!mech)
+			return;
+		RplComponent rpl = RplComponent.Cast(mech.FindComponent(RplComponent));
+		if (!rpl)
+			return;
+		if (Replication.IsServer())
+		{
+			RW_ServerDeleteOrderedMech(rpl.Id());
+			return;
+		}
+		Rpc(RW_RpcAsk_DeleteOrderedMech, rpl.Id());
+	}
+
+	[RplRpc(RplChannel.Reliable, RplRcver.Server)]
+	protected void RW_RpcAsk_DeleteOrderedMech(RplId mechId)
+	{
+		RW_ServerDeleteOrderedMech(mechId);
+	}
+
+	protected void RW_ServerDeleteOrderedMech(RplId mechId)
+	{
+		if (!Replication.IsServer())
+			return;
+		RplComponent rpl = RplComponent.Cast(Replication.FindItem(mechId));
+		if (!rpl || !rpl.GetEntity())
+			return;
+		IEntity mech = rpl.GetEntity().GetRootParent();
+		if (!mech)
+			mech = rpl.GetEntity();
+		RW_MechBayComponent bay = RW_MechBayComponent.FindBayFor(mech);
+		if (bay)
+			bay.ServerDeleteOrderedMech(mech, GetPlayerId(), GetControlledEntity());
 	}
 
 	//==================================================================================================

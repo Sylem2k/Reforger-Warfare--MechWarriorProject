@@ -1,0 +1,37 @@
+CGS Companion Brain / MW Test Branch 2026-10-21
+================================================
+
+REQUIRES paired Mech Core test branch:
+  feature/companion-follow-guard-pilot-handoff-20261021
+
+Changed two friendly US prefabs ONLY:
+  Prefabs/Vehicles/Mech/SampleMech/Light_Mech_Frame_B.et  (Cricket)
+  Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Frame_B.et    (Warden)
+
+Each gains CGS_MechBrainComponent in companion mode and two actions in its
+existing default ActionsManager context: FOLLOW ME and GUARD HERE.
+
+STAGING / MP SMOKE TEST:
+1. Load the paired branches of Mech Core and MW Gameplay in Workbench.
+2. Compile all scripts. Do not publish before compiler and multiplayer test.
+3. Spawn a friendly Light or Medium test chassis. On foot, use FOLLOW ME
+   within 12 metres (the core server rechecks a <= 25 metre command limit).
+4. Walk away: the chassis should follow to an ~18 metre stopping gap.
+5. Verify AI gunners engage hostiles with their existing weapon groups.
+6. Use GUARD HERE; verify the mech holds the chosen position and keeps fighting.
+7. Enter DRIVER; verify you can walk/aim/fire groups 1-3 without AI overrides.
+8. Exit the mech; verify it resumes the previous FOLLOW or GUARD order.
+9. Try a second player issuing an order; server should refuse non-owner.
+10. Disconnect owner; verify it guards and releases the claim.
+
+BEHAVIOR / LIMITS:
+- No hidden AI pilot is spawned in the companion test profile. This leaves
+  the driver seat available. Non-companion brain prefabs keep their old
+  optional GM hidden pilot and waypoints.
+- Existing Core movement, AI target selection and gun routing are reused.
+- This test includes server-validated local context actions, not remote radial
+  commands or automatic laser-designated missile support yet.
+- Claiming requires a player in a non-hostile faction. Server stores owner ID;
+  it does not trust IDs supplied by clients.
+- MW enemy-prefab variants and all weapon files are unchanged.
+- Core and MW main branches are NOT modified. Static checks only so far.

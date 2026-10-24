@@ -10,7 +10,7 @@ GenericEntity {
    m_vParkingOffset 0 0 12
    m_aFrames {
     RW_BayFrameEntry "{6D351B2848CDE0A6}" {
-     m_sName "Test Frame (Light)"
+     m_sName "Cricket (Light)"
      m_sPrefab "{33D70479FF3498E0}Prefabs/Vehicles/Mech/SampleMech/SampleMech.et"
     }
     RW_BayFrameEntry "{6E6016EC8D41D2BE}" {
@@ -18,12 +18,28 @@ GenericEntity {
      m_sPrefab "{464C756F1E1D8F1E}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Base.et"
     }
     RW_BayFrameEntry "{5C2E91A07B3D4F18}" {
-     m_sName "Light Frame B"
+     m_sName "Cricket (Light - Alt)"
      m_sPrefab "{D8B39EAE0BB68001}Prefabs/Vehicles/Mech/SampleMech/Light_Mech_Frame_B.et"
     }
     RW_BayFrameEntry "{A41D6F3C29E85B07}" {
-     m_sName "Medium Frame B"
+     m_sName "Warden (Medium - Alt)"
      m_sPrefab "{223347F0F553E85B}Prefabs/Vehicles/Mech/SampleMech/Med_Mech_Frame_B.et"
+    }
+    RW_BayFrameEntry "{BA71000020260001}" {
+     m_sName "Heavy Judiciar - Gun"
+     m_sPrefab "{B6F0C0A020260001}Prefabs/Vehicles/Mech/Frames/Heavy_Judiciar_Gun.et"
+    }
+    RW_BayFrameEntry "{BA71000020260002}" {
+     m_sName "Heavy Judiciar - Missile"
+     m_sPrefab "{B6F0C0A020260002}Prefabs/Vehicles/Mech/Frames/Heavy_Judiciar_Missile.et"
+    }
+    RW_BayFrameEntry "{BA71000020260003}" {
+     m_sName "Assault Gravemarch-G"
+     m_sPrefab "{B6F0C0A020260003}Prefabs/Vehicles/Mech/Frames/Assault_Gravemarch_Gun.et"
+    }
+    RW_BayFrameEntry "{BA71000020260004}" {
+     m_sName "Assault Gravemarch-M"
+     m_sPrefab "{B6F0C0A020260004}Prefabs/Vehicles/Mech/Frames/Assault_Gravemarch_Missile.et"
     }
    }
    m_fBuildCooldown 20
@@ -53,6 +69,5 @@ GenericEntity {
   RplComponent "{CD2EED750F10A415}" {
   }
  }
- coords 80.129 6.657 55.092
- angles 0 15.431 0
+ coords 73.274 6.351 34.045
 }

@@ -1,0 +1,15 @@
+MatPBRBasicGlass {
+ Color 0.045 0.58 0.2 1
+ Emissive 0.05 0.52 0.18 1
+ EmissiveLV -1.2
+ EmissiveAbsoluteLV 0
+ AlphaMul 0.12
+ BlendMode AlphaBlend
+ NormalPower 0.2
+ NMOMap "{72652CC42E29D9B8}Assets/_SharedData/Glass/ST_Glass_Wired_01_NMO.edds"
+ FresnelPower 5
+ Backscatterig 0
+ RefractionIntensity 0.12
+ DimIntensity 0.35
+ RefractionColor 1 0.985 0.939 1
+}

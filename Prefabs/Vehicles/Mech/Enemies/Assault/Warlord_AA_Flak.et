@@ -1,0 +1,51 @@
+GenericEntity {
+ ID "A600202610230101"
+ components {
+  SignalsManagerComponent "{A600202610230102}" {
+  }
+  CGS_AntiAirModuleComponent "{D600202610230102}" {
+   m_sModuleId "WARLORD_AA"
+   m_sDisplayName "Warlord Valk Hunter Flak"
+   m_sControlStation "DRIVER"
+   m_iWeaponGroup 9
+   m_bSupportsHeldFire 0
+   m_bSupportsPulseFire 0
+   m_fHeatPerShot 5
+   m_eDamageKind EXPLOSIVE
+   m_fRange 1800
+   m_fMinAltitude 5
+   m_fScanInterval 0.5
+   m_bRequiresCrew 0
+   m_fShellSpeed 1050
+   m_fBurstDamage 320
+   m_fBurstRadius 12
+   m_fMissRadius 3.5
+   m_fMissPer100m 1.1
+   m_fStartSpreadScale 2.5
+   m_fSettleTime 5
+   m_fHoverSpeed 12
+   m_fSpeedPerExtraSpread 40
+   m_iBurstShots 6
+   m_fBurstPause 1.75
+   m_fTracerLength 7
+   m_fTracerThickness 0.32
+   m_bAnimateTurret 1
+   m_fTurnSpeed 65
+   m_fMinElevation -35
+   m_fMaxElevation 88
+   m_fReturnToRestTime 5
+   m_fBarrelLength 3.5
+   m_fShotsPerMinute 360
+   m_iMagazineSize 0
+   m_bDebug 0
+   m_FX BFA_MechWeaponFX "{A600202610230103}" {
+    m_sMuzzleParticle "{4DEF02F09203DF08}Particles/Weapon/Muzzle_Base_Medium_01.ptc"
+    m_iTracerEvery 1
+   }
+  }
+  RplComponent "{A600202610230104}" {
+  }
+  Hierarchy "{A600202610230105}" {
+  }
+ }
+}

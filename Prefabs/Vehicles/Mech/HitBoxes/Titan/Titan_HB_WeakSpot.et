@@ -10,7 +10,7 @@ GenericEntity {
      DamageThreshold 0
      m_fMultiplier 3
      m_sLabel "WEAKSPOT"
-     m_bLogHits 0
+     m_bLogHits 1
     }
    }
   }
@@ -19,7 +19,7 @@ GenericEntity {
    Geometries {
     PhysicsBoxGeometry Box {
      LayerPreset "VehicleFireView"
-     Extents 16 16 12
+     Extents 1.6 1.6 1.2
     }
    }
   }

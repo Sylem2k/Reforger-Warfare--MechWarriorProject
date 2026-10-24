@@ -1,8 +1,0 @@
-MatPBRBasic {
- Color 0 0.084 0.025 1
- DiffuseIBL 0.251 0 0.502 1
- BCRMap "{615B708FF788173D}Common/Models/Mech Body/Data/initialShadingGroup_Base_color.edds"
- NMOMap "{F702DACAFC388697}Common/Models/Mech Body/Data/initialShadingGroup_Mixed_AO.edds"
- DetailNormalMap "{4DDCC3BDAA6A1BEE}Common/Models/Mech Body/Data/initialShadingGroup_Normal.edds"
- HeightMap "{899059A81E60A895}Common/Models/Mech Body/Data/initialShadingGroup_Height.edds"
-}

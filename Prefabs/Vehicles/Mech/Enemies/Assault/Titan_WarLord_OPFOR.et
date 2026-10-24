@@ -839,7 +839,7 @@ Vehicle {
    m_fMaxHeat 1850
    m_fCoolingPerSecond 105
   }
-  CGS_MechShieldComponent "{E60F0000000000AB}" {
+  RW_WarlordShieldComponent "{E60F0000000000AB}" {
    m_fMaxShield 30000
    m_fRegenPerSecond 250
    m_fRegenDelay 20

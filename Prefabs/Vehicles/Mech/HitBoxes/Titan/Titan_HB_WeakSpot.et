@@ -10,7 +10,7 @@ GenericEntity {
      DamageThreshold 0
      m_fMultiplier 3
      m_sLabel "WEAKSPOT"
-     m_bLogHits 1
+     m_bLogHits 0
     }
    }
   }

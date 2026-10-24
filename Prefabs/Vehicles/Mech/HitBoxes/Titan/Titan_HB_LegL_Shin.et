@@ -10,7 +10,7 @@ GenericEntity {
      DamageThreshold 0
      m_fMultiplier 1
      m_sLabel "LEGL SHIN"
-     m_bLogHits 1
+     m_bLogHits 0
     }
    }
   }

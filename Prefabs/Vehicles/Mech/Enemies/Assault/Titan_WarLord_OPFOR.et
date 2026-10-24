@@ -804,7 +804,7 @@ Vehicle {
   }
   CGS_LaserSpotComponent "{E60F000000000057}" {
   }
-  CGS_MechBossComponent "{E60F0000000000AD}" {
+  RW_WarlordBossDamageComponent "{E60F0000000000AD}" {
    m_fHeavyPerSecond 2200
    m_fSmallArmsPerSecond 60
    m_fPartHeavyPerSecond 850
